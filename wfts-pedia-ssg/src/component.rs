@@ -1,4 +1,4 @@
-use ndarray::{Array, Ix2};
+use crate::location::Location;
 use std::{borrow::Cow, fmt, rc::Rc, sync::Arc};
 
 fn html_escape(ch: char) -> Option<&'static str> {
@@ -28,6 +28,17 @@ pub struct Context {
 impl Context {
     pub fn section_level(self) -> u32 {
         self.section_level
+    }
+
+    pub fn heading_level(self) -> &'static str {
+        match self.section_level() {
+            0 => "h1",
+            1 => "h2",
+            2 => "h3",
+            3 => "h4",
+            4 => "h5",
+            _ => "h6",
+        }
     }
 
     pub fn dir_depth(self) -> u32 {
@@ -359,23 +370,8 @@ where
             section_level = ctx.section_level(),
             title = ctx.renderer(&self.title),
             body = ctx.step_level().renderer(&self.body),
-            title_tag = match ctx.section_level() {
-                0 => "h1",
-                1 => "h2",
-                2 => "h3",
-                3 => "h4",
-                4 => "h5",
-                _ => "h6",
-            }
+            title_tag = ctx.heading_level(),
         )?;
         Ok(())
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Table<T>
-where
-    T: Component,
-{
-    entries: Array<Option<T>, Ix2>,
 }

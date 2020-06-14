@@ -1,4 +1,5 @@
-use crate::{Component, Context, InlineComponent};
+use crate::component::{Component, Context, InlineComponent};
+use percent_encoding::{percent_encode, CONTROLS};
 use std::fmt;
 use thiserror::Error;
 use url::Url;
@@ -62,7 +63,9 @@ impl Component for Internal {
         for _ in 0 .. ctx.dir_depth() {
             fmt.write_str("../")?;
         }
-        write!(fmt, "{}", self)?;
+        let encoded = percent_encode(self.contents.as_bytes(), CONTROLS)
+            .collect::<String>();
+        write!(fmt, "{}", ctx.renderer(&encoded))?;
         Ok(())
     }
 }
