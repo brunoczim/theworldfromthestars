@@ -1,4 +1,10 @@
-use crate::location::Location;
+pub mod text;
+pub mod img;
+pub mod page;
+pub mod table;
+pub mod list;
+
+use crate::location;
 use std::{borrow::Cow, fmt, rc::Rc, sync::Arc};
 
 fn html_escape(ch: char) -> Option<&'static str> {
@@ -26,6 +32,11 @@ pub struct Context {
 }
 
 impl Context {
+    pub fn new(location: &location::Internal) -> Self {
+        let depth = location.as_str().chars().filter(|&ch| ch == '/').count();
+        Self { section_level: 0, dir_depth: depth as u32 }
+    }
+
     pub fn section_level(self) -> u32 {
         self.section_level
     }
@@ -77,7 +88,7 @@ where
     }
 }
 
-pub trait Component {
+pub trait Component: fmt::Debug {
     type Kind;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result;
@@ -130,6 +141,7 @@ where
 impl<'cow, T> Component for Cow<'cow, T>
 where
     T: Component + ToOwned + ?Sized,
+    T::Owned: fmt::Debug,
 {
     type Kind = T::Kind;
 
@@ -191,187 +203,5 @@ impl Component for String {
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         (**self).to_html(fmt, ctx)
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Bold<T, K>(pub T)
-where
-    T: Component<Kind = K>;
-
-impl<T> Component for Bold<T, InlineComponent>
-where
-    T: Component<Kind = InlineComponent>,
-{
-    type Kind = T::Kind;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<b class=\"bold\">{}</b>", ctx.renderer(&self.0))?;
-        Ok(())
-    }
-}
-
-impl<T> Component for Bold<T, BlockComponent>
-where
-    T: Component<Kind = BlockComponent>,
-{
-    type Kind = T::Kind;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<div class=\"bold\">{}</div>", ctx.renderer(&self.0))?;
-        Ok(())
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Italic<T, K>(pub T)
-where
-    T: Component<Kind = K>;
-
-impl<T> Component for Italic<T, InlineComponent>
-where
-    T: Component<Kind = InlineComponent>,
-{
-    type Kind = T::Kind;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<i class=\"italic\">{}</i>", ctx.renderer(&self.0))?;
-        Ok(())
-    }
-}
-
-impl<T> Component for Italic<T, BlockComponent>
-where
-    T: Component<Kind = BlockComponent>,
-{
-    type Kind = T::Kind;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<div class=\"italic\">{}</div>", ctx.renderer(&self.0))?;
-        Ok(())
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Preformatted<T, K>(pub T)
-where
-    T: Component<Kind = K>;
-
-impl<T> Component for Preformatted<T, InlineComponent>
-where
-    T: Component<Kind = InlineComponent>,
-{
-    type Kind = T::Kind;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<pre class=\"pre\">{}</pre>", ctx.renderer(&self.0))?;
-        Ok(())
-    }
-}
-
-impl<T> Component for Preformatted<T, BlockComponent>
-where
-    T: Component<Kind = BlockComponent>,
-{
-    type Kind = T::Kind;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<div class=\"pre\">{}</div>", ctx.renderer(&self.0))?;
-        Ok(())
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Paragraph<T>(pub Vec<T>)
-where
-    T: Component<Kind = InlineComponent>;
-
-impl<T> Component for Paragraph<T>
-where
-    T: Component<Kind = InlineComponent>,
-{
-    type Kind = T::Kind;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<p class=\"paragraph\">{}</p>", ctx.renderer(&self.0))?;
-        Ok(())
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Image {
-    pub src: Location,
-    pub alt: String,
-}
-
-impl Component for Image {
-    type Kind = BlockComponent;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(
-            fmt,
-            "<img src=\"{}\" alt=\"{}\", class=\"image\">",
-            ctx.renderer(&self.src),
-            ctx.renderer(&self.alt),
-        )?;
-        Ok(())
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Link<T>
-where
-    T: Component<Kind = InlineComponent>,
-{
-    pub text: T,
-    pub location: Location,
-}
-
-impl<T> Component for Link<T>
-where
-    T: Component<Kind = InlineComponent>,
-{
-    type Kind = BlockComponent;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(
-            fmt,
-            "<a href=\"{}\", class=\"link\">{}</a>",
-            ctx.renderer(&self.location),
-            ctx.renderer(&self.text),
-        )?;
-        Ok(())
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Section<T, B>
-where
-    T: Component,
-    B: Component,
-{
-    pub title: T,
-    pub body: B,
-}
-
-impl<T, B> Component for Section<T, B>
-where
-    T: Component,
-    B: Component,
-{
-    type Kind = BlockComponent;
-
-    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(
-            fmt,
-            "<div class=\"section section-{section_level}\"><{title_tag} \
-             class=\"title \
-             title-{section_level}\">{title}</{title_tag}>{body}</div>",
-            section_level = ctx.section_level(),
-            title = ctx.renderer(&self.title),
-            body = ctx.step_level().renderer(&self.body),
-            title_tag = ctx.heading_level(),
-        )?;
-        Ok(())
     }
 }

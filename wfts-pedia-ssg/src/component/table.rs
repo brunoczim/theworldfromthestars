@@ -30,7 +30,7 @@ where
         for row in &self.entries {
             write!(fmt, "<tr>")?;
             for entry in row {
-                write!(fmt, "<{}", if entry.header { "th" } else { "td" })?;
+                write!(fmt, "<{}", entry.tag())?;
                 if entry.rowspan != 1 {
                     write!(fmt, " rowspan=\"{}\"", entry.rowspan)?;
                 }
@@ -41,7 +41,7 @@ where
                     fmt,
                     ">{}</{}>",
                     ctx.step_level().renderer(&entry.data),
-                    if entry.header { "th" } else { "td" }
+                    entry.tag()
                 )?;
             }
             write!(fmt, "</tr>")?;
@@ -70,6 +70,13 @@ where
 {
     pub fn new(data: T) -> Self {
         Self { data, rowspan: 1, colspan: 1, header: false }
+    }
+
+    fn tag(&self) -> &'static str {
+        match self.header {
+            true => "th",
+            false => "td",
+        }
     }
 }
 

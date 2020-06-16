@@ -54,6 +54,10 @@ impl Internal {
         }
         Ok(Self { contents })
     }
+
+    pub fn as_str(&self) -> &str {
+        &self.contents
+    }
 }
 
 impl Component for Internal {
