@@ -114,6 +114,13 @@ name = "wfts-lang"
 version = "0.1.0"
 
 [[package]]
+name = "wfts-pedia"
+version = "0.1.0"
+dependencies = [
+ "wfts-pedia-ssg 0.1.0",
+]
+
+[[package]]
 name = "wfts-pedia-ssg"
 version = "0.1.0"
 dependencies = [

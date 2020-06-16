@@ -1,14 +1,5 @@
-[workspace]
-members = [
-    ".",
-    "wfts-lang",
-    "wfts-star-lang",
-    "wfts-pedia-ssg",
-    "wfts-pedia"
-]
-
 [package]
-name = "wfts"
+name = "wfts-pedia"
 version = "0.1.0"
 authors = ["brunoczim <brunoczim@gmail.com>"]
 edition = "2018"
@@ -16,3 +7,4 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+wfts-pedia-ssg = { path = "../wfts-pedia-ssg" }

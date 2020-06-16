@@ -38,7 +38,7 @@ impl Internal {
         S: AsRef<str>,
     {
         let mut contents = String::new();
-        let mut first = false;
+        let mut first = true;
         for piece in raw.as_ref().split('/') {
             if piece == "." || piece == ".." {
                 Err(InvalidPiece { piece: piece.to_owned() })?;

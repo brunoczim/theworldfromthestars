@@ -100,7 +100,7 @@ impl<T> Component for Paragraph<T>
 where
     T: Component<Kind = InlineComponent>,
 {
-    type Kind = T::Kind;
+    type Kind = BlockComponent;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         write!(fmt, "<p class=\"paragraph\">{}</p>", ctx.renderer(&self.0))?;
