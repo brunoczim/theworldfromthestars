@@ -4,7 +4,7 @@ pub mod page;
 pub mod table;
 pub mod list;
 
-use crate::location;
+use crate::{location, site::Site};
 use std::{borrow::Cow, fmt, rc::Rc, sync::Arc};
 
 fn html_escape(ch: char) -> Option<&'static str> {
@@ -25,16 +25,21 @@ pub struct BlockComponent;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct InlineComponent;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Context {
+#[derive(Debug, Clone, Copy)]
+pub struct Context<'loc, 'page, 'site> {
+    location: &'loc location::Internal,
+    site: &'site Site<'page>,
+    page: &'site Site<'page>,
     section_level: u32,
-    dir_depth: u32,
 }
 
-impl Context {
-    pub fn new(location: &location::Internal) -> Self {
-        let depth = location.as_str().chars().filter(|&ch| ch == '/').count();
-        Self { section_level: 0, dir_depth: depth as u32 }
+impl<'loc, 'page, 'site> Context<'loc, 'page, 'site> {
+    pub fn new(
+        location: &'loc location::Internal,
+        site: &'site Site<'page>,
+        page: &'site Site<'page>,
+    ) -> Self {
+        Self { location, site, page, section_level: 0 }
     }
 
     pub fn section_level(self) -> u32 {
@@ -52,17 +57,19 @@ impl Context {
         }
     }
 
-    pub fn dir_depth(self) -> u32 {
-        self.dir_depth
+    pub fn location(self) -> &'loc location::Internal {
+        self.location
+    }
+
+    pub fn subpages(self) -> &'loc location::Internal {
+        self.location
     }
 
     pub fn step_level(self) -> Self {
         Self { section_level: self.section_level.saturating_add(1), ..self }
     }
-}
 
-impl Context {
-    pub fn renderer<T>(self, component: T) -> Renderer<T>
+    pub fn renderer<T>(self, component: T) -> Renderer<'loc, 'page, 'site, T>
     where
         T: Component,
     {
@@ -70,16 +77,16 @@ impl Context {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Renderer<T>
+#[derive(Debug, Clone, Copy)]
+pub struct Renderer<'loc, 'page, 'site, T>
 where
     T: Component,
 {
     pub component: T,
-    pub context: Context,
+    pub context: Context<'loc, 'page, 'site>,
 }
 
-impl<T> fmt::Display for Renderer<T>
+impl<'loc, 'page, 'site, T> fmt::Display for Renderer<'loc, 'page, 'site, T>
 where
     T: Component,
 {
@@ -88,10 +95,20 @@ where
     }
 }
 
+pub type DynComponent<'obj> =
+    dyn Component<Kind = BlockComponent> + Send + Sync + 'obj;
+
 pub trait Component: fmt::Debug {
     type Kind;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result;
+
+    fn to_dyn<'obj>(self) -> Arc<DynComponent<'obj>>
+    where
+        Self: Sized + Send + Sync + 'obj,
+    {
+        Arc::new(Blocking(self))
+    }
 }
 
 impl<'this, T> Component for &'this T
@@ -203,5 +220,21 @@ impl Component for String {
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         (**self).to_html(fmt, ctx)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Blocking<T>(pub T)
+where
+    T: Component;
+
+impl<T> Component for Blocking<T>
+where
+    T: Component,
+{
+    type Kind = BlockComponent;
+
+    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
+        self.0.to_html(fmt, ctx)
     }
 }

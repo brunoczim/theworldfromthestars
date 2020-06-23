@@ -35,7 +35,7 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Page<T = Box<dyn Component<Kind = BlockComponent>>>
+pub struct Page<T>
 where
     T: Component,
 {

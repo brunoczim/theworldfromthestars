@@ -1,10 +1,13 @@
 use std::{borrow::Cow, hash::Hash};
+use wfts_pedia_ssg::site::Site;
 
 pub trait Lang: Sized {
     type Character: Character<Lang = Self>;
     type Word: Word<Lang = Self>;
     type Syllable: Syllable<Lang = Self>;
     type Phoneme: Phoneme<Lang = Self>;
+
+    fn subsite(&self) -> Site;
 }
 
 pub trait Character:

@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 wfts-pedia-ssg = { path = "../wfts-pedia-ssg" }
+wfts-lang = { path = "../wfts-lang" }
+wfts-star-lang = { path = "../wfts-star-lang" }

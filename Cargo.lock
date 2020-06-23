@@ -112,12 +112,17 @@ version = "0.1.0"
 [[package]]
 name = "wfts-lang"
 version = "0.1.0"
+dependencies = [
+ "wfts-pedia-ssg 0.1.0",
+]
 
 [[package]]
 name = "wfts-pedia"
 version = "0.1.0"
 dependencies = [
+ "wfts-lang 0.1.0",
  "wfts-pedia-ssg 0.1.0",
+ "wfts-star-lang 0.1.0",
 ]
 
 [[package]]
@@ -137,6 +142,7 @@ dependencies = [
  "anyhow 1.0.31 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror 1.0.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "wfts-lang 0.1.0",
+ "wfts-pedia-ssg 0.1.0",
 ]
 
 [metadata]

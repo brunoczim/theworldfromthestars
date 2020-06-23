@@ -1,5 +1,5 @@
 use crate::{
-    component::{page::Page, Context},
+    component::{page::Page, Context, DynComponent},
     location,
 };
 use anyhow::Context as _;
@@ -8,21 +8,65 @@ use std::{
     fs,
     io::Write,
     path::{Path, PathBuf},
+    sync::Arc,
 };
 
-#[derive(Debug)]
-pub struct Site {
-    pub pages: HashMap<location::Internal, Page>,
+#[derive(Debug, Clone)]
+pub struct Site<'page> {
+    pub page: Page<Arc<DynComponent<'page>>>,
+    pub subsites: HashMap<location::Internal, Site<'page>>,
 }
 
-#[derive(Debug)]
-pub struct Generator {
-    pub site: Site,
+impl<'page> Site<'page> {
+    pub fn access(
+        &self,
+        location: location::Internal,
+    ) -> Option<Page<Arc<DynComponent<'page>>>> {
+        let mut site = self;
+        for piece in location.pieces() {
+            site = site.subsites.get(&piece)?;
+        }
+        Some(site.page.clone())
+    }
+}
+
+impl<'page, 'site> IntoIterator for &'site Site<'page> {
+    type Item = (location::Internal, &'site Site<'page>);
+    type IntoIter = Iter<'page, 'site>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Iter { subsites: vec![(location::Internal::root(), self)] }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Iter<'page, 'site> {
+    subsites: Vec<(location::Internal, &'site Site<'page>)>,
+}
+
+impl<'page, 'site> Iterator for Iter<'page, 'site> {
+    type Item = (location::Internal, &'site Site<'page>);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.subsites.pop().map(|(loc, site)| {
+            for (piece, subsite) in site.subsites.iter() {
+                let mut loc = loc.clone();
+                loc.append(piece.clone());
+                self.subsites.push((loc, subsite));
+            }
+            (loc, site)
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Generator<'pages> {
+    pub site: Site<'pages>,
     pub assets_dir: PathBuf,
     pub output_dir: PathBuf,
 }
 
-impl Generator {
+impl<'pages> Generator<'pages> {
     pub fn gen(&self) -> anyhow::Result<()> {
         if self.assets_dir != self.output_dir {
             self.copy_assets()?;
@@ -76,7 +120,10 @@ impl Generator {
     }
 
     fn gen_pages(&self) -> anyhow::Result<()> {
-        for (loc, page) in &self.site.pages {
+        for (mut loc, subsite) in &self.site {
+            if loc.is_root() {
+                loc = location::Internal::new("index.html").unwrap();
+            }
             let path = self.output_dir.join(Path::new(loc.as_str()));
             if let Some(parent) = path.parent() {
                 fs::create_dir_all(parent).with_context(|| {
@@ -87,9 +134,12 @@ impl Generator {
             let mut file = fs::File::create(&path).with_context(|| {
                 format!("Creating page file {}", path.display())
             })?;
-            write!(file, "{}", Context::new(loc).renderer(page)).with_context(
-                || format!("Generating page {}", path.display()),
-            )?;
+            write!(
+                file,
+                "{}",
+                Context::new(&loc, subsite, &self.site).renderer(&subsite.page)
+            )
+            .with_context(|| format!("Generating page {}", path.display()))?;
         }
 
         Ok(())

@@ -126,7 +126,7 @@ where
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         write!(
             fmt,
-            "<a href=\"{}\", class=\"link\">{}</a>",
+            "<a href=\"{}\" class=\"link\">{}</a>",
             ctx.renderer(&self.location),
             ctx.renderer(&self.text),
         )?;
