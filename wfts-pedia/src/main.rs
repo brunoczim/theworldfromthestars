@@ -4,17 +4,20 @@ use wfts_pedia_ssg::{
         list::UnorderedList,
         page::{Page, Section},
         text::{Link, Paragraph},
-        BlockComponent,
-        Blocking,
         Component,
         DynComponent,
     },
-    location::{self, Location},
-    site::{Generator, Site},
+    location::{InternalPath, Location},
+    site::{Directory, Generator, Node, Site},
 };
 
 fn main() {
-    let site = Site { page: index_page(), subsites: { HashMap::new() } };
+    let mut site = Site { root: Directory { contents: HashMap::new() } };
+
+    site.root.contents.insert(
+        InternalPath::parse("index.html").unwrap(),
+        Node::Page(index_page()),
+    );
 
     let generator = Generator {
         site,
@@ -38,9 +41,7 @@ fn index_page() -> Page<Arc<DynComponent<'static>>> {
         Section {
             title: String::from("List Of Languages"),
             body: UnorderedList(vec![Link {
-                location: Location::Internal(
-                    location::Internal::new("langs/star").unwrap(),
-                ),
+                location: Location::internal("langs/star"),
                 text: "Star Language",
             }]),
         }

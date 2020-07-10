@@ -1,6 +1,6 @@
 use crate::{
     component::{BlockComponent, Component, Context},
-    location::Internal,
+    location::InternalPath,
 };
 use std::fmt;
 
@@ -56,7 +56,7 @@ where
              initial-scale=1.0\"><link rel=\"stylesheet\" type=\"text/css\" \
              href=\"{}\"><title>{}</title><body><div \
              id=\"page-wrapper\">{}</div></body></html>",
-            ctx.renderer(Internal::new("css/main.css").unwrap()),
+            ctx.renderer(InternalPath::parse("css/main.css").unwrap()),
             ctx.renderer(&self.top_section.title),
             ctx.renderer(&self.top_section)
         )?;

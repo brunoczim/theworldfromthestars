@@ -1,27 +1,21 @@
 use crate::component::{Component, Context, InlineComponent};
 use percent_encoding::{percent_encode, CONTROLS};
-use std::{fmt, str};
+use std::{fmt, path::PathBuf, str};
 use thiserror::Error;
 use url::Url;
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Error)]
-#[error("Invalid internal location piece {piece:?}")]
-pub struct InvalidPiece {
-    pub piece: String,
-}
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Location {
     URL(Url),
-    Internal(Internal),
+    Internal(InternalLoc),
 }
 
 impl Location {
-    pub fn internal<S>(raw: S) -> Self
+    pub fn internal<S>(contents: S) -> Self
     where
         S: AsRef<str>,
     {
-        Location::Internal(Internal::new(raw).unwrap())
+        Location::Internal(InternalLoc::parse(contents).unwrap())
     }
 }
 
@@ -35,170 +29,207 @@ impl Component for Location {
         }
     }
 }
-
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Internal {
-    contents: String,
+pub struct InternalPath {
+    pub fragments: Vec<Fragment>,
 }
 
-impl Default for Internal {
+impl InternalPath {
+    pub fn parse<S>(string: S) -> anyhow::Result<Self>
+    where
+        S: AsRef<str>,
+    {
+        let string = string.as_ref();
+        let mut this = Self { fragments: Vec::new() };
+
+        for fragment in string.split('/') {
+            this.fragments.push(Fragment::new(fragment)?);
+        }
+
+        Ok(this)
+    }
+
+    pub fn root() -> Self {
+        Self { fragments: Vec::new() }
+    }
+
+    pub fn is_root(&self) -> bool {
+        self.fragments.len() == 0
+    }
+
+    pub fn dir_depth(&self) -> usize {
+        self.fragments.len().saturating_sub(1)
+    }
+
+    pub fn to_fs_path(&self) -> PathBuf {
+        PathBuf::from(format!("{}", self))
+    }
+}
+
+impl Default for InternalPath {
     fn default() -> Self {
         Self::root()
     }
 }
 
-impl Internal {
-    pub fn root() -> Self {
-        Self { contents: String::new() }
-    }
+impl fmt::Display for InternalPath {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let mut first = true;
 
-    pub fn new<S>(raw: S) -> anyhow::Result<Self>
-    where
-        S: AsRef<str>,
-    {
-        let mut this = Self::root();
-        for piece in raw.as_ref().split('/') {
-            if piece.len() != 0 {
-                this.push(piece)?;
+        for fragment in &self.fragments {
+            if first {
+                first = false;
+            } else {
+                fmt.write_str("/")?;
             }
+            write!(fmt, "{}", fragment)?;
         }
-        Ok(this)
-    }
-
-    pub fn is_root(&self) -> bool {
-        self.contents.len() == 0
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.contents
-    }
-
-    pub fn dir_depth(&self) -> usize {
-        self.contents.as_bytes().iter().filter(|&&ch| ch == b'/').count()
-    }
-
-    pub fn push<S>(&mut self, piece: S) -> anyhow::Result<()>
-    where
-        S: AsRef<str>,
-    {
-        let piece = piece.as_ref();
-
-        if piece == "" || piece == "." || piece == ".." {
-            Err(InvalidPiece { piece: piece.to_owned() })?;
-        }
-        if self.contents.len() != 0 {
-            self.contents.push('/');
-        }
-        self.contents.push_str(piece);
 
         Ok(())
     }
-
-    pub fn pop(&mut self) -> bool {
-        if let Some(pos) =
-            self.contents.as_bytes().iter().rposition(|&ch| ch == b'/')
-        {
-            self.contents.truncate(pos);
-            true
-        } else {
-            false
-        }
-    }
-
-    pub fn suffix(&self, mut depth: usize) -> Option<Self> {
-        let pos = self.contents.as_bytes().iter().position(|&ch| {
-            if depth == 0 {
-                true
-            } else {
-                if ch == b'/' {
-                    depth -= 1;
-                }
-                false
-            }
-        })?;
-
-        Some(Self { contents: String::from(&self.contents[pos ..]) })
-    }
-
-    pub fn append<I>(&mut self, other: I)
-    where
-        I: AsRef<Self>,
-    {
-        if other.as_ref().contents.len() != 0 {
-            self.contents.push('/');
-            self.contents.push_str(&other.as_ref().contents);
-        }
-    }
-
-    pub fn pieces(&self) -> Pieces {
-        Pieces { inner: self.contents.split('/') }
-    }
-
-    pub fn str_pieces(&self) -> StrPieces {
-        StrPieces { inner: self.contents.split('/') }
-    }
 }
 
-impl Component for Internal {
+impl Component for InternalPath {
     type Kind = InlineComponent;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         for _ in 0 .. ctx.location().dir_depth() {
             fmt.write_str("../")?;
         }
-        let encoded = percent_encode(self.contents.as_bytes(), CONTROLS)
+        let encoded = percent_encode(self.to_string().as_bytes(), CONTROLS)
             .collect::<String>();
         write!(fmt, "{}", ctx.renderer(&encoded))?;
         Ok(())
     }
 }
 
-impl fmt::Display for Internal {
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub struct InternalLoc {
+    pub path: InternalPath,
+    pub id: Option<Id>,
+}
+
+impl InternalLoc {
+    pub fn parse<S>(string: S) -> anyhow::Result<Self>
+    where
+        S: AsRef<str>,
+    {
+        let string = string.as_ref();
+        let hash = string
+            .as_bytes()
+            .iter()
+            .rposition(|&ch| ch == b'#')
+            .unwrap_or(string.len());
+
+        Ok(Self {
+            path: InternalPath::parse(&string[.. hash])?,
+            id: if hash == string.len() {
+                None
+            } else {
+                Some(Id::new(&string[hash + 1 ..])?)
+            },
+        })
+    }
+}
+
+impl fmt::Display for InternalLoc {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.pad(&self.contents)
+        write!(fmt, "{}", &self.path)?;
+
+        if let Some(id) = &self.id {
+            write!(fmt, "#{}", id)?;
+        }
+
+        Ok(())
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct Pieces<'internal> {
-    inner: str::Split<'internal, char>,
-}
+impl Component for InternalLoc {
+    type Kind = InlineComponent;
 
-impl<'internal> Iterator for Pieces<'internal> {
-    type Item = Internal;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next().map(|s| Internal { contents: s.to_owned() })
+    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
+        for _ in 0 .. ctx.location().fragments.len() {
+            fmt.write_str("../")?;
+        }
+        let encoded = percent_encode(self.to_string().as_bytes(), CONTROLS)
+            .collect::<String>();
+        write!(fmt, "{}", ctx.renderer(&encoded))?;
+        Ok(())
     }
 }
 
-impl<'internal> DoubleEndedIterator for Pieces<'internal> {
-    fn next_back(&mut self) -> Option<Self::Item> {
-        self.inner.next_back().map(|s| Internal { contents: s.to_owned() })
+#[derive(Debug, Clone, Error)]
+#[error("Invalid ID string")]
+pub struct InvalidId;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Id {
+    contents: Box<str>,
+}
+
+impl Id {
+    pub fn new<S>(contents: S) -> anyhow::Result<Self>
+    where
+        S: AsRef<str> + Into<Box<str>>,
+    {
+        let mut iter = contents.as_ref().as_bytes().iter();
+
+        iter.next().filter(|ch| ch.is_ascii_alphabetic()).ok_or(InvalidId)?;
+
+        for &ch in iter {
+            if !ch.is_ascii_alphanumeric() && ch != b'_' && ch != b'-' {
+                Err(InvalidId)?;
+            }
+        }
+
+        Ok(Self { contents: contents.into() })
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.contents
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct StrPieces<'internal> {
-    inner: str::Split<'internal, char>,
-}
-
-impl<'internal> Iterator for StrPieces<'internal> {
-    type Item = &'internal str;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next()
+impl fmt::Display for Id {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(&self.as_str())
     }
 }
 
-impl<'internal> DoubleEndedIterator for StrPieces<'internal> {
-    fn next_back(&mut self) -> Option<Self::Item> {
-        self.inner.next_back()
+#[derive(Debug, Clone, Error)]
+#[error("Invalid location fragment string")]
+pub struct InvalidFragment;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Fragment {
+    contents: Box<str>,
+}
+
+impl Fragment {
+    pub fn new<S>(contents: S) -> anyhow::Result<Self>
+    where
+        S: AsRef<str> + Into<Box<str>>,
+    {
+        if let "" | "." | ".." = contents.as_ref() {
+            Err(InvalidFragment)?;
+        }
+
+        for ch in contents.as_ref().bytes() {
+            if let b'/' | b'#' = ch {
+                Err(InvalidFragment)?;
+            }
+        }
+
+        Ok(Self { contents: contents.into() })
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.contents
     }
 }
 
-impl AsRef<Internal> for Internal {
-    fn as_ref(&self) -> &Internal {
-        self
+impl fmt::Display for Fragment {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.write_str(&self.as_str())
     }
 }

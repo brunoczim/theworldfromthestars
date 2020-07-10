@@ -1,61 +1,114 @@
 use crate::{
     component::{page::Page, Context, DynComponent},
-    location,
+    location::InternalPath,
 };
 use anyhow::Context as _;
 use std::{
-    collections::HashMap,
+    collections::{hash_map, HashMap},
     fs,
     io::Write,
-    path::{Path, PathBuf},
+    path::PathBuf,
     sync::Arc,
 };
 
 #[derive(Debug, Clone)]
-pub struct Site<'page> {
-    pub page: Page<Arc<DynComponent<'page>>>,
-    pub subsites: HashMap<location::Internal, Site<'page>>,
+pub enum Node<'page> {
+    Page(Page<Arc<DynComponent<'page>>>),
+    Directory(Directory<'page>),
 }
 
-impl<'page> Site<'page> {
-    pub fn access(
-        &self,
-        location: location::Internal,
-    ) -> Option<Page<Arc<DynComponent<'page>>>> {
-        let mut site = self;
-        for piece in location.pieces() {
-            site = site.subsites.get(&piece)?;
+impl<'page> Node<'page> {
+    pub fn page(self) -> Option<Page<Arc<DynComponent<'page>>>> {
+        match self {
+            Node::Page(file) => Some(file),
+            Node::Directory(_) => None,
         }
-        Some(site.page.clone())
     }
-}
 
-impl<'page, 'site> IntoIterator for &'site Site<'page> {
-    type Item = (location::Internal, &'site Site<'page>);
-    type IntoIter = Iter<'page, 'site>;
+    pub fn page_ref(&self) -> Option<&Page<Arc<DynComponent<'page>>>> {
+        match self {
+            Node::Page(file) => Some(file),
+            Node::Directory(_) => None,
+        }
+    }
 
-    fn into_iter(self) -> Self::IntoIter {
-        Iter { subsites: vec![(location::Internal::root(), self)] }
+    pub fn page_mut(&mut self) -> Option<&mut Page<Arc<DynComponent<'page>>>> {
+        match self {
+            Node::Page(file) => Some(file),
+            Node::Directory(_) => None,
+        }
+    }
+
+    pub fn dir(self) -> Option<Directory<'page>> {
+        match self {
+            Node::Page(_) => None,
+            Node::Directory(dir) => Some(dir),
+        }
+    }
+
+    pub fn dir_ref(&self) -> Option<&Directory<'page>> {
+        match self {
+            Node::Page(_) => None,
+            Node::Directory(dir) => Some(dir),
+        }
+    }
+
+    pub fn dir_mut(&mut self) -> Option<&mut Directory<'page>> {
+        match self {
+            Node::Page(_) => None,
+            Node::Directory(dir) => Some(dir),
+        }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct Iter<'page, 'site> {
-    subsites: Vec<(location::Internal, &'site Site<'page>)>,
+pub struct Directory<'page> {
+    pub contents: HashMap<InternalPath, Node<'page>>,
 }
 
-impl<'page, 'site> Iterator for Iter<'page, 'site> {
-    type Item = (location::Internal, &'site Site<'page>);
+#[derive(Debug, Clone)]
+pub struct Site<'page> {
+    pub root: Directory<'page>,
+}
+
+impl<'page, 'site> IntoIterator for &'site Directory<'page> {
+    type Item = (InternalPath, &'site Page<Arc<DynComponent<'page>>>);
+    type IntoIter = Pages<'page, 'site>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Pages {
+            curr_loc: InternalPath::root(),
+            curr_iter: self.contents.iter(),
+            directories: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Pages<'page, 'site> {
+    curr_loc: InternalPath,
+    curr_iter: hash_map::Iter<'site, InternalPath, Node<'page>>,
+    directories: Vec<(InternalPath, &'site Directory<'page>)>,
+}
+
+impl<'page, 'site> Iterator for Pages<'page, 'site> {
+    type Item = (InternalPath, &'site Page<Arc<DynComponent<'page>>>);
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.subsites.pop().map(|(loc, site)| {
-            for (piece, subsite) in site.subsites.iter() {
-                let mut loc = loc.clone();
-                loc.append(piece.clone());
-                self.subsites.push((loc, subsite));
+        loop {
+            if let Some((suffix, node)) = self.curr_iter.next() {
+                let mut loc = self.curr_loc.clone();
+                loc.fragments.extend(suffix.fragments.iter().cloned());
+                match node {
+                    Node::Page(page) => break Some((loc, page)),
+                    Node::Directory(dir) => self.directories.push((loc, dir)),
+                }
+            } else {
+                let (loc, dir) = self.directories.pop()?;
+                self.curr_iter = dir.contents.iter();
+                self.curr_loc = loc;
             }
-            (loc, site)
-        })
+        }
     }
 }
 
@@ -120,11 +173,8 @@ impl<'pages> Generator<'pages> {
     }
 
     fn gen_pages(&self) -> anyhow::Result<()> {
-        for (mut loc, subsite) in &self.site {
-            if loc.is_root() {
-                loc = location::Internal::new("index.html").unwrap();
-            }
-            let path = self.output_dir.join(Path::new(loc.as_str()));
+        for (loc, page) in &self.site.root {
+            let path = self.output_dir.join(loc.to_fs_path());
             if let Some(parent) = path.parent() {
                 fs::create_dir_all(parent).with_context(|| {
                     format!("Creating dir {}", parent.display())
@@ -134,12 +184,10 @@ impl<'pages> Generator<'pages> {
             let mut file = fs::File::create(&path).with_context(|| {
                 format!("Creating page file {}", path.display())
             })?;
-            write!(
-                file,
-                "{}",
-                Context::new(&loc, subsite, &self.site).renderer(&subsite.page)
-            )
-            .with_context(|| format!("Generating page {}", path.display()))?;
+            write!(file, "{}", Context::new(&loc, &self.site).renderer(&page))
+                .with_context(|| {
+                    format!("Generating page {}", path.display())
+                })?;
         }
 
         Ok(())

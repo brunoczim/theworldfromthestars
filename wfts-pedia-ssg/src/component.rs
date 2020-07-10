@@ -4,7 +4,7 @@ pub mod page;
 pub mod table;
 pub mod list;
 
-use crate::{location, site::Site};
+use crate::{location::InternalPath, site::Site};
 use std::{borrow::Cow, fmt, rc::Rc, sync::Arc};
 
 fn html_escape(ch: char) -> Option<&'static str> {
@@ -26,20 +26,18 @@ pub struct BlockComponent;
 pub struct InlineComponent;
 
 #[derive(Debug, Clone, Copy)]
-pub struct Context<'loc, 'page, 'site> {
-    location: &'loc location::Internal,
-    site: &'site Site<'page>,
-    page: &'site Site<'page>,
+pub struct Context<'loc, 'pages, 'site> {
+    location: &'loc InternalPath,
+    site: &'site Site<'pages>,
     section_level: u32,
 }
 
-impl<'loc, 'page, 'site> Context<'loc, 'page, 'site> {
+impl<'loc, 'pages, 'site> Context<'loc, 'pages, 'site> {
     pub fn new(
-        location: &'loc location::Internal,
-        site: &'site Site<'page>,
-        page: &'site Site<'page>,
+        location: &'loc InternalPath,
+        site: &'site Site<'pages>,
     ) -> Self {
-        Self { location, site, page, section_level: 0 }
+        Self { location, site, section_level: 0 }
     }
 
     pub fn section_level(self) -> u32 {
@@ -57,11 +55,11 @@ impl<'loc, 'page, 'site> Context<'loc, 'page, 'site> {
         }
     }
 
-    pub fn location(self) -> &'loc location::Internal {
+    pub fn location(self) -> &'loc InternalPath {
         self.location
     }
 
-    pub fn subpages(self) -> &'loc location::Internal {
+    pub fn subpages(self) -> &'loc InternalPath {
         self.location
     }
 
@@ -69,7 +67,7 @@ impl<'loc, 'page, 'site> Context<'loc, 'page, 'site> {
         Self { section_level: self.section_level.saturating_add(1), ..self }
     }
 
-    pub fn renderer<T>(self, component: T) -> Renderer<'loc, 'page, 'site, T>
+    pub fn renderer<T>(self, component: T) -> Renderer<'loc, 'pages, 'site, T>
     where
         T: Component,
     {
@@ -78,15 +76,15 @@ impl<'loc, 'page, 'site> Context<'loc, 'page, 'site> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Renderer<'loc, 'page, 'site, T>
+pub struct Renderer<'loc, 'pages, 'site, T>
 where
     T: Component,
 {
     pub component: T,
-    pub context: Context<'loc, 'page, 'site>,
+    pub context: Context<'loc, 'pages, 'site>,
 }
 
-impl<'loc, 'page, 'site, T> fmt::Display for Renderer<'loc, 'page, 'site, T>
+impl<'loc, 'pages, 'site, T> fmt::Display for Renderer<'loc, 'pages, 'site, T>
 where
     T: Component,
 {

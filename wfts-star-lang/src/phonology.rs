@@ -365,6 +365,7 @@ impl Phoneme {
         matches!(self, Kw | Gw | Mg | Xw | W)
     }
 
+    #[allow(dead_code)]
     fn can_be_nucleus(self) -> bool {
         use Phoneme::*;
         self.classify() == PhonemeClass::Vowel || self == R

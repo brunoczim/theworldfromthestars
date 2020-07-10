@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 wfts-pedia-ssg = { path = "../wfts-pedia-ssg/" }
+anyhow = "1.0.31"
+thiserror = "1.0.19"
