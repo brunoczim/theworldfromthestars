@@ -1,13 +1,12 @@
-use std::{collections::HashMap, path::PathBuf, process, sync::Arc};
+use std::{collections::HashMap, path::PathBuf, process};
 use wfts_pedia_ssg::{
     component::{
         list::UnorderedList,
-        page::{Page, Section},
         text::{Link, Paragraph},
         Component,
-        DynComponent,
     },
-    location::{InternalPath, Location},
+    location::{Id, InternalPath, Location},
+    page::{Page, Section},
     site::{Directory, Generator, Node, Site},
 };
 
@@ -31,26 +30,25 @@ fn main() {
     }
 }
 
-fn index_page() -> Page<Arc<DynComponent<'static>>> {
-    let body = vec![
-        Paragraph(vec![String::from(
-            "This is the front page of the encyclopedia of \"The World From \
-             The Stars\"",
-        )])
-        .to_dyn(),
-        Section {
+fn index_page() -> Page {
+    let body = vec![Paragraph(vec![String::from(
+        "This is the front page of the encyclopedia of \"The World From The \
+         Stars\"",
+    )])
+    .to_dyn()];
+
+    Page {
+        title: String::from("The World From The Stars Encyclopedia"),
+        body: body.to_dyn(),
+        sections: vec![Section {
             title: String::from("List Of Languages"),
             body: UnorderedList(vec![Link {
                 location: Location::internal("langs/star"),
                 text: "Star Language",
-            }]),
-        }
-        .to_dyn(),
-    ];
-    Page {
-        top_section: Section {
-            title: String::from("The World From The Stars Encyclopedia"),
-            body: body.to_dyn(),
-        },
+            }])
+            .to_dyn(),
+            id: Id::new("list-of-langs").unwrap(),
+            children: Vec::new(),
+        }],
     }
 }

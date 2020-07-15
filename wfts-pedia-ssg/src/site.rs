@@ -1,6 +1,6 @@
 use crate::{
-    component::{page::Page, Context, DynComponent},
     location::InternalPath,
+    page::{Page, RenderPage},
 };
 use anyhow::Context as _;
 use std::{
@@ -8,52 +8,51 @@ use std::{
     fs,
     io::Write,
     path::PathBuf,
-    sync::Arc,
 };
 
 #[derive(Debug, Clone)]
-pub enum Node<'page> {
-    Page(Page<Arc<DynComponent<'page>>>),
-    Directory(Directory<'page>),
+pub enum Node {
+    Page(Page),
+    Directory(Directory),
 }
 
-impl<'page> Node<'page> {
-    pub fn page(self) -> Option<Page<Arc<DynComponent<'page>>>> {
+impl Node {
+    pub fn page(self) -> Option<Page> {
         match self {
             Node::Page(file) => Some(file),
             Node::Directory(_) => None,
         }
     }
 
-    pub fn page_ref(&self) -> Option<&Page<Arc<DynComponent<'page>>>> {
+    pub fn page_ref(&self) -> Option<&Page> {
         match self {
             Node::Page(file) => Some(file),
             Node::Directory(_) => None,
         }
     }
 
-    pub fn page_mut(&mut self) -> Option<&mut Page<Arc<DynComponent<'page>>>> {
+    pub fn page_mut(&mut self) -> Option<&mut Page> {
         match self {
             Node::Page(file) => Some(file),
             Node::Directory(_) => None,
         }
     }
 
-    pub fn dir(self) -> Option<Directory<'page>> {
+    pub fn dir(self) -> Option<Directory> {
         match self {
             Node::Page(_) => None,
             Node::Directory(dir) => Some(dir),
         }
     }
 
-    pub fn dir_ref(&self) -> Option<&Directory<'page>> {
+    pub fn dir_ref(&self) -> Option<&Directory> {
         match self {
             Node::Page(_) => None,
             Node::Directory(dir) => Some(dir),
         }
     }
 
-    pub fn dir_mut(&mut self) -> Option<&mut Directory<'page>> {
+    pub fn dir_mut(&mut self) -> Option<&mut Directory> {
         match self {
             Node::Page(_) => None,
             Node::Directory(dir) => Some(dir),
@@ -62,18 +61,18 @@ impl<'page> Node<'page> {
 }
 
 #[derive(Debug, Clone)]
-pub struct Directory<'page> {
-    pub contents: HashMap<InternalPath, Node<'page>>,
+pub struct Directory {
+    pub contents: HashMap<InternalPath, Node>,
 }
 
 #[derive(Debug, Clone)]
-pub struct Site<'page> {
-    pub root: Directory<'page>,
+pub struct Site {
+    pub root: Directory,
 }
 
-impl<'page, 'site> IntoIterator for &'site Directory<'page> {
-    type Item = (InternalPath, &'site Page<Arc<DynComponent<'page>>>);
-    type IntoIter = Pages<'page, 'site>;
+impl<'dir> IntoIterator for &'dir Directory {
+    type Item = (InternalPath, &'dir Page);
+    type IntoIter = Pages<'dir>;
 
     fn into_iter(self) -> Self::IntoIter {
         Pages {
@@ -85,14 +84,14 @@ impl<'page, 'site> IntoIterator for &'site Directory<'page> {
 }
 
 #[derive(Debug, Clone)]
-pub struct Pages<'page, 'site> {
+pub struct Pages<'dir> {
     curr_loc: InternalPath,
-    curr_iter: hash_map::Iter<'site, InternalPath, Node<'page>>,
-    directories: Vec<(InternalPath, &'site Directory<'page>)>,
+    curr_iter: hash_map::Iter<'dir, InternalPath, Node>,
+    directories: Vec<(InternalPath, &'dir Directory)>,
 }
 
-impl<'page, 'site> Iterator for Pages<'page, 'site> {
-    type Item = (InternalPath, &'site Page<Arc<DynComponent<'page>>>);
+impl<'site> Iterator for Pages<'site> {
+    type Item = (InternalPath, &'site Page);
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -113,13 +112,13 @@ impl<'page, 'site> Iterator for Pages<'page, 'site> {
 }
 
 #[derive(Debug, Clone)]
-pub struct Generator<'pages> {
-    pub site: Site<'pages>,
+pub struct Generator {
+    pub site: Site,
     pub assets_dir: PathBuf,
     pub output_dir: PathBuf,
 }
 
-impl<'pages> Generator<'pages> {
+impl Generator {
     pub fn gen(&self) -> anyhow::Result<()> {
         if self.assets_dir != self.output_dir {
             self.copy_assets()?;
@@ -184,10 +183,12 @@ impl<'pages> Generator<'pages> {
             let mut file = fs::File::create(&path).with_context(|| {
                 format!("Creating page file {}", path.display())
             })?;
-            write!(file, "{}", Context::new(&loc, &self.site).renderer(&page))
-                .with_context(|| {
-                    format!("Generating page {}", path.display())
-                })?;
+            let res = write!(
+                file,
+                "{}",
+                RenderPage { page, location: &loc, site: &self.site }
+            );
+            res.with_context(|| format!("Generating page {}", path.display()))?;
         }
 
         Ok(())

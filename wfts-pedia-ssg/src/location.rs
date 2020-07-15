@@ -196,6 +196,14 @@ impl fmt::Display for Id {
     }
 }
 
+impl Component for Id {
+    type Kind = InlineComponent;
+
+    fn to_html(&self, fmt: &mut fmt::Formatter, _ctx: Context) -> fmt::Result {
+        write!(fmt, "{}", self)
+    }
+}
+
 #[derive(Debug, Clone, Error)]
 #[error("Invalid location fragment string")]
 pub struct InvalidFragment;

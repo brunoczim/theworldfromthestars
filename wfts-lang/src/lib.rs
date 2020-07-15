@@ -1,9 +1,9 @@
-use std::{borrow::Cow, fmt, hash::Hash};
+use std::{borrow::Cow, fmt, hash::Hash, str};
 use thiserror::Error;
 use wfts_pedia_ssg::{
     component::{Component, Context, InlineComponent},
-    location::InternalPath,
-    site::Site,
+    location::{Fragment, Id, InternalPath},
+    site::Directory,
 };
 
 #[derive(Debug, Clone, Error)]
@@ -63,16 +63,32 @@ impl LangCode {
 
         Ok(Self { lang, variety })
     }
+
+    pub fn lang(&self) -> &str {
+        str::from_utf8(&self.lang).unwrap()
+    }
+
+    pub fn variety(&self) -> &str {
+        str::from_utf8(&self.variety).unwrap()
+    }
+
+    pub fn to_fragment(&self) -> Fragment {
+        Fragment::new(format!("{}", self)).unwrap()
+    }
+
+    pub fn to_id(&self) -> Id {
+        Id::new(format!("{}", self)).unwrap()
+    }
 }
 
 impl fmt::Display for LangCode {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        for ch in &self.lang {
-            write!(fmt, "{}", ch)?;
+        for &ch in &self.lang {
+            write!(fmt, "{}", ch as char)?;
         }
-        write!(fmt, ":")?;
-        for ch in &self.variety {
-            write!(fmt, "{}", ch)?;
+        write!(fmt, "-")?;
+        for &ch in &self.variety {
+            write!(fmt, "{}", ch as char)?;
         }
         Ok(())
     }
@@ -94,7 +110,7 @@ pub trait Lang: Sized {
 
     fn code(&self) -> LangCode;
 
-    fn subsite(&self) -> Site;
+    fn subsite(&self) -> Directory;
 
     fn location(&self) -> InternalPath {
         InternalPath::parse(format!("langs/{}", self.code())).unwrap()

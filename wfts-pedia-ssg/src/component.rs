@@ -1,6 +1,5 @@
 pub mod text;
 pub mod img;
-pub mod page;
 pub mod table;
 pub mod list;
 
@@ -26,33 +25,14 @@ pub struct BlockComponent;
 pub struct InlineComponent;
 
 #[derive(Debug, Clone, Copy)]
-pub struct Context<'loc, 'pages, 'site> {
+pub struct Context<'loc, 'site> {
     location: &'loc InternalPath,
-    site: &'site Site<'pages>,
-    section_level: u32,
+    site: &'site Site,
 }
 
-impl<'loc, 'pages, 'site> Context<'loc, 'pages, 'site> {
-    pub fn new(
-        location: &'loc InternalPath,
-        site: &'site Site<'pages>,
-    ) -> Self {
-        Self { location, site, section_level: 0 }
-    }
-
-    pub fn section_level(self) -> u32 {
-        self.section_level
-    }
-
-    pub fn heading_level(self) -> &'static str {
-        match self.section_level() {
-            0 => "h1",
-            1 => "h2",
-            2 => "h3",
-            3 => "h4",
-            4 => "h5",
-            _ => "h6",
-        }
+impl<'loc, 'site> Context<'loc, 'site> {
+    pub(crate) fn new(location: &'loc InternalPath, site: &'site Site) -> Self {
+        Self { location, site }
     }
 
     pub fn location(self) -> &'loc InternalPath {
@@ -63,11 +43,7 @@ impl<'loc, 'pages, 'site> Context<'loc, 'pages, 'site> {
         self.location
     }
 
-    pub fn step_level(self) -> Self {
-        Self { section_level: self.section_level.saturating_add(1), ..self }
-    }
-
-    pub fn renderer<T>(self, component: T) -> Renderer<'loc, 'pages, 'site, T>
+    pub fn renderer<T>(self, component: T) -> Renderer<'loc, 'site, T>
     where
         T: Component,
     {
@@ -76,15 +52,15 @@ impl<'loc, 'pages, 'site> Context<'loc, 'pages, 'site> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Renderer<'loc, 'pages, 'site, T>
+pub struct Renderer<'loc, 'site, T>
 where
     T: Component,
 {
     pub component: T,
-    pub context: Context<'loc, 'pages, 'site>,
+    pub context: Context<'loc, 'site>,
 }
 
-impl<'loc, 'pages, 'site, T> fmt::Display for Renderer<'loc, 'pages, 'site, T>
+impl<'loc, 'site, T> fmt::Display for Renderer<'loc, 'site, T>
 where
     T: Component,
 {
@@ -93,17 +69,16 @@ where
     }
 }
 
-pub type DynComponent<'obj> =
-    dyn Component<Kind = BlockComponent> + Send + Sync + 'obj;
+pub type DynComponent = Arc<dyn Component<Kind = BlockComponent> + Send + Sync>;
 
 pub trait Component: fmt::Debug {
     type Kind;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result;
 
-    fn to_dyn<'obj>(self) -> Arc<DynComponent<'obj>>
+    fn to_dyn(self) -> DynComponent
     where
-        Self: Sized + Send + Sync + 'obj,
+        Self: Sized + Send + Sync + 'static,
     {
         Arc::new(Blocking(self))
     }

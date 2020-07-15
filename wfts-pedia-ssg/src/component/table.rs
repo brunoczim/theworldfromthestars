@@ -21,9 +21,8 @@ where
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         write!(
             fmt,
-            "<div class=\"table-wrapper\"><{tag} \
-             class=\"table-title\">{title}</{tag}><table class=\"table\">",
-            tag = ctx.heading_level(),
+            "<div class=\"table-wrapper\"><span \
+             class=\"table-title\">{title}</span><table class=\"table\">",
             title = ctx.renderer(&self.title),
         )?;
 
@@ -40,7 +39,7 @@ where
                 write!(
                     fmt,
                     ">{}</{}>",
-                    ctx.step_level().renderer(&entry.data),
+                    ctx.renderer(&entry.data),
                     entry.tag()
                 )?;
             }
