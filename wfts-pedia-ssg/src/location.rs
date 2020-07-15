@@ -148,7 +148,7 @@ impl Component for InternalLoc {
     type Kind = InlineComponent;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        for _ in 0 .. ctx.location().fragments.len() {
+        for _ in 0 .. ctx.location().dir_depth() {
             fmt.write_str("../")?;
         }
         let encoded = percent_encode(self.to_string().as_bytes(), CONTROLS)
