@@ -6,6 +6,8 @@
     line-height: 1;
     border: 0;
     font-family: 'Noto Sans', Cantarell, Arial, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
 }
 
 html, body, #page-wrapper {
@@ -69,4 +71,16 @@ h6 {
     font-size: 110%;
     padding-top: 8pt;
     padding-bottom: 4pt;
+}
+
+a {
+    color: #177BA6;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #0F62A6;
 }

@@ -28,7 +28,7 @@ impl<'section, 'loc, 'site> fmt::Display
             fmt,
             "<div id={id} class=\"section section-{level}\"><{title_tag} \
              class=\"header\"><a class=\"header-link\" \
-             href=\"{link}\">{title}</a></{title_tag}>{body}",
+             href=\"{link}\">{title}</a></{title_tag}><hr>{body}",
             level = self.level,
             title_tag = heading_level(self.level),
             title = self.ctx.renderer(&self.section.title),
@@ -77,7 +77,7 @@ impl<'page, 'loc, 'site> fmt::Display for RenderPage<'page, 'loc, 'site> {
              name=\"viewport\" content=\"width=device-width, \
              initial-scale=1.0\"><link rel=\"stylesheet\" type=\"text/css\" \
              href=\"{css}\"><title>{title}</title><body><div \
-             id=\"page-top\"><h1>{title}</h1>{body}",
+             id=\"page-top\"><h1>{title}</h1><div id=\"body-wrapper\">{body}",
             css = ctx.renderer(InternalPath::parse("css/main.css").unwrap()),
             title = ctx.renderer(&self.page.title),
             body = ctx.renderer(&self.page.body)
@@ -87,7 +87,7 @@ impl<'page, 'loc, 'site> fmt::Display for RenderPage<'page, 'loc, 'site> {
             write!(fmt, "{}", RenderSection { level: 1, ctx, section })?;
         }
 
-        write!(fmt, "</div></body></html>")?;
+        write!(fmt, "</div></div></body></html>")?;
         Ok(())
     }
 }

@@ -112,7 +112,7 @@ pub trait Lang: Sized {
 
     fn subsite(&self) -> Directory;
 
-    fn location(&self) -> InternalPath {
+    fn path(&self) -> InternalPath {
         InternalPath::parse(format!("langs/{}", self.code())).unwrap()
     }
 }

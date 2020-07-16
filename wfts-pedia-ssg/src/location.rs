@@ -10,6 +10,24 @@ pub enum Location {
     Internal(InternalLoc),
 }
 
+impl From<InternalPath> for Location {
+    fn from(path: InternalPath) -> Self {
+        Location::Internal(InternalLoc::from(path))
+    }
+}
+
+impl From<InternalLoc> for Location {
+    fn from(loc: InternalLoc) -> Self {
+        Location::Internal(loc)
+    }
+}
+
+impl From<Url> for Location {
+    fn from(url: Url) -> Self {
+        Location::URL(url)
+    }
+}
+
 impl Location {
     pub fn internal<S>(contents: S) -> Self
     where
@@ -29,6 +47,7 @@ impl Component for Location {
         }
     }
 }
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct InternalPath {
     pub fragments: Vec<Fragment>,
@@ -107,6 +126,12 @@ impl Component for InternalPath {
 pub struct InternalLoc {
     pub path: InternalPath,
     pub id: Option<Id>,
+}
+
+impl From<InternalPath> for InternalLoc {
+    fn from(path: InternalPath) -> Self {
+        Self { path, id: None }
+    }
 }
 
 impl InternalLoc {

@@ -1,14 +1,16 @@
 use std::{collections::HashMap, path::PathBuf, process};
+use wfts_lang::Lang;
 use wfts_pedia_ssg::{
     component::{
         list::UnorderedList,
         text::{Link, Paragraph},
         Component,
     },
-    location::{Id, InternalPath, Location},
+    location::{Id, InternalPath},
     page::{Page, Section},
     site::{Directory, Generator, Node, Site},
 };
+use wfts_star_lang::StarLang;
 
 fn main() {
     let mut site = Site { root: Directory { contents: HashMap::new() } };
@@ -43,7 +45,7 @@ fn index_page() -> Page {
         sections: vec![Section {
             title: String::from("List Of Languages"),
             body: UnorderedList(vec![Link {
-                location: Location::internal("langs/star"),
+                location: StarLang.path().into(),
                 text: "Star Language",
             }])
             .to_dyn(),
