@@ -27,7 +27,7 @@ ol {
 table {
     border-collapse: collapse;
     border: 0;
-    margin-bottom: 20pt;
+    margin-bottom: 14pt;
 }
 
 td, th {
@@ -45,31 +45,31 @@ h1, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a {
 }
 
 h1 {
-    font-size: 200%;
+    font-size: 210%;
     padding-top: 20pt;
     padding-bottom: 10pt;
 }
 
 h2 {
-    font-size: 180%;
+    font-size: 185%;
     padding-top: 16pt;
     padding-bottom: 8pt;
 }
 
 h3 {
-    font-size: 145%;
+    font-size: 142.5%;
     padding-top: 14pt;
     padding-bottom: 7pt;
 }
 
 h4 {
-    font-size: 130%;
+    font-size: 125%;
     padding-top: 12pt;
     padding-bottom: 6pt;
 }
 
 h5 {
-    font-size: 120%;
+    font-size: 117.5%;
     padding-top: 10pt;
     padding-bottom: 5pt;
 }
@@ -116,4 +116,9 @@ p:last-child {
 
 #body-wrapper {
     padding: 10pt;
+}
+
+.section-body {
+    padding-left: 10pt;
+    border-left: solid 1pt #000000;
 }

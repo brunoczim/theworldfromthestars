@@ -28,7 +28,8 @@ impl<'section, 'loc, 'site> fmt::Display
             fmt,
             "<div id={id} class=\"section section-{level}\"><{title_tag} \
              class=\"header\"><a class=\"header-link\" \
-             href=\"{link}\">{title}</a></{title_tag}><hr>{body}",
+             href=\"{link}\">{title}</a></{title_tag}><div \
+             class=\"section-body\">{body}",
             level = self.level,
             title_tag = heading_level(self.level),
             title = self.ctx.renderer(&self.section.title),
@@ -48,7 +49,7 @@ impl<'section, 'loc, 'site> fmt::Display
             )?;
         }
 
-        write!(fmt, "</div>")?;
+        write!(fmt, "</div></div>")?;
 
         Ok(())
     }
