@@ -1,0 +1,106 @@
+* {
+    color: black;
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+    font: inherit;
+    line-height: 1;
+    border: 0;
+    font-family: 'Noto Sans', Cantarell, Arial, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+html, body, #page-wrapper {
+    width: 100%;
+    height: auto;
+}
+
+ul {
+    list-style: disc;
+}
+
+ol {
+    list-style: decimal;
+}
+
+table {
+    border-collapse: collapse;
+    border: 0;
+}
+
+td, th {
+    padding: 10pt;
+    border: 1px solid black;
+}
+
+h1, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a {
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 180%;
+    padding-top: 20pt;
+    padding-bottom: 10pt;
+}
+
+h2 {
+    font-size: 160%;
+    padding-top: 16pt;
+    padding-bottom: 8pt;
+}
+
+h3 {
+    font-size: 140%;
+    padding-top: 14pt;
+    padding-bottom: 7pt;
+}
+
+h4 {
+    font-size: 130%;
+    padding-top: 12pt;
+    padding-bottom: 6pt;
+}
+
+h5 {
+    font-size: 120%;
+    padding-top: 10pt;
+    padding-bottom: 5pt;
+}
+
+h6 {
+    font-size: 110%;
+    padding-top: 8pt;
+    padding-bottom: 4pt;
+}
+
+a.link {
+    color: #177BA6;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a.link:visited {
+    color: #0F62A6;
+}
+
+p {
+    text-indent: 14pt;
+    text-align: justify;
+    margin-bottom: 5pt;
+    line-height: 1.25;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+#page-top {
+    margin: 5pt;
+}
+
+#body-wrapper {
+    padding: 10pt;
+}
