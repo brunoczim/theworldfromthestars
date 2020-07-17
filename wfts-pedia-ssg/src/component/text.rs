@@ -92,7 +92,7 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Paragraph<T>(pub Vec<T>)
+pub struct Paragraph<T>(pub T)
 where
     T: Component<Kind = InlineComponent>;
 

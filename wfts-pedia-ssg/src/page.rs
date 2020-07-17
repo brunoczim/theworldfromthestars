@@ -61,6 +61,18 @@ pub struct Page {
     pub sections: Vec<Section>,
 }
 
+impl AsRef<Page> for Page {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
+impl AsMut<Page> for Page {
+    fn as_mut(&mut self) -> &mut Self {
+        self
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct RenderPage<'page, 'loc, 'site> {
     pub page: &'page Page,

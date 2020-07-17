@@ -1,5 +1,5 @@
 use crate::{
-    location::InternalPath,
+    location::{Fragment, InternalPath},
     page::{Page, RenderPage},
 };
 use anyhow::Context as _;
@@ -11,58 +11,146 @@ use std::{
 };
 
 #[derive(Debug, Clone)]
-pub enum Node {
-    Page(Page),
-    Directory(Directory),
+pub enum Node<P = Page, D = Directory> {
+    Page(P),
+    Directory(D),
 }
 
-impl Node {
-    pub fn page(self) -> Option<Page> {
+impl<P, D> Node<P, D> {
+    pub fn page(self) -> Option<P> {
         match self {
             Node::Page(file) => Some(file),
             Node::Directory(_) => None,
         }
     }
 
-    pub fn page_ref(&self) -> Option<&Page> {
-        match self {
-            Node::Page(file) => Some(file),
-            Node::Directory(_) => None,
-        }
-    }
-
-    pub fn page_mut(&mut self) -> Option<&mut Page> {
-        match self {
-            Node::Page(file) => Some(file),
-            Node::Directory(_) => None,
-        }
-    }
-
-    pub fn dir(self) -> Option<Directory> {
+    pub fn dir(self) -> Option<D> {
         match self {
             Node::Page(_) => None,
             Node::Directory(dir) => Some(dir),
         }
     }
 
-    pub fn dir_ref(&self) -> Option<&Directory> {
+    pub fn as_ref(&self) -> Node<&P, &D> {
         match self {
-            Node::Page(_) => None,
-            Node::Directory(dir) => Some(dir),
+            Node::Page(file) => Node::Page(file),
+            Node::Directory(dir) => Node::Directory(dir),
         }
     }
 
-    pub fn dir_mut(&mut self) -> Option<&mut Directory> {
+    pub fn as_mut(&mut self) -> Node<&mut P, &mut D> {
         match self {
-            Node::Page(_) => None,
-            Node::Directory(dir) => Some(dir),
+            Node::Page(file) => Node::Page(file),
+            Node::Directory(dir) => Node::Directory(dir),
         }
     }
 }
 
-#[derive(Debug, Clone)]
+impl<P, D> Node<P, D>
+where
+    P: Into<Page>,
+    D: Into<Directory>,
+{
+    pub fn normalize(self) -> Node {
+        match self {
+            Node::Page(page) => Node::Page(page.into()),
+            Node::Directory(dir) => Node::Directory(dir.into()),
+        }
+    }
+}
+
+impl<P, D> Node<P, D>
+where
+    P: AsRef<Page>,
+    D: AsRef<Directory>,
+{
+    pub fn normalize_cloned(&self) -> Node<Page, Directory> {
+        match self {
+            Node::Page(page) => Node::Page(page.as_ref().clone()),
+            Node::Directory(dir) => Node::Directory(dir.as_ref().clone()),
+        }
+    }
+}
+
+impl AsRef<Directory> for Directory {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
+impl AsMut<Directory> for Directory {
+    fn as_mut(&mut self) -> &mut Self {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct Directory {
-    pub contents: HashMap<InternalPath, Node>,
+    pub contents: HashMap<Fragment, Node>,
+}
+
+impl Directory {
+    pub fn get(&self, path: InternalPath) -> Option<Node<&Page, &Directory>> {
+        let mut dir = self;
+
+        let mut last = None;
+
+        for piece in &path.fragments {
+            if let Some(last) = last {
+                dir = dir.contents.get(last)?.as_ref().dir()?;
+            }
+            last = Some(piece);
+        }
+
+        let node = dir.contents.get(last?)?;
+        Some(node.as_ref())
+    }
+
+    pub fn get_mut(
+        &mut self,
+        path: InternalPath,
+    ) -> Option<Node<&mut Page, &mut Directory>> {
+        let mut dir = self;
+
+        let mut last = None;
+
+        for piece in &path.fragments {
+            if let Some(last) = last {
+                dir = dir.contents.get_mut(last)?.as_mut().dir()?;
+            }
+            last = Some(piece);
+        }
+
+        let node = dir.contents.get_mut(last?)?;
+        Some(node.as_mut())
+    }
+
+    pub fn insert(&mut self, path: InternalPath, node: Node) {
+        let mut dir = self;
+
+        let mut last = None::<&Fragment>;
+
+        for piece in &path.fragments {
+            if let Some(last) = last {
+                dir = dir
+                    .contents
+                    .entry(last.clone())
+                    .or_insert_with(|| Node::Directory(Directory::default()))
+                    .as_mut()
+                    .dir()
+                    .expect("Must be a directory");
+            }
+            last = Some(piece);
+        }
+
+        let stem = last.expect("Cannot insert at root");
+        match dir.contents.entry(stem.clone()) {
+            hash_map::Entry::Vacant(entry) => {
+                entry.insert(node);
+            },
+            _ => panic!("Cannot insert if already occupied"),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -86,7 +174,7 @@ impl<'dir> IntoIterator for &'dir Directory {
 #[derive(Debug, Clone)]
 pub struct Pages<'dir> {
     curr_loc: InternalPath,
-    curr_iter: hash_map::Iter<'dir, InternalPath, Node>,
+    curr_iter: hash_map::Iter<'dir, Fragment, Node>,
     directories: Vec<(InternalPath, &'dir Directory)>,
 }
 
@@ -97,7 +185,7 @@ impl<'site> Iterator for Pages<'site> {
         loop {
             if let Some((suffix, node)) = self.curr_iter.next() {
                 let mut loc = self.curr_loc.clone();
-                loc.fragments.extend(suffix.fragments.iter().cloned());
+                loc.fragments.push(suffix.clone());
                 match node {
                     Node::Page(page) => break Some((loc, page)),
                     Node::Directory(dir) => self.directories.push((loc, dir)),

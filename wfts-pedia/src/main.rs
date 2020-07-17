@@ -6,7 +6,7 @@ use wfts_pedia_ssg::{
         text::{Link, Paragraph},
         Component,
     },
-    location::{Id, InternalPath},
+    location::{Fragment, Id},
     page::{Page, Section},
     site::{Directory, Generator, Node, Site},
 };
@@ -15,10 +15,9 @@ use wfts_star_lang::StarLang;
 fn main() {
     let mut site = Site { root: Directory { contents: HashMap::new() } };
 
-    site.root.contents.insert(
-        InternalPath::parse("index.html").unwrap(),
-        Node::Page(index_page()),
-    );
+    site.root
+        .contents
+        .insert(Fragment::new("index.html").unwrap(), Node::Page(index_page()));
 
     let generator = Generator {
         site,
