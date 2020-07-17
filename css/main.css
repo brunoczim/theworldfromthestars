@@ -27,11 +27,17 @@ ol {
 table {
     border-collapse: collapse;
     border: 0;
+    margin-bottom: 20pt;
 }
 
 td, th {
-    padding: 10pt;
+    text-align: center;
+    padding: 7pt;
     border: 1px solid black;
+}
+
+th {
+    font-weight: bold;
 }
 
 h1, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a {
@@ -39,19 +45,19 @@ h1, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a {
 }
 
 h1 {
-    font-size: 180%;
+    font-size: 200%;
     padding-top: 20pt;
     padding-bottom: 10pt;
 }
 
 h2 {
-    font-size: 160%;
+    font-size: 180%;
     padding-top: 16pt;
     padding-bottom: 8pt;
 }
 
 h3 {
-    font-size: 140%;
+    font-size: 145%;
     padding-top: 14pt;
     padding-bottom: 7pt;
 }
@@ -95,6 +101,13 @@ p {
 
 p:last-child {
     margin-bottom: 0;
+}
+
+.table-title {
+    font-weight: bold;
+    display: block;
+    margin-top: 6pt;
+    margin-bottom: 3pt;
 }
 
 #page-top {
