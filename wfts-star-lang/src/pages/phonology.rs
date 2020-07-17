@@ -262,8 +262,10 @@ pub fn make(dir: &mut Directory) {
                                 "At later times, when adjacent to palatal \
                                  sounds, many speakers pronounce the alveolar \
                                  fricative /s/ as an alveolo-palatal sibilant \
-                                 [ɕ] and the velar fricative /x/ as a palatal \
-                                 non-sibilant fricative [ç]. Adjacent sounds \
+                                 [ɕ], the velar fricative /x/ as a palatal \
+                                 non-sibilant fricative [ç], and the \
+                                 labiovelar fricative /xʷ/ as a labiopalatal \
+                                 non-sibilant fricative [çʷ]. Adjacent sounds \
                                  are not deleted (yet). The geographic \
                                  distribution of this change seems to be \
                                  non-uniform and quite widespread. If one \
@@ -358,7 +360,7 @@ pub fn make(dir: &mut Directory) {
                                             colspan: 1,
                                             header: true,
                                             data: "After /cʰ, cʼ, ɲ, j/ (and \
-                                                   [ɕ, ç])",
+                                                   [ɕ, ç, çʷ])",
                                         },
                                         Entry {
                                             rowspan: 1,
@@ -411,7 +413,7 @@ pub fn make(dir: &mut Directory) {
                                             data: "/eː/",
                                         },
                                         Entry::new("[e̞ː]"),
-                                        Entry::new("[əː ~ ɘː̞]"),
+                                        Entry::new("[əː ~ ɘː]"),
                                         Entry::new("[ɤ̞ə̯]"),
                                         Entry::new("[o̞ː]"),
                                     ],
