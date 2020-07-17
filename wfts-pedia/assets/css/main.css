@@ -84,3 +84,22 @@ a:hover {
 a:visited {
     color: #0F62A6;
 }
+
+p {
+    text-indent: 14pt;
+    text-align: justify;
+    margin-bottom: 5pt;
+    line-height: 1.25;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+#page-top {
+    margin: 5pt;
+}
+
+#body-wrapper {
+    padding: 10pt;
+}

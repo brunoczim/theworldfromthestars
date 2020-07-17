@@ -16,6 +16,18 @@ pub enum Node<P = Page, D = Directory> {
     Directory(D),
 }
 
+impl From<Page> for Node {
+    fn from(page: Page) -> Self {
+        Node::Page(page)
+    }
+}
+
+impl From<Directory> for Node {
+    fn from(dir: Directory) -> Self {
+        Node::Directory(dir)
+    }
+}
+
 impl<P, D> Node<P, D> {
     pub fn page(self) -> Option<P> {
         match self {

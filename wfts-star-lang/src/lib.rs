@@ -21,20 +21,21 @@ impl StarLang {
                 title: String::from("Classical Star Language"),
                 body: vec![
                     Paragraph(
-                        "This group of articles is about the classical \
-                         dialect of the Star language, spoken by the Star \
-                         Folk people. It is the earlier form of the Star \
-                         language, and was spoken during the first to third \
-                         century (circa 0 ─ 250).",
+                        "This article is about the classical dialect of the \
+                         Star Language, spoken by the Star Folk people. It is \
+                         the earlier form of the Star Language, and was \
+                         spoken during the first to third century (circa 0 ─ \
+                         250). Classical Star Language is the first human \
+                         language ever, and the ancestor of any other human \
+                         language.",
                     ),
                     Paragraph(
-                        "The history of the language starts with the world \
-                         history. As the world started with the Star Folk \
-                         people, the gods gave them the insights required to \
-                         communicate with each other and form a language. The \
-                         classical period goes up to year 250, when the \
-                         single Star Folk people began to split itself in \
-                         three major groups.",
+                        "As the world started with the Star Folk people, the \
+                         gods gave them the insights required to communicate \
+                         with each other and form a language. The classical \
+                         period goes up to year 250, when the single Star \
+                         Folk people began to split itself in three major \
+                         groups.",
                     ),
                 ]
                 .to_dyn(),
