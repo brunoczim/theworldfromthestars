@@ -83,6 +83,11 @@ impl InternalPath {
     pub fn to_fs_path(&self) -> PathBuf {
         PathBuf::from(format!("{}", self))
     }
+
+    pub fn append(mut self, fragment: Fragment) -> Self {
+        self.fragments.push(fragment);
+        self
+    }
 }
 
 impl Default for InternalPath {

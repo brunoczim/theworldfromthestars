@@ -1,0 +1,15 @@
+language: rust 
+os:
+  - linux
+
+script:
+  - cargo run --package wfts-pedia
+
+deploy:
+  provider: pages
+  token: $GITHUB_TOKEN
+  keep_history: true
+  local_dir: wfts-pedia/site
+  skip_cleanup: true
+  on:
+    branch: master

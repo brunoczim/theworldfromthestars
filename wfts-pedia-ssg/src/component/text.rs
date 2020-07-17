@@ -121,7 +121,7 @@ impl<T> Component for Link<T>
 where
     T: Component<Kind = InlineComponent>,
 {
-    type Kind = BlockComponent;
+    type Kind = InlineComponent;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         write!(

@@ -69,18 +69,26 @@ where
     }
 }
 
-pub type DynComponent = Arc<dyn Component<Kind = BlockComponent> + Send + Sync>;
+pub type DynComponent<Kind = BlockComponent> =
+    Arc<dyn Component<Kind = Kind> + Send + Sync>;
 
 pub trait Component: fmt::Debug {
     type Kind;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result;
 
-    fn to_dyn(self) -> DynComponent
+    fn blocking(self) -> Blocking<Self>
+    where
+        Self: Sized,
+    {
+        Blocking(self)
+    }
+
+    fn to_dyn(self) -> DynComponent<Self::Kind>
     where
         Self: Sized + Send + Sync + 'static,
     {
-        Arc::new(Blocking(self))
+        Arc::new(self)
     }
 }
 
