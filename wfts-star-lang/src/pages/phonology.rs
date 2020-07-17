@@ -389,7 +389,7 @@ pub fn make(dir: &mut Directory) {
                                             data: "/iː/",
                                         },
                                         Entry::new("[iː]"),
-                                        Entry::new("[ɨː̞]"),
+                                        Entry::new("[ɨ̞ː]"),
                                         Entry::new("[ɯː]"),
                                         Entry::new("[uː]"),
                                     ],
