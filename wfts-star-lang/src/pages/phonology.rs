@@ -639,7 +639,7 @@ pub fn make(dir: &mut Directory) {
                                         rowspan: 3,
                                         colspan: 1,
                                         header: false,
-                                        data: UnorderedList(vec!["Vowel"])
+                                        data: UnorderedList(vec!["/ɹ/"])
                                             .to_dyn(),
                                     },
                                     Entry {
