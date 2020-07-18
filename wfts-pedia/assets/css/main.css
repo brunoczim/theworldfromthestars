@@ -45,31 +45,31 @@ h1, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a {
 }
 
 h1 {
-    font-size: 210%;
+    font-size: 200%;
     padding-top: 20pt;
     padding-bottom: 10pt;
 }
 
 h2 {
-    font-size: 185%;
+    font-size: 175%;
     padding-top: 16pt;
     padding-bottom: 8pt;
 }
 
 h3 {
-    font-size: 142.5%;
+    font-size: 140%;
     padding-top: 14pt;
     padding-bottom: 7pt;
 }
 
 h4 {
-    font-size: 125%;
+    font-size: 122.5%;
     padding-top: 12pt;
     padding-bottom: 6pt;
 }
 
 h5 {
-    font-size: 117.5%;
+    font-size: 115.5%;
     padding-top: 10pt;
     padding-bottom: 5pt;
 }
@@ -139,4 +139,9 @@ img {
 
 .fig-legend {
     margin: 2pt;
+}
+
+li {
+    margin-left: 10pt;
+    margin-right: 5pt;
 }

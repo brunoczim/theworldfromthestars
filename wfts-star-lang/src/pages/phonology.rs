@@ -3,6 +3,7 @@ use wfts_lang::Lang;
 use wfts_pedia_ssg::{
     component::{
         img::{Figure, Image},
+        list::UnorderedList,
         table::{Entry, Table},
         text::{Link, Paragraph},
         Component,
@@ -475,6 +476,210 @@ pub fn make(dir: &mut Directory) {
                         .to_dyn(),
                         children: vec![],
                     }],
+                },
+                Section {
+                    title: "Phonotactics".to_owned(),
+                    id: Id::new("phonotactics").unwrap(),
+                    body: vec![
+                        Paragraph(
+                            "In general, Classical Star Language follows this \
+                             syllable structure: (C)(C)(C)V(C)(C). There are, \
+                             however, a few restrictions on the combination \
+                             of kinds of phonemes. For instance, geminated \
+                             (long) consonants are forbidden, and so, any \
+                             sequence of repeated consonant simplifies to a \
+                             single simple consonant; there is no length \
+                             distinction. Vowels in hiatus cannot be the same \
+                             as well. The table below lists the restrictions \
+                             based on the kind of the consonants",
+                        )
+                        .to_dyn(),
+                        Table {
+                            title: "Syllabic Structure".to_owned(),
+                            entries: vec![
+                                vec![
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Outer Onset".blocking().to_dyn(),
+                                    },
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Medial Onset"
+                                            .blocking()
+                                            .to_dyn(),
+                                    },
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Inner Onset".blocking().to_dyn(),
+                                    },
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Nucleus".blocking().to_dyn(),
+                                    },
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Inner Coda".blocking().to_dyn(),
+                                    },
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Outer Coda".blocking().to_dyn(),
+                                    },
+                                ],
+                                vec![
+                                    Entry::new(
+                                        UnorderedList(vec!["Aspirated"])
+                                            .to_dyn(),
+                                    ),
+                                    Entry::new(
+                                        UnorderedList(vec![
+                                            "Aspirated",
+                                            "Fricative",
+                                            "Nasal",
+                                            "∅",
+                                        ])
+                                        .to_dyn(),
+                                    ),
+                                    Entry {
+                                        rowspan: 3,
+                                        colspan: 1,
+                                        header: false,
+                                        data: UnorderedList(vec![
+                                            "Approximant",
+                                            "∅",
+                                        ])
+                                        .to_dyn(),
+                                    },
+                                    Entry {
+                                        rowspan: 3,
+                                        colspan: 1,
+                                        header: false,
+                                        data: UnorderedList(vec!["Vowel"])
+                                            .to_dyn(),
+                                    },
+                                    Entry {
+                                        rowspan: 3,
+                                        colspan: 1,
+                                        header: false,
+                                        data: UnorderedList(vec![
+                                            "Approximant",
+                                            "∅",
+                                        ])
+                                        .to_dyn(),
+                                    },
+                                    Entry {
+                                        rowspan: 6,
+                                        colspan: 1,
+                                        header: false,
+                                        data: UnorderedList(vec![
+                                            "Fricative",
+                                            "Nasal",
+                                            "∅",
+                                        ])
+                                        .to_dyn(),
+                                    },
+                                ],
+                                vec![
+                                    Entry::new(
+                                        UnorderedList(vec!["Ejective"])
+                                            .to_dyn(),
+                                    ),
+                                    Entry::new(
+                                        UnorderedList(vec![
+                                            "Ejective",
+                                            "Fricative",
+                                            "Nasal",
+                                            "∅",
+                                        ])
+                                        .to_dyn(),
+                                    ),
+                                ],
+                                vec![
+                                    Entry::new(
+                                        UnorderedList(vec!["Fricative", "∅"])
+                                            .to_dyn(),
+                                    ),
+                                    Entry::new(
+                                        UnorderedList(vec!["Nasal", "∅"])
+                                            .to_dyn(),
+                                    ),
+                                ],
+                                vec![
+                                    Entry::new(
+                                        UnorderedList(vec!["Aspirated"])
+                                            .to_dyn(),
+                                    ),
+                                    Entry::new(
+                                        UnorderedList(vec![
+                                            "Aspirated",
+                                            "Fricative",
+                                            "Nasal",
+                                            "∅",
+                                        ])
+                                        .to_dyn(),
+                                    ),
+                                    Entry {
+                                        rowspan: 3,
+                                        colspan: 1,
+                                        header: false,
+                                        data: UnorderedList(vec!["∅"]).to_dyn(),
+                                    },
+                                    Entry {
+                                        rowspan: 3,
+                                        colspan: 1,
+                                        header: false,
+                                        data: UnorderedList(vec!["Vowel"])
+                                            .to_dyn(),
+                                    },
+                                    Entry {
+                                        rowspan: 3,
+                                        colspan: 1,
+                                        header: false,
+                                        data: UnorderedList(vec!["∅"]).to_dyn(),
+                                    },
+                                ],
+                                vec![
+                                    Entry::new(
+                                        UnorderedList(vec!["Ejective"])
+                                            .to_dyn(),
+                                    ),
+                                    Entry::new(
+                                        UnorderedList(vec![
+                                            "Ejective",
+                                            "Fricative",
+                                            "Nasal",
+                                            "∅",
+                                        ])
+                                        .to_dyn(),
+                                    ),
+                                ],
+                                vec![
+                                    Entry::new(
+                                        UnorderedList(vec!["Fricative", "∅"])
+                                            .to_dyn(),
+                                    ),
+                                    Entry::new(
+                                        UnorderedList(vec!["Nasal", "∅"])
+                                            .to_dyn(),
+                                    ),
+                                ],
+                            ],
+                        }
+                        .to_dyn(),
+                    ]
+                    .to_dyn(),
+                    children: vec![],
                 },
             ],
         }),
