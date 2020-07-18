@@ -122,3 +122,21 @@ p:last-child {
     padding-left: 10pt;
     border-left: solid 1pt #000000;
 }
+
+img {
+    max-width: 500pt;
+    max-height: 98vh;
+    width: 100%;
+    background-color: white;
+}
+
+.fig-wrapper {
+    background: #F7F7F7;
+    padding: 5pt;
+    border: 1pt solid #B0B0B0;
+    display: inline-block;
+}
+
+.fig-legend {
+    margin: 2pt;
+}
