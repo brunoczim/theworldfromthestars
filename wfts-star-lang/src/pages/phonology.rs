@@ -2,11 +2,12 @@ use crate::StarLang;
 use wfts_lang::Lang;
 use wfts_pedia_ssg::{
     component::{
+        img::{Figure, Image},
         table::{Entry, Table},
         text::{Link, Paragraph},
         Component,
     },
-    location::{Id, InternalPath},
+    location::{Fragment, Id, InternalPath},
     page::{Page, Section},
     site::{Directory, Node},
 };
@@ -386,18 +387,6 @@ pub fn make(dir: &mut Directory) {
                                             rowspan: 1,
                                             colspan: 1,
                                             header: true,
-                                            data: "/iː/",
-                                        },
-                                        Entry::new("[iː]"),
-                                        Entry::new("[ɨː]"),
-                                        Entry::new("[ɯː]"),
-                                        Entry::new("[uː]"),
-                                    ],
-                                    vec![
-                                        Entry {
-                                            rowspan: 1,
-                                            colspan: 1,
-                                            header: true,
                                             data: "/i/",
                                         },
                                         Entry::new("[i ~ ɪ]"),
@@ -410,12 +399,12 @@ pub fn make(dir: &mut Directory) {
                                             rowspan: 1,
                                             colspan: 1,
                                             header: true,
-                                            data: "/eː/",
+                                            data: "/iː/",
                                         },
-                                        Entry::new("[e̞ː]"),
-                                        Entry::new("[əː ~ ɘː]"),
-                                        Entry::new("[ɤ̞ə̯]"),
-                                        Entry::new("[o̞ː]"),
+                                        Entry::new("[iː]"),
+                                        Entry::new("[ɨː]"),
+                                        Entry::new("[ɯː]"),
+                                        Entry::new("[uː]"),
                                     ],
                                     vec![
                                         Entry {
@@ -428,6 +417,18 @@ pub fn make(dir: &mut Directory) {
                                         Entry::new("[ə]"),
                                         Entry::new("[ɤ̞ ~ ɤ̽]"),
                                         Entry::new("[o̞ ~ o̽]"),
+                                    ],
+                                    vec![
+                                        Entry {
+                                            rowspan: 1,
+                                            colspan: 1,
+                                            header: true,
+                                            data: "/eː/",
+                                        },
+                                        Entry::new("[e̞ː]"),
+                                        Entry::new("[əː ~ ɘː]"),
+                                        Entry::new("[ɤ̞ə̯]"),
+                                        Entry::new("[o̞ː]"),
                                     ],
                                     vec![
                                         Entry {
@@ -454,6 +455,20 @@ pub fn make(dir: &mut Directory) {
                                         Entry::new("[ɒɔ̯]"),
                                     ],
                                 ],
+                            }
+                            .to_dyn(),
+                            Figure {
+                                img: Image {
+                                    alt: "Vowel allophones".to_owned(),
+                                    src: StarLang
+                                        .path()
+                                        .append(
+                                            Fragment::new("vowels.svg")
+                                                .unwrap(),
+                                        )
+                                        .into(),
+                                },
+                                legend: "Trapezoid of vowel allophones.",
                             }
                             .to_dyn(),
                         ]
