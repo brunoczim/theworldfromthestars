@@ -23,6 +23,7 @@ impl Lang for StarLang {
         let mut dir = Directory { contents: HashMap::new() };
         self::pages::index::make(&mut dir);
         self::pages::phonology::make(&mut dir);
+        self::pages::grammar::make(&mut dir);
         dir
     }
 }

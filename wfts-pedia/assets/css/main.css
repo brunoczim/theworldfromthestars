@@ -141,7 +141,9 @@ img {
     margin: 2pt;
 }
 
-li {
-    margin-left: 10pt;
+ul, ol {
+    margin-top: 10pt;
+    margin-bottom: 10pt;
+    margin-left: 20pt;
     margin-right: 5pt;
 }

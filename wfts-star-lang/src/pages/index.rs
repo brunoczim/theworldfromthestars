@@ -33,20 +33,36 @@ pub fn make(dir: &mut Directory) {
                 ),
             ]
             .to_dyn(),
-            sections: vec![Section {
-                title: "Phonology".to_owned(),
-                body: Paragraph(Link {
-                    text: "See this article.",
-                    location: Location::from(
-                        StarLang
-                            .path()
-                            .append(Fragment::new("phonology").unwrap()),
-                    ),
-                })
-                .to_dyn(),
-                children: vec![],
-                id: Id::new("phonology").unwrap(),
-            }],
+            sections: vec![
+                Section {
+                    title: "Phonology".to_owned(),
+                    body: Paragraph(Link {
+                        text: "See this article.",
+                        location: Location::from(
+                            StarLang
+                                .path()
+                                .append(Fragment::new("phonology").unwrap()),
+                        ),
+                    })
+                    .to_dyn(),
+                    children: vec![],
+                    id: Id::new("phonology").unwrap(),
+                },
+                Section {
+                    title: "Grammar".to_owned(),
+                    body: Paragraph(Link {
+                        text: "See this article.",
+                        location: Location::from(
+                            StarLang
+                                .path()
+                                .append(Fragment::new("grammar").unwrap()),
+                        ),
+                    })
+                    .to_dyn(),
+                    children: vec![],
+                    id: Id::new("grammar").unwrap(),
+                },
+            ],
         }),
     );
 }

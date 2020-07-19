@@ -268,11 +268,18 @@ pub fn make(dir: &mut Directory) {
                                  non-sibilant fricative [ç], and the \
                                  labiovelar fricative /xʷ/ as a labiopalatal \
                                  non-sibilant fricative [çʷ]. Adjacent sounds \
-                                 are not deleted (yet). The geographic \
-                                 distribution of this change seems to be \
-                                 non-uniform and quite widespread. If one \
-                                 speaker in one area features this variation, \
-                                 another speaker might not feature it.",
+                                 are not deleted (yet).",
+                            )
+                            .to_dyn(),
+                            Paragraph(
+                                "The geographic distribution of this change \
+                                 seems to be non-uniform and quite \
+                                 widespread. Generally, a single speaker \
+                                 might or might not feature this variation, \
+                                 depending on the context and the influence \
+                                 of other speakers. It is also possible for a \
+                                 speaker to always feature the variation, or \
+                                 never feature this at all.",
                             )
                             .to_dyn(),
                         ]
