@@ -172,6 +172,89 @@ pub fn make(dir: &mut Directory) {
                     .to_dyn(),
                     children: vec![],
                 },
+                Section {
+                    title: "Postpositions".to_owned(),
+                    id: Id::new("postpositions").unwrap(),
+                    body: Paragraph(
+                        "Postpositions usually give information about a kind \
+                         of motion, a manner of location or a manner of time. \
+                         Postpositions are similar to English's prepositions, \
+                         except they are words written after the noun phrases \
+                         (hence post); the noun phrases are inflected in the \
+                         postpositional cases then. Postpositions inflect for \
+                         the case which the noun would take if it weren't \
+                         followed by the postposition. Besides the same cases \
+                         as nouns, postpositions also inflect for the \
+                         intransitive case, like pronouns.",
+                    )
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Conjunctions".to_owned(),
+                    id: Id::new("conjunctions").unwrap(),
+                    body: Paragraph(
+                        "Conjunctions are used to connect phrases or even \
+                         whole clauses, like in English. In Star Language, \
+                         however, they may also be used to nominalize verbs. \
+                         The requirement for conjunctions is also more \
+                         extreme in Star Language: they are required in order \
+                         to create a noun compound. In the case of connecting \
+                         noun phrases, the noun phrases are inflected with \
+                         the noun phrase's case normally. Conjunctions are \
+                         inflected for case. Besides the same cases as nouns, \
+                         and also the intransitive case, they have a default \
+                         case called coordenative, used when connecting two \
+                         clauses.",
+                    )
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Verbs".to_owned(),
+                    id: Id::new("verbs").unwrap(),
+                    body: vec![
+                        Paragraph(
+                            "Verbs in Star Language are similar to verbs in \
+                             English. They play a central role in a clause, \
+                             and usually specifies the main action of the \
+                             clause, but not necessarily. Verbs inflect for \
+                             person, mood and tense. The persons are the same \
+                             as with the pronouns.",
+                        )
+                        .to_dyn(),
+                        Paragraph("Moods are:").to_dyn(),
+                        UnorderedList(vec!["Indicative", "Imperative"])
+                            .to_dyn(),
+                        Paragraph("Indicative tenses are:").to_dyn(),
+                        UnorderedList(vec![
+                            "Present",
+                            "Past",
+                            "Near-Future",
+                            "Far-Future",
+                        ])
+                        .to_dyn(),
+                        Paragraph(
+                            "The name of the tenses pretty much explain \
+                             themselves. Past is something that has already \
+                             occured. Present is occuring right now. \
+                             Near-Future will occur soon. Far-Future will \
+                             occur in a long time. Difference betweeen the \
+                             two futures are relative.",
+                        )
+                        .to_dyn(),
+                        Paragraph("Imperative tenses are:").to_dyn(),
+                        UnorderedList(vec!["Present", "Future"]).to_dyn(),
+                        Paragraph(
+                            "Present means an order to be executed now. \
+                             Future is an order meant to be executed in a \
+                             somewhat far future.",
+                        )
+                        .to_dyn(),
+                    ]
+                    .to_dyn(),
+                    children: vec![],
+                },
             ],
         }),
     );
