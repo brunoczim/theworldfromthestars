@@ -1,5 +1,6 @@
 pub mod phonology;
-mod pages;
+pub mod grammar;
+pub mod pages;
 
 use self::phonology::{Phoneme, Syllable, Word};
 use std::collections::HashMap;

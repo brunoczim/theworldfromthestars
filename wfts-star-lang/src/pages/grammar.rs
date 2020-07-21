@@ -226,6 +226,11 @@ pub fn make(dir: &mut Directory) {
                         Paragraph("Moods are:").to_dyn(),
                         UnorderedList(vec!["Indicative", "Imperative"])
                             .to_dyn(),
+                        Paragraph(
+                            "Imperative mood gives orders. Indicative is used \
+                             for anything else.",
+                        )
+                        .to_dyn(),
                         Paragraph("Indicative tenses are:").to_dyn(),
                         UnorderedList(vec![
                             "Present",
@@ -252,6 +257,53 @@ pub fn make(dir: &mut Directory) {
                         )
                         .to_dyn(),
                     ]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Adverb".to_owned(),
+                    id: Id::new("adverbs").unwrap(),
+                    body: vec![
+                        Paragraph(
+                            "Adverbs are words that modify verbs. They work \
+                             like adverbs in English. Adverbs inflect for \
+                             mood.",
+                        )
+                        .to_dyn(),
+                        Paragraph("Moods are:").to_dyn(),
+                        UnorderedList(vec![
+                            "Indicative",
+                            "Subjunctive",
+                            "Interrogative",
+                            "Optative",
+                            "Imperative",
+                        ])
+                        .to_dyn(),
+                        Paragraph(
+                            "Every adverb mood relates to a verb mood, and \
+                             they must agree. Indicative agrees to the verb's \
+                             indicative and express certainty. Subjunctive \
+                             agrees to the verb's indicative, and express \
+                             doubt or hypothesis. Interrogative also agrees \
+                             to the verb's indicativee, and is used to ask a \
+                             question. Optative agrees to the verb's \
+                             imperative, and is used to express a wish or a \
+                             hope. Imperative agrees to the verb's imperative \
+                             and express orders.",
+                        )
+                        .to_dyn(),
+                    ]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Roots".to_owned(),
+                    id: Id::new("roots").unwrap(),
+                    body: Paragraph(
+                        "Roots are templates used to create words. They might \
+                         combine with another root or create words directly. \
+                         Roots may yield words of any part of speech.",
+                    )
                     .to_dyn(),
                     children: vec![],
                 },
