@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt, hash::Hash, str};
+use std::{fmt, hash::Hash, str};
 use thiserror::Error;
 use wfts_pedia_ssg::{
     component::{Component, Context, InlineComponent},

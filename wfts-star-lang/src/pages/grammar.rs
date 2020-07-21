@@ -2,13 +2,11 @@ use crate::StarLang;
 use wfts_lang::Lang;
 use wfts_pedia_ssg::{
     component::{
-        img::{Figure, Image},
         list::{OrderedList, UnorderedList},
-        table::{Entry, Table},
         text::{Link, Paragraph},
         Component,
     },
-    location::{Fragment, Id, InternalPath},
+    location::{Id, InternalPath},
     page::{Page, Section},
     site::{Directory, Node},
 };
