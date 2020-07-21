@@ -1,13 +1,5 @@
-use super::StarLang;
 use std::{borrow::Cow, iter};
 use thiserror::Error;
-use wfts_lang::{
-    Character as CharTrait,
-    Lang,
-    Phoneme as PhonemeTrait,
-    Syllable as SylTrait,
-    Word as WordTrait,
-};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Word {
@@ -26,7 +18,7 @@ impl Word {
         }
 
         for syllable in &syllables {
-            let mut iter = syllable.iter();
+            let mut iter = syllable.phonemes();
             let first = iter.next().unwrap();
             let last = iter.last();
             let onset_len = syllable.onset().iter().count();
@@ -49,23 +41,17 @@ impl Word {
         Ok(Self { syllables })
     }
 
-    pub fn iter<'this>(&'this self) -> impl Iterator<Item = Phoneme> + 'this {
-        self.syllables.iter().flat_map(Syllable::iter)
-    }
-}
-
-impl WordTrait for Word {
-    type Lang = StarLang;
-
-    fn chars(&self) -> Cow<[<Self::Lang as Lang>::Character]> {
-        Cow::from(self.iter().collect::<Vec<_>>())
+    pub fn phonemes<'this>(
+        &'this self,
+    ) -> impl Iterator<Item = Phoneme> + 'this {
+        self.syllables.iter().flat_map(Syllable::phonemes)
     }
 
-    fn syllables(&self) -> Cow<[<Self::Lang as Lang>::Syllable]> {
-        Cow::from(&self.syllables)
+    pub fn syllables(&self) -> &[Syllable] {
+        &self.syllables
     }
 
-    fn to_broad_ipa(&self) -> Cow<str> {
+    pub fn to_broad_ipa(&self) -> String {
         let mut output = String::from("ˈ");
         let mut first = false;
 
@@ -76,15 +62,15 @@ impl WordTrait for Word {
                 output.push('.');
             }
 
-            for phoneme in syllable.iter() {
+            for phoneme in syllable.phonemes() {
                 output.push_str(&phoneme.to_broad_ipa())
             }
         }
 
-        Cow::from(output)
+        output
     }
 
-    fn to_narrow_ipa(&self) -> Cow<str> {
+    pub fn to_narrow_ipa(&self) -> String {
         let mut output = String::from("ˈ");
         let mut prev = None;
 
@@ -93,13 +79,21 @@ impl WordTrait for Word {
                 output.push('.');
             }
 
-            for phoneme in syllable.iter() {
+            for phoneme in syllable.phonemes() {
                 output.push_str(phoneme.to_narrow_ipa(prev));
                 prev = Some(phoneme);
             }
         }
 
-        Cow::from(output)
+        output
+    }
+
+    pub fn to_text(&self) -> String {
+        let mut output = String::new();
+        for ch in self.phonemes() {
+            output.push_str(&ch.to_text());
+        }
+        output
     }
 }
 
@@ -150,19 +144,23 @@ impl Syllable {
         &self.coda
     }
 
-    pub fn iter<'this>(&'this self) -> impl Iterator<Item = Phoneme> + 'this {
+    pub fn phonemes<'this>(
+        &'this self,
+    ) -> impl Iterator<Item = Phoneme> + 'this {
         self.onset
             .iter()
             .chain(iter::once(self.nucleus))
             .chain(self.coda.iter())
     }
-}
 
-impl SylTrait for Syllable {
-    type Lang = StarLang;
+    pub fn to_broad_ipa(&self) -> Cow<str> {
+        let mut output = String::new();
 
-    fn phonemes(&self) -> Cow<[<Self::Lang as Lang>::Phoneme]> {
-        Cow::from(self.iter().collect::<Vec<_>>())
+        for phoneme in self.phonemes() {
+            output.push_str(&phoneme.to_broad_ipa());
+        }
+
+        Cow::from(output)
     }
 }
 
@@ -452,12 +450,8 @@ impl Phoneme {
             Aa => "äː",
         }
     }
-}
 
-impl CharTrait for Phoneme {
-    type Lang = StarLang;
-
-    fn to_text(&self) -> Cow<str> {
+    pub fn to_text(&self) -> Cow<str> {
         use Phoneme::*;
 
         Cow::from(match self {
@@ -493,12 +487,8 @@ impl CharTrait for Phoneme {
             Aa => "á",
         })
     }
-}
 
-impl PhonemeTrait for Phoneme {
-    type Lang = StarLang;
-
-    fn to_broad_ipa(&self) -> Cow<str> {
+    pub fn to_broad_ipa(&self) -> Cow<str> {
         use Phoneme::*;
 
         Cow::from(match self {
@@ -629,7 +619,7 @@ mod test {
             Coda::new(Some(W), Some(N)).unwrap(),
         )
         .unwrap();
-        assert_eq!(vec![K, P, Y, Ee, W, N], syl.iter().collect::<Vec<_>>());
+        assert_eq!(vec![K, P, Y, Ee, W, N], syl.phonemes().collect::<Vec<_>>());
 
         let syl = Syllable::new(
             Onset::new(Some(S), None, Some(W)).unwrap(),
@@ -637,7 +627,7 @@ mod test {
             Coda::new(None, None).unwrap(),
         )
         .unwrap();
-        assert_eq!(vec![S, W, R], syl.iter().collect::<Vec<_>>());
+        assert_eq!(vec![S, W, R], syl.phonemes().collect::<Vec<_>>());
 
         let syl = Syllable::new(
             Onset::new(Some(F), None, None).unwrap(),
@@ -645,7 +635,7 @@ mod test {
             Coda::new(None, Some(Ng)).unwrap(),
         )
         .unwrap();
-        assert_eq!(vec![F, I, Ng], syl.iter().collect::<Vec<_>>());
+        assert_eq!(vec![F, I, Ng], syl.phonemes().collect::<Vec<_>>());
 
         Syllable::new(
             Onset::new(Some(X), None, Some(R)).unwrap(),
@@ -682,7 +672,7 @@ mod test {
         .unwrap();
         assert_eq!(
             vec![F, I, Ng, S, W, R, K, P, Ee, Y],
-            word.iter().collect::<Vec<_>>()
+            word.phonemes().collect::<Vec<_>>()
         );
 
         Word::new(vec![
