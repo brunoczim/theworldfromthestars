@@ -320,7 +320,7 @@ pub fn make(dir: &mut Directory) {
                                         colspan: 1,
                                         rowspan: 1,
                                         header: true,
-                                        data: "Closed",
+                                        data: "Close",
                                     },
                                     Entry::new("i"),
                                     Entry::new("iː"),
