@@ -137,14 +137,14 @@ pub fn make(dir: &mut Directory) {
                              Pronouns vary in case, gender, number and \
                              person. Gender and number are the same as with \
                              nouns. Cases, besides the ones used with nouns, \
-                             there is also the intransitive case. The \
-                             intransitive case distinguishes itself from the \
-                             nominative case such that:",
+                             there is also the passive case. The passive case \
+                             distinguishes itself from the nominative case \
+                             such that:",
                         )
                         .to_dyn(),
                         OrderedList(vec![
                             "The verb takes no arguments except the subject;",
-                            "The subject is the patient of the action, that \
+                            "The subject is the passive of the action, that \
                              is, it involuntarily suffers the action.",
                         ])
                         .to_dyn(),
@@ -182,8 +182,8 @@ pub fn make(dir: &mut Directory) {
                          postpositional cases then. Postpositions inflect for \
                          the case which the noun would take if it weren't \
                          followed by the postposition. Besides the same cases \
-                         as nouns, postpositions also inflect for the \
-                         intransitive case, like pronouns.",
+                         as nouns, postpositions also inflect for the passive \
+                         case, like pronouns.",
                     )
                     .to_dyn(),
                     children: vec![],
@@ -201,8 +201,8 @@ pub fn make(dir: &mut Directory) {
                          noun phrases, the noun phrases are inflected with \
                          the noun phrase's case normally. Conjunctions are \
                          inflected for case. Besides the same cases as nouns, \
-                         and also the intransitive case, they have a default \
-                         case called coordenative, used when connecting two \
+                         and also the passive case, they have a default case \
+                         called coordenative, used when connecting two \
                          clauses.",
                     )
                     .to_dyn(),
