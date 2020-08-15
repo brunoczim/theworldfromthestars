@@ -1,5 +1,26 @@
+use anyhow::Context;
 use std::{borrow::Cow, iter};
 use thiserror::Error;
+
+pub trait Parse
+where
+    Self: Sized,
+{
+    fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self>;
+
+    fn parse_str<S>(contents: S) -> anyhow::Result<Self>
+    where
+        S: AsRef<str>,
+    {
+        contents
+            .as_ref()
+            .chars()
+            .map(Phoneme::new)
+            .collect::<anyhow::Result<Vec<_>>>()
+            .and_then(|phonemes| Self::parse(&phonemes[..]))
+            .with_context(|| contents.as_ref().to_owned())
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Word {
@@ -95,15 +116,118 @@ impl Word {
         }
         output
     }
+
+    pub fn replace_final_coda(&self, coda: Coda) -> anyhow::Result<Self> {
+        let last = *self.syllables().last().unwrap();
+        let new_last = Syllable::new(last.onset(), last.nucleus(), coda)?;
+        let mut syllables = self.syllables().to_vec();
+        syllables.push(new_last);
+        Self::new(syllables)
+    }
+
+    pub fn replace_final_rhyme(
+        &self,
+        nucleus: Phoneme,
+        coda: Coda,
+    ) -> anyhow::Result<Self> {
+        let last = *self.syllables().last().unwrap();
+        let new_last = Syllable::new(last.onset(), nucleus, coda)?;
+        let mut syllables = self.syllables().to_vec();
+        syllables.push(new_last);
+        Self::new(syllables)
+    }
+
+    pub fn replace_final_nucleus(
+        &self,
+        nucleus: Phoneme,
+    ) -> anyhow::Result<Self> {
+        let last = *self.syllables().last().unwrap();
+        let new_last = Syllable::new(last.onset(), nucleus, last.coda())?;
+        let mut syllables = self.syllables().to_vec();
+        syllables.push(new_last);
+        Self::new(syllables)
+    }
+
+    pub fn append(&self, syllable: Syllable) -> anyhow::Result<Self> {
+        let mut syllables = self.syllables.to_vec();
+        syllables.push(syllable);
+        Self::new(syllables)
+    }
+
+    fn find_nucleus(phonemes: &[Phoneme], initial: bool) -> Option<usize> {
+        let mut pos = None;
+
+        for (i, &phoneme) in phonemes.iter().enumerate() {
+            if phoneme.classify() == PhonemeClass::Vowel {
+                pos = Some(i);
+                break;
+            }
+            if pos.is_some() {
+                break;
+            }
+            if phoneme == Phoneme::R && (initial || i > 0) {
+                pos = Some(i);
+            }
+        }
+
+        pos
+    }
+
+    fn find_boundary(phonemes: &[Phoneme]) -> usize {
+        phonemes
+            .iter()
+            .map(|ph| ph.classify())
+            .enumerate()
+            .max_by_key(|&(_, cls)| cls)
+            .map_or(0, |(i, _)| i)
+    }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Error)]
+impl Parse for Word {
+    fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self> {
+        let mut output = Vec::new();
+        let mut slice = phonemes;
+        let mut nucleus = Self::find_nucleus(slice, true)
+            .ok_or_else(|| WordParseError { phonemes: slice.to_vec() })?;
+
+        loop {
+            match Self::find_nucleus(&slice[nucleus + 1 ..], false) {
+                Some(relative_next) => {
+                    let next = nucleus + 1 + relative_next;
+                    let boundary =
+                        nucleus + Self::find_boundary(&slice[nucleus .. next]);
+
+                    let syllable = Syllable::parse(&slice[.. boundary])?;
+                    output.push(syllable);
+
+                    slice = &slice[boundary ..];
+                    nucleus = next - boundary;
+                },
+
+                None => {
+                    output.push(Syllable::parse(slice)?);
+                    break;
+                },
+            }
+        }
+
+        Self::new(output)
+    }
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Parse error on word {phonemes:?}")]
+pub struct WordParseError {
+    pub phonemes: Vec<Phoneme>,
+}
+
+#[derive(Debug, Clone, Error)]
 #[error("Invalid word made of syllables={syllables:?}")]
 pub struct InvalidWord {
     pub syllables: Vec<Syllable>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Syllable {
     onset: Onset,
     nucleus: Phoneme,
@@ -132,16 +256,16 @@ impl Syllable {
         Ok(Self { onset, nucleus, coda })
     }
 
-    pub fn onset(&self) -> &Onset {
-        &self.onset
+    pub fn onset(&self) -> Onset {
+        self.onset
     }
 
     pub fn nucleus(&self) -> Phoneme {
         self.nucleus
     }
 
-    pub fn coda(&self) -> &Coda {
-        &self.coda
+    pub fn coda(&self) -> Coda {
+        self.coda
     }
 
     pub fn phonemes<'this>(
@@ -162,9 +286,44 @@ impl Syllable {
 
         Cow::from(output)
     }
+
+    fn find_nucleus(phonemes: &[Phoneme]) -> Option<usize> {
+        let mut pos = None;
+
+        for (i, &phoneme) in phonemes.iter().enumerate() {
+            if phoneme.classify() == PhonemeClass::Vowel {
+                pos = Some(i);
+                break;
+            }
+            if phoneme == Phoneme::R {
+                pos = Some(i);
+            }
+        }
+
+        pos
+    }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Error)]
+impl Parse for Syllable {
+    fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self> {
+        let nucleus = Self::find_nucleus(phonemes).ok_or_else(|| {
+            SyllableParseError { phonemes: phonemes.to_vec() }
+        })?;
+
+        let onset = Onset::parse(&phonemes[.. nucleus])?;
+        let coda = Coda::parse(&phonemes[nucleus + 1 ..])?;
+
+        Self::new(onset, phonemes[nucleus], coda)
+    }
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Parse error on syllable {phonemes:?}")]
+pub struct SyllableParseError {
+    pub phonemes: Vec<Phoneme>,
+}
+
+#[derive(Debug, Clone, Error)]
 #[error(
     "Invalid onset made of onset={onset:?}, nucleus={nucleus:?}, coda={coda:?}"
 )]
@@ -174,7 +333,7 @@ pub struct InvalidSyllable {
     pub coda: Coda,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Onset {
     outer: Option<Phoneme>,
     medial: Option<Phoneme>,
@@ -213,7 +372,7 @@ impl Onset {
         self.inner
     }
 
-    fn valid_outer_medial(
+    pub fn valid_outer_medial(
         outer: Option<PhonemeClass>,
         medial: Option<PhonemeClass>,
     ) -> bool {
@@ -233,7 +392,7 @@ impl Onset {
         }
     }
 
-    fn valid_inner(inner: Option<PhonemeClass>) -> bool {
+    pub fn valid_inner(inner: Option<PhonemeClass>) -> bool {
         use PhonemeClass::*;
         matches!(inner, Some(Approximant) | None)
     }
@@ -246,7 +405,39 @@ impl Onset {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Error)]
+impl Parse for Onset {
+    fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self> {
+        match phonemes {
+            &[first] => {
+                let class = first.classify();
+                if Self::valid_outer_medial(Some(class), None) {
+                    Self::new(Some(first), None, None)
+                } else if Self::valid_outer_medial(None, Some(class)) {
+                    Self::new(None, Some(first), None)
+                } else {
+                    Self::new(None, None, Some(first))
+                }
+            },
+            &[first, second] => {
+                let first_cls = first.classify();
+                let second_cls = first.classify();
+                if Self::valid_outer_medial(Some(first_cls), Some(second_cls)) {
+                    Self::new(Some(first), Some(second), None)
+                } else if Self::valid_outer_medial(Some(first_cls), None) {
+                    Self::new(Some(first), None, Some(second))
+                } else {
+                    Self::new(None, Some(first), Some(second))
+                }
+            },
+            &[first, second, third] => {
+                Self::new(Some(first), Some(second), Some(third))
+            },
+            _ => Err(OnsetParseError { phonemes: phonemes.to_vec() })?,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Error)]
 #[error(
     "Invalid onset made of outer={outer:?}, medial={medial:?}, inner={inner:?}"
 )]
@@ -256,7 +447,13 @@ pub struct InvalidOnset {
     pub inner: Option<Phoneme>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Error)]
+#[error("Parse error on onset {phonemes:?}")]
+pub struct OnsetParseError {
+    pub phonemes: Vec<Phoneme>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Coda {
     inner: Option<Phoneme>,
     outer: Option<Phoneme>,
@@ -284,12 +481,12 @@ impl Coda {
         self.outer
     }
 
-    fn valid_outer(outer: Option<PhonemeClass>) -> bool {
+    pub fn valid_outer(outer: Option<PhonemeClass>) -> bool {
         use PhonemeClass::*;
         matches!(outer, Some(Fricative) | Some(Nasal) | None)
     }
 
-    fn valid_inner(inner: Option<PhonemeClass>) -> bool {
+    pub fn valid_inner(inner: Option<PhonemeClass>) -> bool {
         use PhonemeClass::*;
         matches!(inner, Some(Approximant) | None)
     }
@@ -301,11 +498,35 @@ impl Coda {
     }
 }
 
+impl Parse for Coda {
+    fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self> {
+        match phonemes {
+            &[first] => {
+                if Self::valid_inner(Some(first.classify())) {
+                    Self::new(Some(first), None)
+                } else {
+                    Self::new(None, Some(first))
+                }
+            },
+
+            &[first, second] => Self::new(Some(first), Some(second)),
+
+            _ => Err(CodaParseError { phonemes: phonemes.to_vec() })?,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Error)]
 #[error("Invalid coda made of inner={inner:?}, outer={outer:?}")]
 pub struct InvalidCoda {
     pub inner: Option<Phoneme>,
     pub outer: Option<Phoneme>,
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Parse error on coda {phonemes:?}")]
+pub struct CodaParseError {
+    pub phonemes: Vec<Phoneme>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -343,33 +564,72 @@ pub enum Phoneme {
 }
 
 impl Phoneme {
-    fn triggers_retraction(self) -> bool {
+    pub fn new(ch: char) -> anyhow::Result<Self> {
+        use Phoneme::*;
+
+        let phoneme = match ch.to_lowercase().next() {
+            Some('b') => B,
+            Some('ǵ') => Gw,
+            Some('d') => D,
+            Some('j') => J,
+            Some('g') => G,
+            Some('p') => P,
+            Some('ḱ') => Kw,
+            Some('t') => T,
+            Some('c') => C,
+            Some('k') => K,
+            Some('m') => M,
+            Some('ḿ') => Mg,
+            Some('n') => N,
+            Some('ń') => Nj,
+            Some('ŋ') => Ng,
+            Some('f') => F,
+            Some('ẋ') => Xw,
+            Some('w') => W,
+            Some('s') => S,
+            Some('r') => R,
+            Some('y') => Y,
+            Some('í') => Ii,
+            Some('x') => X,
+            Some('i') => I,
+            Some('é') => Ee,
+            Some('h') => H,
+            Some('ŕ') => Rr,
+            Some('a') => A,
+            Some('á') => Aa,
+            _ => Err(InvalidPhonemeChar { ch })?,
+        };
+
+        Ok(phoneme)
+    }
+
+    pub fn triggers_retraction(self) -> bool {
         use Phoneme::*;
         matches!(self, A | Aa)
     }
 
-    fn triggers_front(self) -> bool {
+    pub fn triggers_front(self) -> bool {
         use Phoneme::*;
         matches!(self, C | J | Nj | Y | Rr | H)
     }
 
-    fn triggers_back(self) -> bool {
+    pub fn triggers_back(self) -> bool {
         use Phoneme::*;
         matches!(self, K | G | Ng | X)
     }
 
-    fn triggers_back_rounded(self) -> bool {
+    pub fn triggers_back_rounded(self) -> bool {
         use Phoneme::*;
         matches!(self, Kw | Gw | Mg | Xw | W)
     }
 
     #[allow(dead_code)]
-    fn can_be_nucleus(self) -> bool {
+    pub fn can_be_nucleus(self) -> bool {
         use Phoneme::*;
         self.classify() == PhonemeClass::Vowel || self == R
     }
 
-    fn classify(self) -> PhonemeClass {
+    pub fn classify(self) -> PhonemeClass {
         use Phoneme::*;
         match self {
             A | Aa | E | Ee | I | Ii => PhonemeClass::Vowel,
@@ -381,7 +641,7 @@ impl Phoneme {
         }
     }
 
-    fn to_narrow_ipa(&self, prev: Option<Self>) -> &'static str {
+    pub fn to_narrow_ipa(&self, prev: Option<Self>) -> &'static str {
         use Phoneme::*;
 
         let triggers_front = prev.map_or(false, Phoneme::triggers_front);
@@ -524,6 +784,27 @@ impl Phoneme {
             Aa => "aː",
         })
     }
+}
+
+impl Parse for Phoneme {
+    fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self> {
+        match phonemes {
+            &[ph] => Ok(ph),
+            _ => Err(PhonemeParseError { phonemes: phonemes.to_vec() })?,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Invalid phoneme orthography \"{ch}\"")]
+pub struct InvalidPhonemeChar {
+    pub ch: char,
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Phoneme error on parse {phonemes:?}")]
+pub struct PhonemeParseError {
+    pub phonemes: Vec<Phoneme>,
 }
 
 #[derive(Debug, Clone, Error)]
