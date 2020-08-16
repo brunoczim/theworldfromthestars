@@ -415,6 +415,7 @@ impl Onset {
 impl Parse for Onset {
     fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self> {
         match phonemes {
+            &[] => Self::new(None, None, None),
             &[first] => {
                 let class = first.classify();
                 if Self::valid_outer_medial(Some(class), None) {
@@ -508,6 +509,7 @@ impl Coda {
 impl Parse for Coda {
     fn parse(phonemes: &[Phoneme]) -> anyhow::Result<Self> {
         match phonemes {
+            &[] => Self::new(None, None),
             &[first] => {
                 if Self::valid_inner(Some(first.classify())) {
                     Self::new(Some(first), None)
@@ -515,9 +517,7 @@ impl Parse for Coda {
                     Self::new(None, Some(first))
                 }
             },
-
             &[first, second] => Self::new(Some(first), Some(second)),
-
             _ => Err(CodaParseError { phonemes: phonemes.to_vec() })?,
         }
     }

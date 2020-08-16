@@ -7,6 +7,7 @@ use crate::{
 };
 use std::fmt;
 use thiserror::Error;
+use wfts_pedia_ssg::component::{table::Table, Component, DynComponent};
 
 #[derive(Debug, Error, Clone)]
 #[error("Invalid nominative divine singular {nom_div_sing:?} for noun class 1")]
@@ -33,7 +34,6 @@ impl fmt::Display for Affix {
             for ph in coda.iter() {
                 write!(fmt, "{}", ph.to_text())?;
             }
-            needs_dash = true;
         } else if needs_dash {
             write!(fmt, "-")?;
         }
@@ -41,8 +41,6 @@ impl fmt::Display for Affix {
             for ph in suffix.iter() {
                 write!(fmt, "{}", ph.to_text())?;
             }
-        } else if needs_dash {
-            write!(fmt, "-")?;
         }
         Ok(())
     }
@@ -75,10 +73,10 @@ impl Word {
         let accusative3 = Coda::new(Some(Phoneme::W), None).unwrap();
         let topical = Coda::new(None, Some(Phoneme::F)).unwrap();
         let topical2 = Coda::new(Some(Phoneme::W), None).unwrap();
-        let topical3 = Coda::new(Some(Phoneme::J), None).unwrap();
+        let topical3 = Coda::new(Some(Phoneme::Y), None).unwrap();
         let postpositional =
-            Coda::new(Some(Phoneme::J), Some(Phoneme::S)).unwrap();
-        let postpositional2 = Coda::new(Some(Phoneme::J), None).unwrap();
+            Coda::new(Some(Phoneme::Y), Some(Phoneme::S)).unwrap();
+        let postpositional2 = Coda::new(Some(Phoneme::Y), None).unwrap();
         let animate = Phoneme::Aa;
         let animate2 = Phoneme::Ee;
         let inanimate = Phoneme::I;
@@ -143,5 +141,17 @@ impl Word {
         }
 
         noun::Inflected { phonemes, case, gender, number }
+    }
+
+    pub fn affix_table() -> Table<&'static str, DynComponent> {
+        noun::make_inflection_table(
+            "Inflection For Class 1",
+            |case, gender, number| {
+                Self::affix(case, gender, number)
+                    .to_string()
+                    .blocking()
+                    .to_dyn()
+            },
+        )
     }
 }

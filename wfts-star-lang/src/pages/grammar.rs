@@ -1,4 +1,4 @@
-use crate::StarLang;
+use crate::{grammar::noun, StarLang};
 use wfts_lang::Lang;
 use wfts_pedia_ssg::{
     component::{
@@ -107,7 +107,12 @@ pub fn make(dir: &mut Directory) {
                         .to_dyn(),
                     ]
                     .to_dyn(),
-                    children: vec![],
+                    children: vec![Section {
+                        title: "Inflection Classes".to_owned(),
+                        id: Id::new("noun-classes").unwrap(),
+                        body: vec![noun::class1::Word::affix_table()].to_dyn(),
+                        children: vec![],
+                    }],
                 },
                 Section {
                     title: "Adjectives".to_owned(),
