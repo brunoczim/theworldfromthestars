@@ -287,6 +287,13 @@ impl Syllable {
         Cow::from(output)
     }
 
+    pub fn iter<'this>(&'this self) -> impl Iterator<Item = Phoneme> + 'this {
+        self.onset
+            .iter()
+            .chain(iter::once(self.nucleus))
+            .chain(self.coda.iter())
+    }
+
     fn find_nucleus(phonemes: &[Phoneme]) -> Option<usize> {
         let mut pos = None;
 
