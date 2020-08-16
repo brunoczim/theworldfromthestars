@@ -38,7 +38,7 @@ where
     let mut table = Table { title, entries: vec![] };
     let mut row = vec![table::Entry {
         header: true,
-        rowspan: 2,
+        rowspan: 1,
         colspan: 2,
         data: "".blocking().to_dyn(),
     }];
@@ -46,39 +46,33 @@ where
         row.push(table::Entry {
             header: true,
             rowspan: 1,
-            colspan: 3,
+            colspan: 1,
             data: number.to_string().capitalize().blocking().to_dyn(),
         });
     }
     table.entries.push(row);
 
     row = Vec::new();
-    for _ in Number::ALL {
-        for &gender in Gender::ALL {
+    for &gender in Gender::ALL {
+        row.push(table::Entry {
+            header: true,
+            rowspan: BasicCase::ALL.len() as u32,
+            colspan: 1,
+            data: gender.to_string().capitalize().blocking().to_dyn(),
+        });
+        for &case in BasicCase::ALL {
             row.push(table::Entry {
                 header: true,
                 rowspan: 1,
                 colspan: 1,
-                data: gender.to_string().capitalize().blocking().to_dyn(),
+                data: case.to_string().capitalize().blocking().to_dyn(),
             });
-        }
-    }
-    table.entries.push(row);
-
-    for &case in BasicCase::ALL {
-        row = Vec::new();
-        row.push(table::Entry {
-            header: true,
-            rowspan: 1,
-            colspan: 2,
-            data: case.to_string().capitalize().blocking().to_dyn(),
-        });
-        for &number in Number::ALL {
-            for &gender in Gender::ALL {
+            for &number in Number::ALL {
                 row.push(table::Entry::new(make_data(case, gender, number)));
             }
+            table.entries.push(row);
+            row = Vec::new();
         }
-        table.entries.push(row);
     }
 
     table
