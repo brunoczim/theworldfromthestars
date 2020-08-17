@@ -14,7 +14,7 @@ pub fn make(dir: &mut Directory) {
     dir.insert(
         InternalPath::parse("index.html").unwrap(),
         Node::Page(Page {
-            title: String::from("Classical Star Language"),
+            title: "Classical Star Language".to_owned(),
             body: vec![
                 Paragraph(
                     "This article is about the classical dialect of the Star \
@@ -35,7 +35,7 @@ pub fn make(dir: &mut Directory) {
             .to_dyn(),
             sections: vec![
                 Section {
-                    title: "Phonology".to_owned(),
+                    title: "Phonology".to_dyn(),
                     body: Paragraph(Link {
                         text: "See this article.",
                         location: Location::from(
@@ -49,7 +49,7 @@ pub fn make(dir: &mut Directory) {
                     id: Id::new("phonology").unwrap(),
                 },
                 Section {
-                    title: "Grammar".to_owned(),
+                    title: "Grammar".to_dyn(),
                     body: Paragraph(Link {
                         text: "See this article.",
                         location: Location::from(

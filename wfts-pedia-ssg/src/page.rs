@@ -1,5 +1,5 @@
 use crate::{
-    component::{Context, DynComponent},
+    component::{Context, DynComponent, InlineComponent},
     location::{Id, InternalLoc, InternalPath},
     site::Site,
 };
@@ -7,7 +7,7 @@ use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Section {
-    pub title: String,
+    pub title: DynComponent<InlineComponent>,
     pub body: DynComponent,
     pub id: Id,
     pub children: Vec<Section>,

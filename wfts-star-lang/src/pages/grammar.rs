@@ -15,7 +15,7 @@ pub fn make(dir: &mut Directory) {
     dir.insert(
         InternalPath::parse("grammar/index.html").unwrap(),
         Node::Page(Page {
-            title: String::from("Classical Star Language Grammar"),
+            title: "Classical Star Language Grammar".to_owned(),
             body: vec![Paragraph(vec![
                 "This article is about the grammar of the ".to_dyn(),
                 Link {
@@ -30,7 +30,7 @@ pub fn make(dir: &mut Directory) {
             .to_dyn(),
             sections: vec![
                 Section {
-                    title: "Nouns".to_owned(),
+                    title: "Nouns".to_dyn(),
                     id: Id::new("nouns").unwrap(),
                     body: vec![
                         Paragraph(
@@ -108,14 +108,14 @@ pub fn make(dir: &mut Directory) {
                     ]
                     .to_dyn(),
                     children: vec![Section {
-                        title: "Inflection Classes".to_owned(),
+                        title: "Inflection Classes".to_dyn(),
                         id: Id::new("noun-classes").unwrap(),
                         body: vec![noun::class1::Word::affix_table()].to_dyn(),
                         children: vec![],
                     }],
                 },
                 Section {
-                    title: "Adjectives".to_owned(),
+                    title: "Adjectives".to_dyn(),
                     id: Id::new("adjectives").unwrap(),
                     body: Paragraph(
                         "Adjectives in Classical Star Language are similar to \
@@ -132,7 +132,7 @@ pub fn make(dir: &mut Directory) {
                     children: vec![],
                 },
                 Section {
-                    title: "Pronouns".to_owned(),
+                    title: "Pronouns".to_dyn(),
                     id: Id::new("pronouns").unwrap(),
                     body: vec![
                         Paragraph(
@@ -176,7 +176,7 @@ pub fn make(dir: &mut Directory) {
                     children: vec![],
                 },
                 Section {
-                    title: "Postpositions".to_owned(),
+                    title: "Postpositions".to_dyn(),
                     id: Id::new("postpositions").unwrap(),
                     body: Paragraph(
                         "Postpositions usually give information about a kind \
@@ -194,7 +194,7 @@ pub fn make(dir: &mut Directory) {
                     children: vec![],
                 },
                 Section {
-                    title: "Conjunctions".to_owned(),
+                    title: "Conjunctions".to_dyn(),
                     id: Id::new("conjunctions").unwrap(),
                     body: Paragraph(
                         "Conjunctions are used to connect phrases or even \
@@ -214,7 +214,7 @@ pub fn make(dir: &mut Directory) {
                     children: vec![],
                 },
                 Section {
-                    title: "Verbs".to_owned(),
+                    title: "Verbs".to_dyn(),
                     id: Id::new("verbs").unwrap(),
                     body: vec![
                         Paragraph(
@@ -264,7 +264,7 @@ pub fn make(dir: &mut Directory) {
                     children: vec![],
                 },
                 Section {
-                    title: "Adverb".to_owned(),
+                    title: "Adverb".to_dyn(),
                     id: Id::new("adverbs").unwrap(),
                     body: vec![
                         Paragraph(
@@ -300,7 +300,7 @@ pub fn make(dir: &mut Directory) {
                     children: vec![],
                 },
                 Section {
-                    title: "Roots".to_owned(),
+                    title: "Roots".to_dyn(),
                     id: Id::new("roots").unwrap(),
                     body: Paragraph(
                         "Roots are templates used to create words. They might \

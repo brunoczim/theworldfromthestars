@@ -1,3 +1,4 @@
+pub mod component;
 pub mod phonology;
 pub mod grammar;
 pub mod pages;
@@ -19,6 +20,7 @@ impl Lang for StarLang {
         self::pages::index::make(&mut dir);
         self::pages::phonology::make(&mut dir);
         self::pages::grammar::make(&mut dir);
+        self::pages::words::make(&mut dir);
         dir
     }
 }

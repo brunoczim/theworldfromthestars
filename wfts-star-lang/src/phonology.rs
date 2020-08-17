@@ -121,6 +121,7 @@ impl Word {
         let last = *self.syllables().last().unwrap();
         let new_last = Syllable::new(last.onset(), last.nucleus(), coda)?;
         let mut syllables = self.syllables().to_vec();
+        syllables.pop();
         syllables.push(new_last);
         Self::new(syllables)
     }
@@ -133,6 +134,7 @@ impl Word {
         let last = *self.syllables().last().unwrap();
         let new_last = Syllable::new(last.onset(), nucleus, coda)?;
         let mut syllables = self.syllables().to_vec();
+        syllables.pop();
         syllables.push(new_last);
         Self::new(syllables)
     }
@@ -144,6 +146,7 @@ impl Word {
         let last = *self.syllables().last().unwrap();
         let new_last = Syllable::new(last.onset(), nucleus, last.coda())?;
         let mut syllables = self.syllables().to_vec();
+        syllables.pop();
         syllables.push(new_last);
         Self::new(syllables)
     }

@@ -27,7 +27,7 @@ pub enum Word {
     Class1 { word: class1::Word, gender: Gender, number: Number },
 }
 
-pub fn make_inflection_table<T, F>(
+pub fn full_inflection_table<T, F>(
     title: T,
     mut make_data: F,
 ) -> Table<T, DynComponent>

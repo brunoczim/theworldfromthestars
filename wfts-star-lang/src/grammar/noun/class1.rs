@@ -1,15 +1,96 @@
 use crate::{
+    component::{DefinitionHead, WithStarAlphabet},
     grammar::{
         grammemes::{BasicCase, Gender, Number},
         noun,
     },
     phonology::{self, Coda, Parse, Phoneme, Syllable},
 };
-use std::fmt;
+use std::{
+    collections::HashMap,
+    fmt::{self},
+};
 use thiserror::Error;
-use wfts_pedia_ssg::component::{table::Table, Component, DynComponent};
+use wfts_lang::semantics::Meaning;
+use wfts_pedia_ssg::{
+    component::{
+        list::OrderedList,
+        table::Table,
+        Component,
+        DynComponent,
+        InlineComponent,
+    },
+    location::Id,
+    page::Section,
+};
 
-#[derive(Debug, Error, Clone)]
+#[derive(Debug, Clone)]
+pub struct Definition<N>
+where
+    N: Component + Send + Sync + 'static,
+{
+    pub id: Id,
+    pub word: Word,
+    pub meanings: Vec<Meaning>,
+    pub notes: N,
+}
+
+impl<N> Definition<N>
+where
+    N: Component + Send + Sync + 'static + Clone,
+{
+    pub fn make_sections(self) -> Vec<(phonology::Word, Section)> {
+        let mut map = HashMap::new();
+        for &case in BasicCase::ALL {
+            for &gender in Gender::ALL {
+                for &number in Number::ALL {
+                    let table = self.word.table(case, gender, number);
+                    let inflected =
+                        self.word.inflect(case, gender, number).phonemes;
+                    let (vec, _) =
+                        map.entry(inflected).or_insert((Vec::new(), table));
+                    vec.push((case, number, gender));
+                }
+            }
+        }
+
+        let mut sections = Vec::new();
+        let meanings = self
+            .meanings
+            .into_iter()
+            .map(|def| def.description())
+            .collect::<Vec<_>>();
+        for (inflected, (inflections, table)) in map {
+            let head = DefinitionHead {
+                name: inflected.to_text(),
+                inflected_for: inflections
+                    .into_iter()
+                    .map(|(case, gender, number)| {
+                        format!("{} {} {}", case, gender, number)
+                    })
+                    .collect(),
+            };
+
+            let section = Section {
+                title: "Definition".to_dyn(),
+                id: self.id.clone(),
+                body: vec![
+                    head.to_dyn(),
+                    OrderedList(meanings.clone()).to_dyn(),
+                    self.notes.clone().blocking().to_dyn(),
+                    table.to_dyn(),
+                ]
+                .to_dyn(),
+                children: vec![],
+            };
+
+            sections.push((inflected, section));
+        }
+        sections
+    }
+}
+
+#[derive(Debug, Clone, Error)]
 #[error("Invalid nominative divine singular {nom_div_sing:?} for noun class 1")]
 pub struct Invalid {
     pub nom_div_sing: phonology::Word,
@@ -61,6 +142,30 @@ impl Word {
             },
             _ => Ok(Self { nom_div_sing }),
         }
+    }
+
+    pub fn table(
+        &self,
+        title_case: BasicCase,
+        title_gender: Gender,
+        title_number: Number,
+    ) -> Table<DynComponent<InlineComponent>, DynComponent> {
+        let title_word = self
+            .inflect(title_case, title_gender, title_number)
+            .phonemes
+            .to_text();
+        let title = vec![
+            "Inflection for ".to_dyn(),
+            WithStarAlphabet(title_word).to_dyn(),
+            ".".to_dyn(),
+        ];
+        noun::full_inflection_table(title.to_dyn(), |case, gender, number| {
+            self.inflect(case, gender, number)
+                .phonemes
+                .to_text()
+                .blocking()
+                .to_dyn()
+        })
     }
 
     pub fn affix(case: BasicCase, gender: Gender, number: Number) -> Affix {
@@ -144,7 +249,7 @@ impl Word {
     }
 
     pub fn affix_table() -> Table<&'static str, DynComponent> {
-        noun::make_inflection_table(
+        noun::full_inflection_table(
             "Inflection For Class 1",
             |case, gender, number| {
                 Self::affix(case, gender, number)

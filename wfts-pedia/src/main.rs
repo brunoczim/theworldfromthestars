@@ -42,10 +42,10 @@ fn index_page() -> Page {
     .to_dyn()];
 
     Page {
-        title: String::from("The World From The Stars Encyclopedia"),
+        title: "The World From The Stars Encyclopedia".to_owned(),
         body: body.to_dyn(),
         sections: vec![Section {
-            title: String::from("List Of Languages"),
+            title: "List Of Languages".to_dyn(),
             body: UnorderedList(vec![Link {
                 location: StarLang.path().into(),
                 text: "Star Language",

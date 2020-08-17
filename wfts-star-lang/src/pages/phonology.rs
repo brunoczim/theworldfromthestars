@@ -17,7 +17,7 @@ pub fn make(dir: &mut Directory) {
     dir.insert(
         InternalPath::parse("phonology/index.html").unwrap(),
         Node::Page(Page {
-            title: String::from("Classical Star Language Phonology"),
+            title: "Classical Star Language Phonology".to_owned(),
             body: vec![Paragraph(vec![
                 "This article is about the phonology of the ".to_dyn(),
                 Link {
@@ -33,7 +33,7 @@ pub fn make(dir: &mut Directory) {
             .to_dyn(),
             sections: vec![
                 Section {
-                    title: "Consonants".to_owned(),
+                    title: "Consonants".to_dyn(),
                     id: Id::new("consonants").unwrap(),
                     body: vec![
                         Paragraph(
@@ -179,7 +179,7 @@ pub fn make(dir: &mut Directory) {
                     ]
                     .to_dyn(),
                     children: vec![Section {
-                        title: "Allophonic Variation".to_owned(),
+                        title: "Allophonic Variation".to_dyn(),
                         id: Id::new("consonant-allophony").unwrap(),
                         body: vec![
                             Paragraph(
@@ -288,7 +288,7 @@ pub fn make(dir: &mut Directory) {
                     }],
                 },
                 Section {
-                    title: "Vowels".to_owned(),
+                    title: "Vowels".to_dyn(),
                     id: Id::new("vowels").unwrap(),
                     body: vec![
                         Paragraph(
@@ -351,7 +351,7 @@ pub fn make(dir: &mut Directory) {
                     ]
                     .to_dyn(),
                     children: vec![Section {
-                        title: "Allophonic Variation".to_owned(),
+                        title: "Allophonic Variation".to_dyn(),
                         id: Id::new("vowel-allophony").unwrap(),
                         body: vec![
                             Paragraph(
@@ -485,7 +485,7 @@ pub fn make(dir: &mut Directory) {
                     }],
                 },
                 Section {
-                    title: "Phonotactics".to_owned(),
+                    title: "Phonotactics".to_dyn(),
                     id: Id::new("phonotactics").unwrap(),
                     body: vec![
                         Paragraph(

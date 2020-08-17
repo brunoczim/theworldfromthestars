@@ -1,3 +1,5 @@
+pub mod semantics;
+
 use std::{fmt, hash::Hash, str};
 use thiserror::Error;
 use wfts_pedia_ssg::{
