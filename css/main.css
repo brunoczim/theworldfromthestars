@@ -16,6 +16,14 @@ html, body, #page-wrapper {
     height: auto;
 }
 
+b.bold, b.bold * {
+    font-weight: bold;
+}
+
+i.italic, i.italic * {
+    font-style: italic;
+}
+
 ul {
     list-style: disc;
 }
