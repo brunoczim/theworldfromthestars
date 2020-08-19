@@ -1,5 +1,5 @@
 use crate::{
-    component::{DefinitionHead, WithStarAlphabet},
+    component::{DefinitionHead, Pronunciation, WithStarAlphabet},
     grammar::{
         grammemes::{BasicCase, Gender, Number},
         noun,
@@ -71,6 +71,22 @@ where
                     .collect(),
             };
 
+            let pronunciation = Section {
+                title: "Pronunciation".to_dyn(),
+                id: Id::new(format!("{}-pronunciation", self.id.as_str()))
+                    .unwrap(),
+                body: Pronunciation(inflected.clone().into()).to_dyn(),
+                children: vec![],
+            };
+
+            let inflection = Section {
+                title: "Inflection".to_dyn(),
+                id: Id::new(format!("{}-inflection", self.id.as_str()))
+                    .unwrap(),
+                body: table.to_dyn(),
+                children: vec![],
+            };
+
             let section = Section {
                 title: "Definition".to_dyn(),
                 id: self.id.clone(),
@@ -78,10 +94,9 @@ where
                     head.to_dyn(),
                     OrderedList(meanings.clone()).to_dyn(),
                     self.notes.clone().blocking().to_dyn(),
-                    table.to_dyn(),
                 ]
                 .to_dyn(),
-                children: vec![],
+                children: vec![pronunciation, inflection],
             };
 
             sections.push((inflected, section));
@@ -119,7 +134,7 @@ impl fmt::Display for Affix {
             write!(fmt, "-")?;
         }
         if let Some(suffix) = self.suffix {
-            for ph in suffix.iter() {
+            for ph in suffix.phonemes() {
                 write!(fmt, "{}", ph.to_text())?;
             }
         }

@@ -1,5 +1,7 @@
+use crate::phonology::Morpheme;
 use std::fmt;
 use wfts_pedia_ssg::component::{
+    list::UnorderedList,
     text::Bold,
     BlockComponent,
     Component,
@@ -59,5 +61,27 @@ impl Component for DefinitionHead {
             ctx.renderer(Bold(WithStarAlphabet(&self.name))),
             ctx.renderer(inflected_for)
         )
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Pronunciation(pub Morpheme);
+
+impl Component for Pronunciation {
+    type Kind = BlockComponent;
+
+    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
+        let mut list = vec![format!("Phonemic: /{}/", self.0.to_broad_ipa())];
+        if let Morpheme::Word(word) = &self.0 {
+            list.push(format!(
+                "Early CSL Accents: [{}]",
+                word.to_early_narrow_ipa()
+            ));
+            list.push(format!(
+                "Some Late CSL Accents: [{}]",
+                word.to_late_narrow_ipa()
+            ));
+        }
+        write!(fmt, "{}", ctx.renderer(UnorderedList(list)))
     }
 }

@@ -1,5 +1,5 @@
 use anyhow::Context;
-use std::{borrow::Cow, iter};
+use std::{borrow::Cow, collections::BTreeSet, fmt, fmt::Write, iter};
 use thiserror::Error;
 
 pub trait Parse
@@ -20,6 +20,166 @@ where
             .and_then(|phonemes| Self::parse(&phonemes[..]))
             .with_context(|| contents.as_ref().to_owned())
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Morpheme {
+    Template(Template),
+    Word(Word),
+}
+
+impl From<Template> for Morpheme {
+    fn from(template: Template) -> Self {
+        Self::Template(template)
+    }
+}
+
+impl From<Word> for Morpheme {
+    fn from(word: Word) -> Self {
+        Self::Word(word)
+    }
+}
+
+impl Morpheme {
+    pub fn to_broad_ipa(&self) -> String {
+        match self {
+            Morpheme::Template(temp) => temp.to_broad_ipa(),
+            Morpheme::Word(word) => word.to_broad_ipa(),
+        }
+    }
+
+    pub fn to_text(&self) -> String {
+        format!("{}", self)
+    }
+}
+
+impl fmt::Display for Morpheme {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Morpheme::Template(temp) => fmt::Display::fmt(temp, fmt),
+            Morpheme::Word(word) => fmt::Display::fmt(word, fmt),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Template {
+    phonemes: Vec<Phoneme>,
+    holes: BTreeSet<usize>,
+}
+
+impl Template {
+    pub fn new<I>(phonemes: Vec<Phoneme>, holes_iter: I) -> anyhow::Result<Self>
+    where
+        I: IntoIterator<Item = usize>,
+    {
+        let mut holes = BTreeSet::new();
+
+        for hole in holes_iter {
+            if hole > phonemes.len() || !holes.insert(hole) {
+                Err(TemplateHoleOutOfBounds {
+                    phonemes: phonemes.clone(),
+                    hole,
+                })?;
+            }
+        }
+
+        Ok(Self { phonemes, holes })
+    }
+
+    pub fn phonemes(&self) -> &[Phoneme] {
+        &self.phonemes
+    }
+
+    pub fn holes(&self) -> &BTreeSet<usize> {
+        &self.holes
+    }
+
+    pub fn fill(
+        &mut self,
+        hole: usize,
+        phonemes: &[Phoneme],
+    ) -> anyhow::Result<()> {
+        if !self.holes.remove(&hole) {
+            Err(InvalidTemplateHole { template: self.clone(), hole })?;
+        }
+
+        let prev_len = self.phonemes.len();
+        self.phonemes.extend_from_slice(phonemes);
+        let (left, right) = self.phonemes.split_at_mut(prev_len);
+        left[hole .. hole + phonemes.len()].swap_with_slice(right);
+
+        Ok(())
+    }
+
+    pub fn into_word(&self) -> anyhow::Result<Word> {
+        if self.holes.is_empty() {
+            Word::parse(&self.phonemes)
+        } else {
+            Err(NonFilledTemplate { template: self.clone() })?
+        }
+    }
+
+    pub fn to_text(&self) -> String {
+        format!("{}", self)
+    }
+
+    pub fn to_broad_ipa(&self) -> String {
+        let mut holes = self.holes.iter().peekable();
+        let mut output = String::new();
+
+        for (i, ch) in self.phonemes().iter().enumerate() {
+            if holes.peek().map_or(false, |&&hole| i == hole) {
+                output.push_str("-");
+                holes.next();
+            }
+            write!(output, "{}", ch.to_broad_ipa()).unwrap();
+        }
+        if let Some(_) = holes.next() {
+            output.push_str("-");
+        }
+
+        output
+    }
+}
+
+impl fmt::Display for Template {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let mut holes = self.holes.iter().peekable();
+
+        for (i, ch) in self.phonemes().iter().enumerate() {
+            if holes.peek().map_or(false, |&&hole| i == hole) {
+                fmt.write_str("-")?;
+                holes.next();
+            }
+            write!(fmt, "{}", ch.to_text())?;
+        }
+        if let Some(_) = holes.next() {
+            fmt.write_str("-")?;
+        }
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Hole {hole} out bounds of phonemes {phonemes:?}")]
+pub struct TemplateHoleOutOfBounds {
+    pub phonemes: Vec<Phoneme>,
+    pub hole: usize,
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Invalid hole {hole} of template {template:?}")]
+pub struct InvalidTemplateHole {
+    pub template: Template,
+    pub hole: usize,
+}
+
+#[derive(Debug, Clone, Error)]
+#[error("Template {template:?} is not fully filled")]
+pub struct NonFilledTemplate {
+    pub template: Template,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -64,7 +224,7 @@ impl Word {
 
     pub fn phonemes<'this>(
         &'this self,
-    ) -> impl Iterator<Item = Phoneme> + 'this {
+    ) -> impl DoubleEndedIterator<Item = Phoneme> + 'this {
         self.syllables.iter().flat_map(Syllable::phonemes)
     }
 
@@ -74,7 +234,7 @@ impl Word {
 
     pub fn to_broad_ipa(&self) -> String {
         let mut output = String::from("ˈ");
-        let mut first = false;
+        let mut first = true;
 
         for syllable in &self.syllables {
             if first {
@@ -91,30 +251,81 @@ impl Word {
         output
     }
 
-    pub fn to_narrow_ipa(&self) -> String {
+    pub fn to_early_narrow_ipa(&self) -> String {
         let mut output = String::from("ˈ");
         let mut prev = None;
+        let mut last = None;
 
         for syllable in &self.syllables {
             if prev.is_some() {
                 output.push('.');
             }
 
-            for phoneme in syllable.phonemes() {
-                output.push_str(phoneme.to_narrow_ipa(prev));
-                prev = Some(phoneme);
+            let mut iter = syllable.phonemes();
+            let mut curr = last.or_else(|| iter.next()).unwrap();
+            for next in iter {
+                output.push_str(curr.to_narrow_ipa(prev, Some(next), false));
+                prev = Some(curr);
+                curr = next;
             }
+            last = Some(curr);
         }
+        output.push_str(last.unwrap().to_narrow_ipa(prev, None, false));
+
+        output
+    }
+
+    pub fn to_late_narrow_ipa(&self) -> String {
+        let mut output = String::from("ˈ");
+
+        let mut is_palatal = Vec::new();
+        for phoneme in self.phonemes() {
+            let can_be = phoneme.can_be_palatalized_progress();
+            let prev_palatal = is_palatal.last().map_or(false, |&is| is);
+            let curr_palatal = phoneme.is_palatal();
+            is_palatal.push(can_be && prev_palatal || curr_palatal);
+        }
+
+        let mut prev = None;
+        for (i, phoneme) in self.phonemes().rev().enumerate() {
+            let i = is_palatal.len() - 1 - i;
+            let can_be = phoneme.can_be_palatalized_regress();
+            let prev_palatal = prev.map_or(false, |is| is);
+            if can_be && prev_palatal {
+                is_palatal[i] = true;
+            }
+            prev = Some(is_palatal[i]);
+        }
+
+        let mut prev = None;
+        let mut last = None;
+        let mut i = 0;
+        for syllable in &self.syllables {
+            if prev.is_some() {
+                output.push('.');
+            }
+
+            let mut iter = syllable.phonemes();
+            let mut curr = last.or_else(|| iter.next()).unwrap();
+            for next in iter {
+                output.push_str(curr.to_narrow_ipa(
+                    prev,
+                    Some(next),
+                    is_palatal[i],
+                ));
+                prev = Some(curr);
+                curr = next;
+                i += 1;
+            }
+            last = Some(curr);
+        }
+        output.push_str(last.unwrap().to_narrow_ipa(prev, None, is_palatal[i]));
 
         output
     }
 
     pub fn to_text(&self) -> String {
-        let mut output = String::new();
-        for ch in self.phonemes() {
-            output.push_str(&ch.to_text());
-        }
-        output
+        format!("{}", self)
     }
 
     pub fn replace_final_coda(&self, coda: Coda) -> anyhow::Result<Self> {
@@ -183,6 +394,16 @@ impl Word {
             .enumerate()
             .max_by_key(|&(_, cls)| cls)
             .map_or(0, |(i, _)| i)
+    }
+}
+
+impl fmt::Display for Word {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        for ch in self.phonemes() {
+            write!(fmt, "{}", ch.to_text())?;
+        }
+
+        Ok(())
     }
 }
 
@@ -273,7 +494,7 @@ impl Syllable {
 
     pub fn phonemes<'this>(
         &'this self,
-    ) -> impl Iterator<Item = Phoneme> + 'this {
+    ) -> impl DoubleEndedIterator<Item = Phoneme> + 'this {
         self.onset
             .iter()
             .chain(iter::once(self.nucleus))
@@ -288,13 +509,6 @@ impl Syllable {
         }
 
         Cow::from(output)
-    }
-
-    pub fn iter<'this>(&'this self) -> impl Iterator<Item = Phoneme> + 'this {
-        self.onset
-            .iter()
-            .chain(iter::once(self.nucleus))
-            .chain(self.coda.iter())
     }
 
     fn find_nucleus(phonemes: &[Phoneme]) -> Option<usize> {
@@ -407,7 +621,9 @@ impl Onset {
         matches!(inner, Some(Approximant) | None)
     }
 
-    pub fn iter<'this>(&'this self) -> impl Iterator<Item = Phoneme> + 'this {
+    pub fn iter<'this>(
+        &'this self,
+    ) -> impl DoubleEndedIterator<Item = Phoneme> + 'this {
         iter::once(self.outer)
             .chain(iter::once(self.medial))
             .chain(iter::once(self.inner))
@@ -502,7 +718,9 @@ impl Coda {
         matches!(inner, Some(Approximant) | None)
     }
 
-    pub fn iter<'this>(&'this self) -> impl Iterator<Item = Phoneme> + 'this {
+    pub fn iter<'this>(
+        &'this self,
+    ) -> impl DoubleEndedIterator<Item = Phoneme> + 'this {
         iter::once(self.inner)
             .chain(iter::once(self.outer))
             .filter_map(|opt| opt)
@@ -613,6 +831,21 @@ impl Phoneme {
         Ok(phoneme)
     }
 
+    pub fn is_palatal(self) -> bool {
+        use Phoneme::*;
+        matches!(self, C | J | Nj | Y)
+    }
+
+    pub fn can_be_palatalized_regress(self) -> bool {
+        use Phoneme::*;
+        matches!(self, S | X | Xw)
+    }
+
+    pub fn can_be_palatalized_progress(self) -> bool {
+        use Phoneme::*;
+        matches!(self, S | X | Xw | A | Aa | E | Ee | I | Ii)
+    }
+
     pub fn triggers_retraction(self) -> bool {
         use Phoneme::*;
         matches!(self, A | Aa)
@@ -651,15 +884,21 @@ impl Phoneme {
         }
     }
 
-    pub fn to_narrow_ipa(&self, prev: Option<Self>) -> &'static str {
+    pub fn to_narrow_ipa(
+        &self,
+        prev: Option<Self>,
+        next: Option<Self>,
+        palatalized: bool,
+    ) -> &'static str {
         use Phoneme::*;
 
-        let triggers_front = prev.map_or(false, Phoneme::triggers_front);
+        let triggers_front =
+            prev.map_or(false, Phoneme::triggers_front) || palatalized;
         let triggers_back = prev.map_or(false, Phoneme::triggers_back);
         let triggers_back_rounded =
             prev.map_or(false, Phoneme::triggers_back_rounded);
         let triggers_retraction =
-            prev.map_or(false, Phoneme::triggers_retraction);
+            next.map_or(false, Phoneme::triggers_retraction);
 
         match self {
             B => "pʼ",
@@ -683,10 +922,12 @@ impl Phoneme {
             Ng if triggers_retraction => "ɴ",
             Ng => "ŋ",
             F => "f",
+            Xw if palatalized => "çʷ",
             Xw if triggers_retraction => "χʷ",
             Xw => "xʷ",
             W if triggers_retraction => "w̠",
             W => "w",
+            S if palatalized => "ɕ",
             S => "s",
             R => "ɹ",
             Y => "j",
@@ -694,6 +935,7 @@ impl Phoneme {
             Ii if triggers_back => "ɯə̯",
             Ii if triggers_back_rounded => "uː",
             Ii => "ɨː",
+            X if palatalized => "ç",
             X if triggers_retraction => "χ",
             X => "x",
             I if triggers_front => "i",
