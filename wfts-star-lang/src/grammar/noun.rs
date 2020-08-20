@@ -5,12 +5,7 @@ use crate::{
     phonology,
 };
 use wfts_pedia_ssg::{
-    component::{
-        table::{self, Table},
-        Component,
-        DynComponent,
-        InlineComponent,
-    },
+    component::{table, Component, DynComponent},
     fmt::StrExt,
 };
 
@@ -27,15 +22,13 @@ pub enum Word {
     Class1 { word: class1::Word, gender: Gender, number: Number },
 }
 
-pub fn full_inflection_table<T, F>(
-    title: T,
+pub fn full_inflection_table<F>(
     mut make_data: F,
-) -> Table<T, DynComponent>
+) -> table::Entries<DynComponent>
 where
     F: FnMut(BasicCase, Gender, Number) -> DynComponent,
-    T: Component<Kind = InlineComponent>,
 {
-    let mut table = Table { title, entries: vec![] };
+    let mut table = vec![];
     let mut row = vec![table::Entry {
         header: true,
         rowspan: 1,
@@ -50,7 +43,7 @@ where
             data: number.to_string().capitalize().blocking().to_dyn(),
         });
     }
-    table.entries.push(row);
+    table.push(row);
 
     row = Vec::new();
     for &gender in Gender::ALL {
@@ -70,7 +63,7 @@ where
             for &number in Number::ALL {
                 row.push(table::Entry::new(make_data(case, gender, number)));
             }
-            table.entries.push(row);
+            table.push(row);
             row = Vec::new();
         }
     }

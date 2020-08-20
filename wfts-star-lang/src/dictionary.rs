@@ -1,0 +1,95 @@
+use crate::{
+    component::{DefinitionHead, Pronunciation, WithStarAlphabet},
+    phonology::Morpheme,
+};
+use std::collections::HashMap;
+use wfts_lang::semantics::Meaning;
+use wfts_pedia_ssg::{
+    component::{
+        list::OrderedList,
+        table::{self, Table},
+        Component,
+        DynComponent,
+    },
+    location::Id,
+    page::Section,
+};
+
+#[derive(Debug, Clone)]
+pub struct Entry {
+    pub id: Id,
+    pub inflections: HashMap<String, Morpheme>,
+    pub meanings: Vec<Meaning>,
+    pub notes: DynComponent,
+    pub inflection_table: table::Entries<DynComponent>,
+}
+
+impl Entry {
+    pub fn sections(self) -> Vec<(Morpheme, Section)> {
+        let mut map = HashMap::new();
+        for (key, morpheme) in self.inflections {
+            let vec = map.entry(morpheme.clone()).or_insert(Vec::new());
+            vec.push(key);
+        }
+
+        let meanings = self
+            .meanings
+            .into_iter()
+            .map(|def| def.description())
+            .collect::<Vec<_>>();
+        let mut sections = Vec::new();
+
+        for (morpheme, inflected_for) in map {
+            let head =
+                DefinitionHead { name: morpheme.to_text(), inflected_for };
+
+            let romanization = Section {
+                title: "Romanization".to_dyn(),
+                id: Id::new(format!("{}-roman", self.id.as_str())).unwrap(),
+                body: morpheme.to_text().blocking().to_dyn(),
+                children: vec![],
+            };
+
+            let pronunciation = Section {
+                title: "Pronunciation".to_dyn(),
+                id: Id::new(format!("{}-pronunciation", self.id.as_str()))
+                    .unwrap(),
+                body: Pronunciation(morpheme.clone()).to_dyn(),
+                children: vec![],
+            };
+
+            let inflection = Section {
+                title: "Inflection".to_dyn(),
+                id: Id::new(format!("{}-inflection", self.id.as_str()))
+                    .unwrap(),
+                body: Table {
+                    title: vec![
+                        "Inflection for ".to_dyn(),
+                        WithStarAlphabet(morpheme.to_text()).to_dyn(),
+                        ".".to_dyn(),
+                    ]
+                    .to_dyn(),
+                    entries: self.inflection_table.clone(),
+                }
+                .to_dyn(),
+                children: vec![],
+            };
+
+            let section = Section {
+                title: "Definition".to_dyn(),
+                id: self.id.clone(),
+                body: vec![
+                    head.to_dyn(),
+                    OrderedList(meanings.clone()).to_dyn(),
+                    self.notes.clone(),
+                ]
+                .to_dyn(),
+                children: vec![romanization, pronunciation, inflection],
+            };
+
+            sections.push((morpheme, section));
+        }
+
+        sections
+    }
+}

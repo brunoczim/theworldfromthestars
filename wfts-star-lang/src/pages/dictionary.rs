@@ -14,14 +14,16 @@ pub fn make(dir: &mut Directory) {
     let word = class1::Definition {
         id: Id::new("eye").unwrap(),
         meanings: vec![Meaning::Eye],
-        notes: "",
+        notes: "".blocking().to_dyn(),
         word: class1::Word::new(Word::parse_str("gas").unwrap()).unwrap(),
     };
 
-    for (word, section) in word.make_sections() {
-        let path =
-            InternalPath::parse(format!("words/{}/index.html", word.to_text()))
-                .unwrap();
+    for (word, section) in word.to_dict_entry().sections() {
+        let path = InternalPath::parse(format!(
+            "dictionary/{}/index.html",
+            word.to_text()
+        ))
+        .unwrap();
         dir.insert(
             path,
             Node::Page({

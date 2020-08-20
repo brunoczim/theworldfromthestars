@@ -1,6 +1,8 @@
 use crate::component::{BlockComponent, Component, Context, InlineComponent};
 use std::fmt;
 
+pub type Entries<E> = Vec<Vec<Entry<E>>>;
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Table<T, E>
 where
@@ -8,7 +10,7 @@ where
     E: Component,
 {
     pub title: T,
-    pub entries: Vec<Vec<Entry<E>>>,
+    pub entries: Entries<E>,
 }
 
 impl<T, E> Component for Table<T, E>

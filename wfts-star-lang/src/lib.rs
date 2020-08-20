@@ -1,6 +1,7 @@
 pub mod component;
 pub mod phonology;
 pub mod grammar;
+pub mod dictionary;
 pub mod pages;
 
 use std::collections::HashMap;
@@ -21,7 +22,7 @@ impl Lang for StarLang {
         pages::phonology::make(&mut dir);
         pages::grammar::make(&mut dir);
         pages::writing::make(&mut dir);
-        pages::words::make(&mut dir);
+        pages::dictionary::make(&mut dir);
         dir
     }
 }

@@ -88,7 +88,7 @@ impl Component for PronunciationKey {
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         write!(
             fmt,
-            "<div class=\"pronunciation-name\">{}</div><div \
+            "<div class=\"pronunciation-name\">{}</div>:<div \
              class=\"pronunciation-val\">{}</div>",
             ctx.renderer(Italic(&self.name)),
             ctx.renderer(&self.pronunciation)
@@ -109,11 +109,11 @@ impl Component for Pronunciation {
         }];
         if let Morpheme::Word(word) = &self.0 {
             list.push(PronunciationKey {
-                name: "Early CSL Accents:".to_owned(),
+                name: "Early CSL Accents".to_owned(),
                 pronunciation: format!("[{}]", word.to_early_narrow_ipa()),
             });
             list.push(PronunciationKey {
-                name: "Late CSL Accents:".to_owned(),
+                name: "Late CSL Accents".to_owned(),
                 pronunciation: format!("[{}]", word.to_late_narrow_ipa()),
             });
         }

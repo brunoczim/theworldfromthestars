@@ -1,5 +1,6 @@
 use crate::{
-    component::{DefinitionHead, Pronunciation, WithStarAlphabet},
+    component::WithStarAlphabet,
+    dictionary,
     grammar::{
         grammemes::{BasicCase, Gender, Number},
         noun,
@@ -15,102 +16,47 @@ use thiserror::Error;
 use wfts_lang::{semantics::Meaning, Lang};
 use wfts_pedia_ssg::{
     component::{
-        list::OrderedList,
-        table::Table,
+        table::{self, Table},
         text::Link,
         Component,
         DynComponent,
-        InlineComponent,
     },
     location::{Id, Location},
-    page::Section,
 };
 
 #[derive(Debug, Clone)]
-pub struct Definition<N>
-where
-    N: Component + Send + Sync + 'static,
-{
+pub struct Definition {
     pub id: Id,
     pub word: Word,
     pub meanings: Vec<Meaning>,
-    pub notes: N,
+    pub notes: DynComponent,
 }
 
-impl<N> Definition<N>
-where
-    N: Component + Send + Sync + 'static + Clone,
-{
-    pub fn make_sections(self) -> Vec<(phonology::Word, Section)> {
-        let mut map = HashMap::new();
-        for &case in BasicCase::ALL {
-            for &gender in Gender::ALL {
-                for &number in Number::ALL {
-                    let table = self.word.table(case, gender, number, &self.id);
-                    let inflected =
-                        self.word.inflect(case, gender, number).phonemes;
-                    let (vec, _) =
-                        map.entry(inflected).or_insert((Vec::new(), table));
-                    vec.push((case, number, gender));
+impl Definition {
+    pub fn to_dict_entry(self) -> dictionary::Entry {
+        dictionary::Entry {
+            inflection_table: self.word.table(&self.id),
+            id: self.id,
+            inflections: {
+                let mut map = HashMap::new();
+                for &case in BasicCase::ALL {
+                    for &gender in Gender::ALL {
+                        for &number in Number::ALL {
+                            map.insert(
+                                format!("{} {} {}", case, gender, number),
+                                self.word
+                                    .inflect(case, gender, number)
+                                    .phonemes
+                                    .into(),
+                            );
+                        }
+                    }
                 }
-            }
+                map
+            },
+            meanings: self.meanings,
+            notes: self.notes,
         }
-
-        let mut sections = Vec::new();
-        let meanings = self
-            .meanings
-            .into_iter()
-            .map(|def| def.description())
-            .collect::<Vec<_>>();
-        for (inflected, (inflections, table)) in map {
-            let head = DefinitionHead {
-                name: inflected.to_text(),
-                inflected_for: inflections
-                    .into_iter()
-                    .map(|(case, gender, number)| {
-                        format!("{} {} {}", case, gender, number)
-                    })
-                    .collect(),
-            };
-
-            let romanization = Section {
-                title: "Romanization".to_dyn(),
-                id: Id::new(format!("{}-roman", self.id.as_str())).unwrap(),
-                body: inflected.to_text().blocking().to_dyn(),
-                children: vec![],
-            };
-
-            let pronunciation = Section {
-                title: "Pronunciation".to_dyn(),
-                id: Id::new(format!("{}-pronunciation", self.id.as_str()))
-                    .unwrap(),
-                body: Pronunciation(inflected.clone().into()).to_dyn(),
-                children: vec![],
-            };
-
-            let inflection = Section {
-                title: "Inflection".to_dyn(),
-                id: Id::new(format!("{}-inflection", self.id.as_str()))
-                    .unwrap(),
-                body: table.to_dyn(),
-                children: vec![],
-            };
-
-            let section = Section {
-                title: "Definition".to_dyn(),
-                id: self.id.clone(),
-                body: vec![
-                    head.to_dyn(),
-                    OrderedList(meanings.clone()).to_dyn(),
-                    self.notes.clone().blocking().to_dyn(),
-                ]
-                .to_dyn(),
-                children: vec![romanization, pronunciation, inflection],
-            };
-
-            sections.push((inflected, section));
-        }
-        sections
     }
 }
 
@@ -168,28 +114,13 @@ impl Word {
         }
     }
 
-    pub fn table(
-        &self,
-        title_case: BasicCase,
-        title_gender: Gender,
-        title_number: Number,
-        entry_id: &Id,
-    ) -> Table<DynComponent<InlineComponent>, DynComponent> {
-        let title_word = self
-            .inflect(title_case, title_gender, title_number)
-            .phonemes
-            .to_text();
-        let title = vec![
-            "Inflection for ".to_dyn(),
-            WithStarAlphabet(title_word).to_dyn(),
-            ".".to_dyn(),
-        ];
-        noun::full_inflection_table(title.to_dyn(), |case, gender, number| {
+    pub fn table(&self, entry_id: &Id) -> table::Entries<DynComponent> {
+        noun::full_inflection_table(|case, gender, number| {
             let inflected =
                 self.inflect(case, gender, number).phonemes.to_text();
             let component = Link {
                 location: Location::internal(format!(
-                    "{}/words/{}.html#{}",
+                    "{}/dictionary/{}#{}",
                     StarLang.path(),
                     inflected,
                     entry_id,
@@ -281,14 +212,14 @@ impl Word {
     }
 
     pub fn affix_table() -> Table<&'static str, DynComponent> {
-        noun::full_inflection_table(
-            "Inflection For Class 1",
-            |case, gender, number| {
+        Table {
+            title: "Inflection For Class 1",
+            entries: noun::full_inflection_table(|case, gender, number| {
                 Self::affix(case, gender, number)
                     .to_string()
                     .blocking()
                     .to_dyn()
-            },
-        )
+            }),
+        }
     }
 }
