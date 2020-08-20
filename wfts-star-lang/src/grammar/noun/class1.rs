@@ -5,22 +5,24 @@ use crate::{
         noun,
     },
     phonology::{self, Coda, Parse, Phoneme, Syllable},
+    StarLang,
 };
 use std::{
     collections::HashMap,
     fmt::{self},
 };
 use thiserror::Error;
-use wfts_lang::semantics::Meaning;
+use wfts_lang::{semantics::Meaning, Lang};
 use wfts_pedia_ssg::{
     component::{
         list::OrderedList,
         table::Table,
+        text::Link,
         Component,
         DynComponent,
         InlineComponent,
     },
-    location::Id,
+    location::{Id, Location},
     page::Section,
 };
 
@@ -44,7 +46,7 @@ where
         for &case in BasicCase::ALL {
             for &gender in Gender::ALL {
                 for &number in Number::ALL {
-                    let table = self.word.table(case, gender, number);
+                    let table = self.word.table(case, gender, number, &self.id);
                     let inflected =
                         self.word.inflect(case, gender, number).phonemes;
                     let (vec, _) =
@@ -164,6 +166,7 @@ impl Word {
         title_case: BasicCase,
         title_gender: Gender,
         title_number: Number,
+        entry_id: &Id,
     ) -> Table<DynComponent<InlineComponent>, DynComponent> {
         let title_word = self
             .inflect(title_case, title_gender, title_number)
@@ -175,11 +178,18 @@ impl Word {
             ".".to_dyn(),
         ];
         noun::full_inflection_table(title.to_dyn(), |case, gender, number| {
-            self.inflect(case, gender, number)
-                .phonemes
-                .to_text()
-                .blocking()
-                .to_dyn()
+            let inflected =
+                self.inflect(case, gender, number).phonemes.to_text();
+            let component = Link {
+                location: Location::internal(format!(
+                    "{}/words/{}.html#{}",
+                    StarLang.path(),
+                    inflected,
+                    entry_id,
+                )),
+                text: WithStarAlphabet(inflected),
+            };
+            component.blocking().to_dyn()
         })
     }
 

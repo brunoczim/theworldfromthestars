@@ -54,13 +54,25 @@ impl Component for DefinitionHead {
     type Kind = BlockComponent;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        let inflected_for = self.inflected_for.join(", ");
         write!(
             fmt,
-            "<div class=\"definition-head\">{} (inflected for {})</div>",
+            "<div class=\"definition-head\">{} (inflected for ",
             ctx.renderer(Bold(WithStarAlphabet(&self.name))),
-            ctx.renderer(inflected_for)
-        )
+        )?;
+
+        let mut first = true;
+        for key in &self.inflected_for {
+            if first {
+                first = false;
+            } else {
+                write!(fmt, ",")?;
+            }
+            write!(fmt, "{}", ctx.renderer(Bold(key)))?;
+        }
+
+        write!(fmt, ")</div>")?;
+
+        Ok(())
     }
 }
 
@@ -101,7 +113,7 @@ impl Component for Pronunciation {
                 pronunciation: format!("[{}]", word.to_early_narrow_ipa()),
             });
             list.push(PronunciationKey {
-                name: "Some Late CSL Accents:".to_owned(),
+                name: "Late CSL Accents:".to_owned(),
                 pronunciation: format!("[{}]", word.to_late_narrow_ipa()),
             });
         }
