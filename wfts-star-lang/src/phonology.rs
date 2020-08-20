@@ -2,6 +2,37 @@ use anyhow::Context;
 use std::{borrow::Cow, collections::BTreeSet, fmt, fmt::Write, iter};
 use thiserror::Error;
 
+pub fn balance_cluster(coda: &mut Coda, onset: &mut Onset) {
+    let done = matches!(
+        onset.iter().next().map(Phoneme::classify),
+        Some(PhonemeClass::Aspirated) | Some(PhonemeClass::Ejective)
+    );
+
+    if !done {
+        match onset.iter().count().checked_sub(coda.iter().count()) {
+            Some(diff) if diff > 1 => {
+                coda.outer = onset.outer.take().or_else(|| onset.medial.take());
+            },
+            Some(_) => (),
+            None => {
+                if onset.outer.is_none() {
+                    if let Some(outer) = coda.outer {
+                        if outer.classify() == PhonemeClass::Fricative {
+                            onset.outer = coda.outer.take();
+                        } else if !onset.medial.is_some() {
+                            onset.medial = coda.outer.take();
+                        }
+                    } else if coda.inner.is_some()
+                        && onset.iter().next().is_none()
+                    {
+                        onset.inner = coda.inner.take();
+                    }
+                }
+            },
+        }
+    }
+}
+
 pub trait Parse
 where
     Self: Sized,
@@ -209,7 +240,7 @@ impl Word {
 
                 let wrong_dist = onset_len
                     .checked_sub(prev_coda_len)
-                    .map_or(false, |diff| diff > 1);
+                    .map_or(true, |diff| diff > 1);
 
                 if prev == first || !bypass_dist && wrong_dist {
                     Err(InvalidWord { syllables: syllables.clone() })?;
@@ -257,14 +288,17 @@ impl Word {
         let mut last = None;
 
         for syllable in &self.syllables {
-            if prev.is_some() {
-                output.push('.');
-            }
-
             let mut iter = syllable.phonemes();
             let mut curr = last.or_else(|| iter.next()).unwrap();
+            let mut first = true;
             for next in iter {
                 output.push_str(curr.to_narrow_ipa(prev, Some(next), false));
+                if first {
+                    if prev.is_some() {
+                        output.push('.');
+                    }
+                    first = false;
+                }
                 prev = Some(curr);
                 curr = next;
             }
@@ -276,8 +310,40 @@ impl Word {
     }
 
     pub fn to_late_narrow_ipa(&self) -> String {
+        let is_palatal = self.map_patalization();
         let mut output = String::from("ˈ");
 
+        let mut prev = None;
+        let mut last = None;
+        let mut i = 0;
+        for syllable in &self.syllables {
+            let mut iter = syllable.phonemes();
+            let mut curr = last.or_else(|| iter.next()).unwrap();
+            let mut first = true;
+            for next in iter {
+                output.push_str(curr.to_narrow_ipa(
+                    prev,
+                    Some(next),
+                    is_palatal[i],
+                ));
+                if first {
+                    if prev.is_some() {
+                        output.push('.');
+                    }
+                    first = false;
+                }
+                prev = Some(curr);
+                curr = next;
+                i += 1;
+            }
+            last = Some(curr);
+        }
+        output.push_str(last.unwrap().to_narrow_ipa(prev, None, is_palatal[i]));
+
+        output
+    }
+
+    fn map_patalization(&self) -> Vec<bool> {
         let mut is_palatal = Vec::new();
         for phoneme in self.phonemes() {
             let can_be = phoneme.can_be_palatalized_progress();
@@ -297,31 +363,7 @@ impl Word {
             prev = Some(is_palatal[i]);
         }
 
-        let mut prev = None;
-        let mut last = None;
-        let mut i = 0;
-        for syllable in &self.syllables {
-            if prev.is_some() {
-                output.push('.');
-            }
-
-            let mut iter = syllable.phonemes();
-            let mut curr = last.or_else(|| iter.next()).unwrap();
-            for next in iter {
-                output.push_str(curr.to_narrow_ipa(
-                    prev,
-                    Some(next),
-                    is_palatal[i],
-                ));
-                prev = Some(curr);
-                curr = next;
-                i += 1;
-            }
-            last = Some(curr);
-        }
-        output.push_str(last.unwrap().to_narrow_ipa(prev, None, is_palatal[i]));
-
-        output
+        is_palatal
     }
 
     pub fn to_text(&self) -> String {
@@ -330,9 +372,12 @@ impl Word {
 
     pub fn replace_final_coda(&self, coda: Coda) -> anyhow::Result<Self> {
         let last = *self.syllables().last().unwrap();
-        let new_last = Syllable::new(last.onset(), last.nucleus(), coda)?;
+        let mut new_last = Syllable::new(last.onset(), last.nucleus(), coda)?;
         let mut syllables = self.syllables().to_vec();
         syllables.pop();
+        if let Some(last) = syllables.last_mut() {
+            balance_cluster(&mut last.coda, &mut new_last.onset);
+        }
         syllables.push(new_last);
         Self::new(syllables)
     }
@@ -343,9 +388,12 @@ impl Word {
         coda: Coda,
     ) -> anyhow::Result<Self> {
         let last = *self.syllables().last().unwrap();
-        let new_last = Syllable::new(last.onset(), nucleus, coda)?;
+        let mut new_last = Syllable::new(last.onset(), nucleus, coda)?;
         let mut syllables = self.syllables().to_vec();
         syllables.pop();
+        if let Some(last) = syllables.last_mut() {
+            balance_cluster(&mut last.coda, &mut new_last.onset);
+        }
         syllables.push(new_last);
         Self::new(syllables)
     }
@@ -362,8 +410,11 @@ impl Word {
         Self::new(syllables)
     }
 
-    pub fn append(&self, syllable: Syllable) -> anyhow::Result<Self> {
+    pub fn append(&self, mut syllable: Syllable) -> anyhow::Result<Self> {
         let mut syllables = self.syllables.to_vec();
+        if let Some(last) = syllables.last_mut() {
+            balance_cluster(&mut last.coda, &mut syllable.onset);
+        }
         syllables.push(syllable);
         Self::new(syllables)
     }

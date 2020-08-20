@@ -2,7 +2,7 @@ use crate::phonology::Morpheme;
 use std::fmt;
 use wfts_pedia_ssg::component::{
     list::UnorderedList,
-    text::Bold,
+    text::{Bold, Italic},
     BlockComponent,
     Component,
     Context,
@@ -65,22 +65,45 @@ impl Component for DefinitionHead {
 }
 
 #[derive(Debug, Clone)]
+struct PronunciationKey {
+    name: String,
+    pronunciation: String,
+}
+
+impl Component for PronunciationKey {
+    type Kind = BlockComponent;
+
+    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
+        write!(
+            fmt,
+            "<div class=\"pronunciation-name\">{}</div><div \
+             class=\"pronunciation-val\">{}</div>",
+            ctx.renderer(Italic(&self.name)),
+            ctx.renderer(&self.pronunciation)
+        )
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Pronunciation(pub Morpheme);
 
 impl Component for Pronunciation {
     type Kind = BlockComponent;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        let mut list = vec![format!("Phonemic: /{}/", self.0.to_broad_ipa())];
+        let mut list = vec![PronunciationKey {
+            name: "Phonemic".to_owned(),
+            pronunciation: format!("/{}/", self.0.to_broad_ipa()),
+        }];
         if let Morpheme::Word(word) = &self.0 {
-            list.push(format!(
-                "Early CSL Accents: [{}]",
-                word.to_early_narrow_ipa()
-            ));
-            list.push(format!(
-                "Some Late CSL Accents: [{}]",
-                word.to_late_narrow_ipa()
-            ));
+            list.push(PronunciationKey {
+                name: "Early CSL Accents:".to_owned(),
+                pronunciation: format!("[{}]", word.to_early_narrow_ipa()),
+            });
+            list.push(PronunciationKey {
+                name: "Some Late CSL Accents:".to_owned(),
+                pronunciation: format!("[{}]", word.to_late_narrow_ipa()),
+            });
         }
         write!(fmt, "{}", ctx.renderer(UnorderedList(list)))
     }

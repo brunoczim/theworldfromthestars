@@ -161,6 +161,18 @@ ul, ol {
     margin-right: 5pt;
 }
 
+li {
+    line-height: 1.5;
+}
+
 .star-alphabet {
     font-family: "Star Folk Alphabet";
+}
+
+.pronunciation-name, .pronunciation-val {
+    display: inline;
+}
+
+.pronunciation-name {
+    padding-right: 5pt;
 }
