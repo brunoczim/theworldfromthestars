@@ -173,6 +173,6 @@ li {
     display: inline;
 }
 
-.pronunciation-name {
-    padding-right: 5pt;
+.pronunciation-val {
+    padding-left: 5pt;
 }
