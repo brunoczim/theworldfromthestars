@@ -17,10 +17,11 @@ impl Lang for StarLang {
 
     fn subsite(&self) -> Directory {
         let mut dir = Directory { contents: HashMap::new() };
-        self::pages::index::make(&mut dir);
-        self::pages::phonology::make(&mut dir);
-        self::pages::grammar::make(&mut dir);
-        self::pages::words::make(&mut dir);
+        pages::index::make(&mut dir);
+        pages::phonology::make(&mut dir);
+        pages::grammar::make(&mut dir);
+        pages::writing::make(&mut dir);
+        pages::words::make(&mut dir);
         dir
     }
 }

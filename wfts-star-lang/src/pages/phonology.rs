@@ -411,7 +411,7 @@ pub fn make(dir: &mut Directory) {
                                         },
                                         Entry::new("[iː]"),
                                         Entry::new("[ɨː]"),
-                                        Entry::new("[ɯː]"),
+                                        Entry::new("[ɯə̯]"),
                                         Entry::new("[uː]"),
                                     ],
                                     vec![

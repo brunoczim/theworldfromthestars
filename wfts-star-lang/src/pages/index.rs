@@ -49,6 +49,20 @@ pub fn make(dir: &mut Directory) {
                     id: Id::new("phonology").unwrap(),
                 },
                 Section {
+                    title: "Writing System".to_dyn(),
+                    body: Paragraph(Link {
+                        text: "See this article.",
+                        location: Location::from(
+                            StarLang
+                                .path()
+                                .append(Fragment::new("writing").unwrap()),
+                        ),
+                    })
+                    .to_dyn(),
+                    children: vec![],
+                    id: Id::new("phonology").unwrap(),
+                },
+                Section {
                     title: "Grammar".to_dyn(),
                     body: Paragraph(Link {
                         text: "See this article.",

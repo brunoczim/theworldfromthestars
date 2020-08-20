@@ -953,7 +953,7 @@ impl Phoneme {
 
         match self {
             B => "pʼ",
-            Gw if triggers_retraction => "kʷʼ",
+            Gw if triggers_retraction => "qʷʼ",
             Gw => "kʷʼ",
             D => "tʼ",
             J => "cʼ",
