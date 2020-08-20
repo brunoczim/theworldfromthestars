@@ -20,7 +20,7 @@ pub fn make(dir: &mut Directory) {
 
     for (word, section) in word.make_sections() {
         let path =
-            InternalPath::parse(format!("words/{}.html", word.to_text()))
+            InternalPath::parse(format!("words/{}/index.html", word.to_text()))
                 .unwrap();
         dir.insert(
             path,
