@@ -61,8 +61,10 @@ impl InternalPath {
         let string = string.as_ref();
         let mut this = Self { fragments: Vec::new() };
 
-        for fragment in string.split('/') {
-            this.fragments.push(Fragment::new(fragment)?);
+        if string.len() > 0 {
+            for fragment in string.split('/') {
+                this.fragments.push(Fragment::new(fragment)?);
+            }
         }
 
         Ok(this)

@@ -16,13 +16,21 @@ pub fn make(dir: &mut Directory) {
         InternalPath::parse("writing/index.html").unwrap(),
         Node::Page(Page {
             title: "Classical Star Language Writing System".to_owned(),
-            body: "This page is about the writing system of the Classical \
-                   Star Language. The writing system uses a phonemic alphabet \
-                   principle. This means that each symbol (letter) gets \
-                   mapped to one phonemic unit, as each phonemic unit gets \
-                   mapped to one symbol."
-                .blocking()
+            body: vec![
+                "This page is about the writing system of the ".to_dyn(),
+                Link {
+                    location: StarLang.path().into(),
+                    text: "Classical Star Language",
+                }
                 .to_dyn(),
+                ". The writing system uses a phonemic alphabet principle. \
+                 This means that each symbol (letter) gets mapped to one \
+                 phonemic unit, as each phonemic unit gets mapped to one \
+                 symbol."
+                    .to_dyn(),
+            ]
+            .blocking()
+            .to_dyn(),
             sections: vec![Section {
                 title: "List Of Letters In Alphabetic Order".to_dyn(),
                 id: Id::new("list-of-letters").unwrap(),
