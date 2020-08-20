@@ -73,6 +73,13 @@ where
                     .collect(),
             };
 
+            let romanization = Section {
+                title: "Romanization".to_dyn(),
+                id: Id::new(format!("{}-roman", self.id.as_str())).unwrap(),
+                body: inflected.to_text().blocking().to_dyn(),
+                children: vec![],
+            };
+
             let pronunciation = Section {
                 title: "Pronunciation".to_dyn(),
                 id: Id::new(format!("{}-pronunciation", self.id.as_str()))
@@ -98,7 +105,7 @@ where
                     self.notes.clone().blocking().to_dyn(),
                 ]
                 .to_dyn(),
-                children: vec![pronunciation, inflection],
+                children: vec![romanization, pronunciation, inflection],
             };
 
             sections.push((inflected, section));
