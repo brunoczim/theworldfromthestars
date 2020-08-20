@@ -183,7 +183,7 @@ pub fn make(dir: &mut Directory) {
                                 Entry::new(WithStarAlphabet("w").to_dyn()),
                                 Entry::new("w".to_dyn()),
                                 Entry::new("/w/".to_dyn()),
-                                Entry::new("[w]".to_dyn()),
+                                Entry::new("[w, w̠]".to_dyn()),
                             ],
                             vec![
                                 Entry::new(WithStarAlphabet("s").to_dyn()),
