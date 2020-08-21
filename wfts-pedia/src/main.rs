@@ -37,7 +37,7 @@ fn main() {
 fn index_page() -> Page {
     let body = vec![Paragraph(vec![String::from(
         "This is the front page of the encyclopedia of \"The World From The \
-         Stars\"",
+         Stars\".",
     )])
     .to_dyn()];
 
