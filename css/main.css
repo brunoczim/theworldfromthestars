@@ -181,3 +181,11 @@ ul.unmarked-list {
 .pronunciation-val {
     padding-left: 5pt;
 }
+
+#banner > a {
+    font-size: 120%;
+    font-weight: bold;
+    border: solid black 1px;
+    padding-left: 5pt;
+    padding-right: 5pt;
+}
