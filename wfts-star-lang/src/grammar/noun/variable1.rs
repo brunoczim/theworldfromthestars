@@ -229,3 +229,12 @@ impl Word {
         }
     }
 }
+
+pub fn definitions() -> Vec<Definition> {
+    vec![Definition {
+        id: Id::new("eye").unwrap(),
+        meanings: vec![Meaning::Eye],
+        notes: "".blocking().to_dyn(),
+        word: Word::new(phonology::Word::parse_str("gas").unwrap()).unwrap(),
+    }]
+}

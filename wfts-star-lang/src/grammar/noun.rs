@@ -2,6 +2,7 @@ pub mod variable1;
 pub mod divine1;
 
 use crate::{
+    dictionary::Entry,
     grammar::grammemes::{BasicCase, Gender, Number},
     phonology,
 };
@@ -10,17 +11,25 @@ use wfts_pedia_ssg::{
     fmt::StrExt,
 };
 
+pub fn entries() -> Vec<Entry> {
+    let mut entries = Vec::new();
+
+    for def in variable1::definitions() {
+        entries.push(def.to_dict_entry())
+    }
+    for def in divine1::definitions() {
+        entries.push(def.to_dict_entry())
+    }
+
+    entries
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Inflected {
     pub phonemes: phonology::Word,
     pub case: BasicCase,
     pub gender: Gender,
     pub number: Number,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Word {
-    Class1 { word: variable1::Word, gender: Gender, number: Number },
 }
 
 pub fn full_inflection_table<F>(

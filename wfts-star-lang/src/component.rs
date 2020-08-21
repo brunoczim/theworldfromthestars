@@ -1,4 +1,4 @@
-use crate::phonology::Morpheme;
+use crate::morphology::Morpheme;
 use std::fmt;
 use wfts_pedia_ssg::component::{
     list::UnorderedList,

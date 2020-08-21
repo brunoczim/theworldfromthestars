@@ -184,3 +184,7 @@ impl Word {
         }
     }
 }
+
+pub fn definitions() -> Vec<Definition> {
+    vec![]
+}

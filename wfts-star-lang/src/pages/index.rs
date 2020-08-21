@@ -76,6 +76,20 @@ pub fn make(dir: &mut Directory) {
                     children: vec![],
                     id: Id::new("grammar").unwrap(),
                 },
+                Section {
+                    title: "Dictionary".to_dyn(),
+                    body: Paragraph(Link {
+                        text: "See this article.",
+                        location: Location::from(
+                            StarLang
+                                .path()
+                                .append(Fragment::new("dictionary").unwrap()),
+                        ),
+                    })
+                    .to_dyn(),
+                    children: vec![],
+                    id: Id::new("dictionary").unwrap(),
+                },
             ],
         }),
     );

@@ -1,6 +1,7 @@
 pub mod component;
 pub mod phonology;
 pub mod grammar;
+pub mod morphology;
 pub mod dictionary;
 pub mod pages;
 

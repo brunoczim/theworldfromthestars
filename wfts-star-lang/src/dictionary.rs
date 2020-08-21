@@ -1,6 +1,7 @@
 use crate::{
     component::{DefinitionHead, Pronunciation, WithStarAlphabet},
-    phonology::Morpheme,
+    grammar::noun,
+    morphology::Morpheme,
 };
 use std::collections::HashMap;
 use wfts_lang::semantics::Meaning;
@@ -91,5 +92,31 @@ impl Entry {
         }
 
         sections
+    }
+
+    pub fn all() -> Vec<Self> {
+        noun::entries()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Dictionary {
+    pub sections: HashMap<Morpheme, Vec<Section>>,
+}
+
+impl Dictionary {
+    pub fn with_all_entries() -> Self {
+        Self::from_entries(Entry::all())
+    }
+
+    pub fn from_entries(entries: Vec<Entry>) -> Self {
+        let mut this = Self { sections: HashMap::new() };
+        for entry in entries {
+            for (morpheme, section) in entry.sections() {
+                let vec = this.sections.entry(morpheme).or_insert(Vec::new());
+                vec.push(section);
+            }
+        }
+        this
     }
 }
