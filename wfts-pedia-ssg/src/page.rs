@@ -24,6 +24,15 @@ impl<'section, 'loc, 'site> fmt::Display
     for RenderSection<'section, 'loc, 'site>
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let mut path = self.ctx.location().clone();
+        if path
+            .fragments
+            .last()
+            .map_or(false, |last| last.as_str() == "index.html")
+        {
+            path.fragments.pop();
+        }
+
         write!(
             fmt,
             "<div id={id} class=\"section section-{level}\"><{title_tag} \
