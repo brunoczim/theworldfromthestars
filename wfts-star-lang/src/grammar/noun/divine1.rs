@@ -186,5 +186,10 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![]
+    vec![Definition {
+        id: Id::new("star").unwrap(),
+        meanings: vec![Meaning::Star],
+        notes: "".blocking().to_dyn(),
+        word: Word::new(phonology::Word::parse_str("saŋ").unwrap()).unwrap(),
+    }]
 }
