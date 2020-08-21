@@ -113,7 +113,7 @@ impl Component for Pronunciation {
                 pronunciation: format!("[{}]", word.to_early_narrow_ipa()),
             });
             list.push(PronunciationKey {
-                name: "Late CSL Accents".to_owned(),
+                name: "Some Late CSL Accents".to_owned(),
                 pronunciation: format!("[{}]", word.to_late_narrow_ipa()),
             });
         }
