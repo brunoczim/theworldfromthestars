@@ -93,8 +93,8 @@ h6 {
     padding-bottom: 4pt;
 }
 
-a.link {
-    color: #177BA6;
+a.link, a.link * {
+    color: #135E7E;
 }
 
 a:hover {
