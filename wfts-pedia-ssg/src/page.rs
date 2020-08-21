@@ -45,7 +45,7 @@ impl<'section, 'loc, 'site> fmt::Display
             body = self.ctx.renderer(&self.section.body),
             id = self.ctx.renderer(&self.section.id),
             link = self.ctx.renderer(InternalLoc {
-                path: self.ctx.location().clone(),
+                path,
                 id: Some(self.section.id.clone())
             })
         )?;
