@@ -33,6 +33,8 @@ pub enum Meaning {
     NightStar,
     Sun,
     Eye,
+    Wind,
+    Fire,
 }
 
 impl Meaning {
@@ -69,6 +71,8 @@ impl Meaning {
             Sun => "sun",
             NightStar => "night star",
             Eye => "eye",
+            Wind => "wind",
+            Fire => "fire",
         }
     }
 
@@ -80,6 +84,8 @@ impl Meaning {
             Sun => "One of the suns; a star seen during the day.",
             NightStar => "A star seen at night.",
             Eye => "An eye.",
+            Wind => "The wind; the air that blows naturally.",
+            Fire => "Fire; the light and heat emitted by burning something.",
         }
     }
 }

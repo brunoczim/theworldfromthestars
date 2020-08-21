@@ -2,6 +2,7 @@ pub mod text;
 pub mod img;
 pub mod table;
 pub mod list;
+pub mod audio;
 
 use crate::{location::InternalPath, site::Site};
 use std::{borrow::Cow, fmt, rc::Rc, sync::Arc};

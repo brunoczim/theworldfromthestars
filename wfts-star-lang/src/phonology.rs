@@ -1,6 +1,9 @@
+use crate::StarLang;
 use anyhow::Context;
 use std::{borrow::Cow, fmt, iter};
 use thiserror::Error;
+use wfts_lang::Lang;
+use wfts_pedia_ssg::{component::audio::Audio, location::Location};
 
 pub fn balance_cluster(coda: &mut Coda, onset: &mut Onset) {
     let done = matches!(
@@ -257,6 +260,46 @@ impl Word {
         }
         syllables.push(syllable);
         Self::new(syllables)
+    }
+
+    pub fn audio_early(&self) -> Option<Audio> {
+        let text = self.to_text();
+        let suffix = match text.as_str() {
+            "saŋ" => Some(""),
+            "saysen" => Some("-early"),
+            _ => None,
+        };
+        if let Some(suffix) = suffix {
+            let location = Location::internal(format!(
+                "{}/audio/{}{}.ogg",
+                StarLang.path(),
+                text,
+                suffix,
+            ));
+            Some(Audio(location))
+        } else {
+            None
+        }
+    }
+
+    pub fn audio_late(&self) -> Option<Audio> {
+        let text = self.to_text();
+        let suffix = match text.as_str() {
+            "saŋ" => Some(""),
+            "saysen" => Some("-late"),
+            _ => None,
+        };
+        if let Some(suffix) = suffix {
+            let location = Location::internal(format!(
+                "{}/audio/{}{}.ogg",
+                StarLang.path(),
+                text,
+                suffix,
+            ));
+            Some(Audio(location))
+        } else {
+            None
+        }
     }
 
     fn find_nucleus(phonemes: &[Phoneme], initial: bool) -> Option<usize> {
@@ -713,6 +756,7 @@ impl Phoneme {
             Some('i') => I,
             Some('é') => Ee,
             Some('h') => H,
+            Some('e') => E,
             Some('ŕ') => Rr,
             Some('a') => A,
             Some('á') => Aa,

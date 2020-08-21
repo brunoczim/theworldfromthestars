@@ -1,6 +1,7 @@
 use crate::morphology::Morpheme;
 use std::fmt;
 use wfts_pedia_ssg::component::{
+    audio::Audio,
     list::UnorderedList,
     text::{Bold, Italic},
     BlockComponent,
@@ -80,6 +81,7 @@ impl Component for DefinitionHead {
 struct PronunciationKey {
     name: String,
     pronunciation: String,
+    audio: Option<Audio>,
 }
 
 impl Component for PronunciationKey {
@@ -92,12 +94,26 @@ impl Component for PronunciationKey {
              class=\"pronunciation-val\">{}</div>",
             ctx.renderer(Italic(&self.name)),
             ctx.renderer(&self.pronunciation)
-        )
+        )?;
+
+        if let Some(audio) = &self.audio {
+            write!(
+                fmt,
+                "<div class=\"pronunciation-audio\">{}</div>",
+                ctx.renderer(audio)
+            )?;
+        }
+
+        Ok(())
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct Pronunciation(pub Morpheme);
+pub struct Pronunciation {
+    pub morpheme: Morpheme,
+    pub audio_early: Option<Audio>,
+    pub audio_late: Option<Audio>,
+}
 
 impl Component for Pronunciation {
     type Kind = BlockComponent;
@@ -105,16 +121,19 @@ impl Component for Pronunciation {
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
         let mut list = vec![PronunciationKey {
             name: "Phonemic".to_owned(),
-            pronunciation: format!("/{}/", self.0.to_broad_ipa()),
+            pronunciation: format!("/{}/", self.morpheme.to_broad_ipa()),
+            audio: None,
         }];
-        if let Morpheme::Word(word) = &self.0 {
+        if let Morpheme::Word(word) = &self.morpheme {
             list.push(PronunciationKey {
                 name: "Early CSL Accents".to_owned(),
                 pronunciation: format!("[{}]", word.to_early_narrow_ipa()),
+                audio: self.audio_early.clone(),
             });
             list.push(PronunciationKey {
                 name: "Some Late CSL Accents".to_owned(),
                 pronunciation: format!("[{}]", word.to_late_narrow_ipa()),
+                audio: self.audio_late.clone(),
             });
         }
         write!(fmt, "{}", ctx.renderer(UnorderedList(list)))

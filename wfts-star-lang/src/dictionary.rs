@@ -55,7 +55,19 @@ impl Entry {
                 title: "Pronunciation".to_dyn(),
                 id: Id::new(format!("{}-pronunciation", self.id.as_str()))
                     .unwrap(),
-                body: Pronunciation(morpheme.clone()).to_dyn(),
+                body: match &morpheme {
+                    Morpheme::Template(_) => Pronunciation {
+                        morpheme: morpheme.clone(),
+                        audio_early: None,
+                        audio_late: None,
+                    },
+                    Morpheme::Word(word) => Pronunciation {
+                        morpheme: morpheme.clone(),
+                        audio_early: word.audio_early(),
+                        audio_late: word.audio_late(),
+                    },
+                }
+                .to_dyn(),
                 children: vec![],
             };
 
