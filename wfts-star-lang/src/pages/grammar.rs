@@ -110,7 +110,11 @@ pub fn make(dir: &mut Directory) {
                     children: vec![Section {
                         title: "Inflection Classes".to_dyn(),
                         id: Id::new("noun-classes").unwrap(),
-                        body: vec![noun::class1::Word::affix_table()].to_dyn(),
+                        body: vec![
+                            noun::variable1::Word::affix_table(),
+                            noun::divine1::Word::affix_table(),
+                        ]
+                        .to_dyn(),
                         children: vec![],
                     }],
                 },

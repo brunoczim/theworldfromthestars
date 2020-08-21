@@ -16,6 +16,7 @@ use thiserror::Error;
 use wfts_lang::{semantics::Meaning, Lang};
 use wfts_pedia_ssg::{
     component::{
+        list::UnmarkedList,
         table::{self, Table},
         text::Link,
         Component,
@@ -61,7 +62,10 @@ impl Definition {
 }
 
 #[derive(Debug, Clone, Error)]
-#[error("Invalid nominative divine singular {nom_div_sing:?} for noun class 1")]
+#[error(
+    "Invalid nominative divine singular {nom_div_sing:?} for noun variable \
+     class 1"
+)]
 pub struct Invalid {
     pub nom_div_sing: phonology::Word,
 }
@@ -213,12 +217,14 @@ impl Word {
 
     pub fn affix_table() -> Table<&'static str, DynComponent> {
         Table {
-            title: "Inflection For Class 1",
+            title: "Inflection For Variable Class 1",
             entries: noun::full_inflection_table(|case, gender, number| {
-                Self::affix(case, gender, number)
-                    .to_string()
-                    .blocking()
-                    .to_dyn()
+                let affix = Self::affix(case, gender, number);
+                UnmarkedList(vec![
+                    WithStarAlphabet(affix.to_string()).to_dyn(),
+                    affix.to_string().to_dyn(),
+                ])
+                .to_dyn()
             }),
         }
     }

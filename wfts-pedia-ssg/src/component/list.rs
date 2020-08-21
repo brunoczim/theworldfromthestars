@@ -53,7 +53,38 @@ where
     type Kind = BlockComponent;
 
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
-        write!(fmt, "<ul class=\"ordered-list\">")?;
+        write!(fmt, "<ul class=\"unordered-list\">")?;
+        for item in &self.0 {
+            write!(fmt, "<li>{}</li>", ctx.renderer(item))?;
+        }
+        write!(fmt, "</ul>")?;
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct UnmarkedList<T>(pub Vec<T>)
+where
+    T: Component;
+
+impl<T> Default for UnmarkedList<T>
+where
+    T: Component,
+{
+    fn default() -> Self {
+        Self(Vec::default())
+    }
+}
+
+impl<T> Component for UnmarkedList<T>
+where
+    T: Component,
+{
+    type Kind = BlockComponent;
+
+    fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result {
+        write!(fmt, "<ul class=\"unmarked-list\">")?;
         for item in &self.0 {
             write!(fmt, "<li>{}</li>", ctx.renderer(item))?;
         }
