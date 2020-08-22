@@ -265,7 +265,7 @@ impl Word {
     pub fn audio_early(&self) -> Option<Audio> {
         let text = self.to_text();
         let suffix = match text.as_str() {
-            "saŋ" => Some(""),
+            "saŋ" | "dse" | "gas" | "kef" => Some(""),
             "saysen" | "says" | "saysé" | "sayiẋ" => Some("-early"),
             _ => None,
         };
@@ -285,7 +285,7 @@ impl Word {
     pub fn audio_late(&self) -> Option<Audio> {
         let text = self.to_text();
         let suffix = match text.as_str() {
-            "saŋ" => Some(""),
+            "saŋ" | "dse" | "gas" | "kef" => Some(""),
             "saysen" | "says" | "saysé" | "sayiẋ" => Some("-late"),
             _ => None,
         };
@@ -856,7 +856,7 @@ impl Phoneme {
             Nj => "ɲ",
             Ng if triggers_retraction => "ɴ",
             Ng => "ŋ",
-            F => "f",
+            F => "ɸ",
             Xw if palatalized => "çʷ",
             Xw if triggers_retraction => "χʷ",
             Xw => "xʷ",
@@ -954,7 +954,7 @@ impl Phoneme {
             N => "n",
             Nj => "ɲ",
             Ng => "ŋ",
-            F => "f",
+            F => "ɸ",
             Xw => "xʷ",
             W => "w",
             S => "s",
