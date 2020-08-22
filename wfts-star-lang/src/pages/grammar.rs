@@ -112,6 +112,7 @@ pub fn make(dir: &mut Directory) {
                         id: Id::new("noun-classes").unwrap(),
                         body: vec![
                             noun::variable1::Word::affix_table(),
+                            noun::variable2::Word::affix_table(),
                             noun::divine1::Word::affix_table(),
                         ]
                         .to_dyn(),
