@@ -267,6 +267,7 @@ impl Word {
         let suffix = match text.as_str() {
             "saŋ" => Some(""),
             "saysen" => Some("-early"),
+            "says" => Some("-early"),
             _ => None,
         };
         if let Some(suffix) = suffix {
@@ -287,6 +288,7 @@ impl Word {
         let suffix = match text.as_str() {
             "saŋ" => Some(""),
             "saysen" => Some("-late"),
+            "says" => Some("-late"),
             _ => None,
         };
         if let Some(suffix) = suffix {
