@@ -1,6 +1,7 @@
 pub mod variable1;
 pub mod variable2;
 pub mod divine1;
+pub mod divine2;
 
 use crate::{
     dictionary::Entry,
@@ -22,6 +23,9 @@ pub fn entries() -> Vec<Entry> {
         entries.push(def.to_dict_entry())
     }
     for def in divine1::definitions() {
+        entries.push(def.to_dict_entry())
+    }
+    for def in divine2::definitions() {
         entries.push(def.to_dict_entry())
     }
 

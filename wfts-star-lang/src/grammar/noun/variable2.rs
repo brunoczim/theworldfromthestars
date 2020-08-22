@@ -70,7 +70,7 @@ pub struct Invalid {
     pub nom_div_sing: phonology::Word,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Affix {
     Coda(Coda),
     Suffix(Syllable),
