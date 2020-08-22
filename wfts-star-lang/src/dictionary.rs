@@ -19,6 +19,7 @@ use wfts_pedia_ssg::{
 #[derive(Debug, Clone)]
 pub struct Entry {
     pub id: Id,
+    pub class: String,
     pub inflections: HashMap<String, Morpheme>,
     pub meanings: Vec<Meaning>,
     pub notes: DynComponent,
@@ -75,15 +76,19 @@ impl Entry {
                 title: "Inflection".to_dyn(),
                 id: Id::new(format!("{}-inflection", self.id.as_str()))
                     .unwrap(),
-                body: Table {
-                    title: vec![
-                        "Inflection for ".to_dyn(),
-                        WithStarAlphabet(morpheme.to_text()).to_dyn(),
-                        ".".to_dyn(),
-                    ]
+                body: vec![
+                    self.class.clone().blocking().to_dyn(),
+                    Table {
+                        title: vec![
+                            "Inflection for ".to_dyn(),
+                            WithStarAlphabet(morpheme.to_text()).to_dyn(),
+                            ".".to_dyn(),
+                        ]
+                        .to_dyn(),
+                        entries: self.inflection_table.clone(),
+                    }
                     .to_dyn(),
-                    entries: self.inflection_table.clone(),
-                }
+                ]
                 .to_dyn(),
                 children: vec![],
             };

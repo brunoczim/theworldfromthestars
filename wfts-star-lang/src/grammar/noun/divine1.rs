@@ -37,6 +37,7 @@ impl Definition {
     pub fn to_dict_entry(self) -> dictionary::Entry {
         dictionary::Entry {
             inflection_table: self.word.table(&self.id),
+            class: "Divine Class 1".to_owned(),
             id: self.id,
             inflections: {
                 let mut map = HashMap::new();

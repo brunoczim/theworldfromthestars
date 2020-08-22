@@ -1,5 +1,5 @@
-pub mod variable1;
-pub mod variable2;
+pub mod full1;
+pub mod full2;
 pub mod divine1;
 pub mod divine2;
 
@@ -16,10 +16,10 @@ use wfts_pedia_ssg::{
 pub fn entries() -> Vec<Entry> {
     let mut entries = Vec::new();
 
-    for def in variable1::definitions() {
+    for def in full1::definitions() {
         entries.push(def.to_dict_entry())
     }
-    for def in variable2::definitions() {
+    for def in full2::definitions() {
         entries.push(def.to_dict_entry())
     }
     for def in divine1::definitions() {

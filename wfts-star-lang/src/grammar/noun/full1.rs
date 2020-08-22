@@ -37,6 +37,7 @@ impl Definition {
     pub fn to_dict_entry(self) -> dictionary::Entry {
         dictionary::Entry {
             inflection_table: self.word.table(&self.id),
+            class: "Full-Inflection Class 1".to_owned(),
             id: self.id,
             inflections: {
                 let mut map = HashMap::new();
@@ -219,7 +220,7 @@ impl Word {
 
     pub fn affix_table() -> Table<&'static str, DynComponent> {
         Table {
-            title: "Inflection For Variable Class 1",
+            title: "Inflection For Full-Inflection Class 1",
             entries: noun::full_inflection_table(|case, gender, number| {
                 let affix = Self::affix(case, gender, number);
                 UnmarkedList(vec![

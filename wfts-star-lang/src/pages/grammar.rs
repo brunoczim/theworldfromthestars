@@ -111,8 +111,8 @@ pub fn make(dir: &mut Directory) {
                         title: "Inflection Classes".to_dyn(),
                         id: Id::new("noun-classes").unwrap(),
                         body: vec![
-                            noun::variable1::Word::affix_table(),
-                            noun::variable2::Word::affix_table(),
+                            noun::full1::Word::affix_table(),
+                            noun::full2::Word::affix_table(),
                             noun::divine1::Word::affix_table(),
                             noun::divine2::Word::affix_table(),
                         ]
