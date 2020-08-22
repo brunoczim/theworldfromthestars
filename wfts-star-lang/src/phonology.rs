@@ -265,7 +265,7 @@ impl Word {
     pub fn audio_early(&self) -> Option<Audio> {
         let text = self.to_text();
         let suffix = match text.as_str() {
-            "saŋ" | "dse" | "gas" | "kef" => Some(""),
+            "saŋ" | "dse" | "gas" | "kef" | "fwi" => Some(""),
             "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" => {
                 Some("-early")
             },
@@ -287,7 +287,7 @@ impl Word {
     pub fn audio_late(&self) -> Option<Audio> {
         let text = self.to_text();
         let suffix = match text.as_str() {
-            "saŋ" | "dse" | "gas" | "kef" => Some(""),
+            "saŋ" | "dse" | "gas" | "kef" | "fwi" => Some(""),
             "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" => {
                 Some("-late")
             },

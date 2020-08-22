@@ -97,10 +97,10 @@ pub struct Word {
 
 impl Word {
     pub fn new(nom_sing: phonology::Word) -> anyhow::Result<Self> {
-        let last = nom_sing.syllables().last().unwrap();
-        let no_coda = last.coda().iter().next().is_none();
-        match last.nucleus() {
-            Phoneme::E | Phoneme::Ee | Phoneme::I if no_coda => {
+        let last = nom_sing.phonemes().next_back();
+        match last {
+            Some(Phoneme::N) | Some(Phoneme::M) | Some(Phoneme::X)
+            | Some(Phoneme::Mg) | Some(Phoneme::Xw) => {
                 Err(Invalid { nom_sing })?
             },
             _ => Ok(Self { nom_sing }),
@@ -214,5 +214,10 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![]
+    vec![Definition {
+        id: Id::new("wind").unwrap(),
+        meanings: vec![Meaning::Wind],
+        notes: "".blocking().to_dyn(),
+        word: Word::new(phonology::Word::parse_str("fwi").unwrap()).unwrap(),
+    }]
 }
