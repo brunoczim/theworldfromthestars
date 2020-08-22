@@ -118,15 +118,17 @@ impl Word {
         noun::full_inflection_table(|case, gender, number| {
             let inflected =
                 self.inflect(case, gender, number).phonemes.to_text();
-            let component = Link {
+            let link = Link {
                 location: Location::internal(format!(
                     "{}/dictionary/{}#{}",
                     StarLang.path(),
                     inflected,
                     entry_id,
                 )),
-                text: WithStarAlphabet(inflected),
+                text: WithStarAlphabet(inflected.clone()),
             };
+            let component =
+                UnmarkedList(vec![link.to_dyn(), inflected.to_dyn()]);
             component.blocking().to_dyn()
         })
     }
@@ -333,5 +335,10 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![]
+    vec![Definition {
+        id: Id::new("tree").unwrap(),
+        meanings: vec![Meaning::Tree],
+        notes: "".blocking().to_dyn(),
+        word: Word::new(phonology::Word::parse_str("dse").unwrap()).unwrap(),
+    }]
 }

@@ -122,15 +122,17 @@ impl Word {
         noun::full_inflection_table(|case, gender, number| {
             let inflected =
                 self.inflect(case, gender, number).phonemes.to_text();
-            let component = Link {
+            let link = Link {
                 location: Location::internal(format!(
                     "{}/dictionary/{}#{}",
                     StarLang.path(),
                     inflected,
                     entry_id,
                 )),
-                text: WithStarAlphabet(inflected),
+                text: WithStarAlphabet(inflected.clone()),
             };
+            let component =
+                UnmarkedList(vec![link.to_dyn(), inflected.to_dyn()]);
             component.blocking().to_dyn()
         })
     }

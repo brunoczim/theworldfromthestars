@@ -35,6 +35,7 @@ pub enum Meaning {
     Eye,
     Wind,
     Fire,
+    Tree,
 }
 
 impl Meaning {
@@ -73,6 +74,7 @@ impl Meaning {
             Eye => "eye",
             Wind => "wind",
             Fire => "fire",
+            Tree => "tree",
         }
     }
 
@@ -86,6 +88,7 @@ impl Meaning {
             Eye => "An eye.",
             Wind => "The wind; the air that blows naturally.",
             Fire => "Fire; the light and heat emitted by burning something.",
+            Tree => "A tree.",
         }
     }
 }

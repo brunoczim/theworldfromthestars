@@ -105,15 +105,17 @@ impl Word {
     pub fn table(&self, entry_id: &Id) -> table::Entries<DynComponent> {
         noun::fixed_gender_inflection_table(Gender::Divine, |case, number| {
             let inflected = self.inflect(case, number).phonemes.to_text();
-            let component = Link {
+            let link = Link {
                 location: Location::internal(format!(
                     "{}/dictionary/{}#{}",
                     StarLang.path(),
                     inflected,
                     entry_id,
                 )),
-                text: WithStarAlphabet(inflected),
+                text: WithStarAlphabet(inflected.clone()),
             };
+            let component =
+                UnmarkedList(vec![link.to_dyn(), inflected.to_dyn()]);
             component.blocking().to_dyn()
         })
     }
