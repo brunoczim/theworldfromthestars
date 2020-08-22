@@ -66,7 +66,7 @@ impl Component for DefinitionHead {
             if first {
                 first = false;
             } else {
-                write!(fmt, ",")?;
+                write!(fmt, ", ")?;
             }
             write!(fmt, "{}", ctx.renderer(Bold(key)))?;
         }
