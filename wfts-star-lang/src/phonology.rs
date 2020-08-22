@@ -266,7 +266,9 @@ impl Word {
         let text = self.to_text();
         let suffix = match text.as_str() {
             "saŋ" | "dse" | "gas" | "kef" => Some(""),
-            "saysen" | "says" | "saysé" | "sayiẋ" => Some("-early"),
+            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" => {
+                Some("-early")
+            },
             _ => None,
         };
         if let Some(suffix) = suffix {
@@ -286,7 +288,9 @@ impl Word {
         let text = self.to_text();
         let suffix = match text.as_str() {
             "saŋ" | "dse" | "gas" | "kef" => Some(""),
-            "saysen" | "says" | "saysé" | "sayiẋ" => Some("-late"),
+            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" => {
+                Some("-late")
+            },
             _ => None,
         };
         if let Some(suffix) = suffix {
