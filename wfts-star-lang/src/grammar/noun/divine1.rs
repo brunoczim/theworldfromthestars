@@ -73,7 +73,7 @@ impl fmt::Display for Affix {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "-")?;
         if let Some(coda) = self.coda {
-            for ph in coda.iter() {
+            for ph in coda.phonemes() {
                 write!(fmt, "{}", ph.to_text())?;
             }
         }
@@ -94,7 +94,7 @@ pub struct Word {
 impl Word {
     pub fn new(nom_sing: phonology::Word) -> anyhow::Result<Self> {
         let last = nom_sing.syllables().last().unwrap();
-        let no_coda = last.coda().iter().next().is_none();
+        let no_coda = last.coda().phonemes().next().is_none();
         match last.nucleus() {
             Phoneme::E | Phoneme::Ee | Phoneme::I if no_coda => {
                 Err(Invalid { nom_sing })?

@@ -1,18 +1,18 @@
 use crate::StarLang;
 use anyhow::Context;
-use std::{borrow::Cow, fmt, iter};
+use std::{borrow::Cow, cmp::Ordering, fmt, iter};
 use thiserror::Error;
 use wfts_lang::Lang;
 use wfts_pedia_ssg::{component::audio::Audio, location::Location};
 
 pub fn balance_cluster(coda: &mut Coda, onset: &mut Onset) {
     let done = matches!(
-        onset.iter().next().map(Phoneme::classify),
+        onset.phonemes().next().map(Phoneme::classify),
         Some(PhonemeClass::Aspirated) | Some(PhonemeClass::Ejective)
     );
 
     if !done {
-        match onset.iter().count().checked_sub(coda.iter().count()) {
+        match onset.phonemes().count().checked_sub(coda.phonemes().count()) {
             Some(diff) if diff > 1 => {
                 coda.outer = onset.outer.take().or_else(|| onset.medial.take());
             },
@@ -26,7 +26,7 @@ pub fn balance_cluster(coda: &mut Coda, onset: &mut Onset) {
                             onset.medial = coda.outer.take();
                         }
                     } else if coda.inner.is_some()
-                        && onset.iter().next().is_none()
+                        && onset.phonemes().next().is_none()
                     {
                         onset.inner = coda.inner.take();
                     }
@@ -56,7 +56,7 @@ where
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Word {
     syllables: Vec<Syllable>,
 }
@@ -76,7 +76,7 @@ impl Word {
             let mut iter = syllable.phonemes();
             let first = iter.next().unwrap();
             let last = iter.last();
-            let onset_len = syllable.onset().iter().count();
+            let onset_len = syllable.onset().phonemes().count();
             if let Some(prev) = prev {
                 let bypass_dist =
                     matches!(first.classify(), Aspirated | Ejective);
@@ -90,7 +90,7 @@ impl Word {
                 }
             }
             prev = Some(last.unwrap_or(first));
-            prev_coda_len = syllable.coda().iter().count();
+            prev_coda_len = syllable.coda().phonemes().count();
         }
 
         Ok(Self { syllables })
@@ -335,6 +335,34 @@ impl Word {
     }
 }
 
+impl PartialOrd for Word {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Word {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let mut self_iter = self.phonemes();
+        let mut other_iter = other.phonemes();
+
+        loop {
+            match (self_iter.next(), other_iter.next()) {
+                (Some(self_ph), Some(other_ph)) => {
+                    let ordering = self_ph.cmp(&other_ph);
+                    if ordering != Ordering::Equal {
+                        break ordering;
+                    }
+                },
+
+                (Some(_), None) => break Ordering::Greater,
+                (None, Some(_)) => break Ordering::Less,
+                (None, None) => break Ordering::Equal,
+            }
+        }
+    }
+}
+
 impl fmt::Display for Word {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         for ch in self.phonemes() {
@@ -389,7 +417,7 @@ pub struct InvalidWord {
     pub syllables: Vec<Syllable>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Syllable {
     onset: Onset,
     nucleus: Phoneme,
@@ -434,9 +462,9 @@ impl Syllable {
         &'this self,
     ) -> impl DoubleEndedIterator<Item = Phoneme> + 'this {
         self.onset
-            .iter()
+            .phonemes()
             .chain(iter::once(self.nucleus))
-            .chain(self.coda.iter())
+            .chain(self.coda.phonemes())
     }
 
     pub fn to_broad_ipa(&self) -> Cow<str> {
@@ -463,6 +491,34 @@ impl Syllable {
         }
 
         pos
+    }
+}
+
+impl PartialOrd for Syllable {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Syllable {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let mut self_iter = self.phonemes();
+        let mut other_iter = other.phonemes();
+
+        loop {
+            match (self_iter.next(), other_iter.next()) {
+                (Some(self_ph), Some(other_ph)) => {
+                    let ordering = self_ph.cmp(&other_ph);
+                    if ordering != Ordering::Equal {
+                        break ordering;
+                    }
+                },
+
+                (Some(_), None) => break Ordering::Greater,
+                (None, Some(_)) => break Ordering::Less,
+                (None, None) => break Ordering::Equal,
+            }
+        }
     }
 }
 
@@ -495,7 +551,7 @@ pub struct InvalidSyllable {
     pub coda: Coda,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Onset {
     outer: Option<Phoneme>,
     medial: Option<Phoneme>,
@@ -559,13 +615,41 @@ impl Onset {
         matches!(inner, Some(Approximant) | None)
     }
 
-    pub fn iter<'this>(
+    pub fn phonemes<'this>(
         &'this self,
     ) -> impl DoubleEndedIterator<Item = Phoneme> + 'this {
         iter::once(self.outer)
             .chain(iter::once(self.medial))
             .chain(iter::once(self.inner))
             .filter_map(|opt| opt)
+    }
+}
+
+impl PartialOrd for Onset {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Onset {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let mut self_iter = self.phonemes();
+        let mut other_iter = other.phonemes();
+
+        loop {
+            match (self_iter.next(), other_iter.next()) {
+                (Some(self_ph), Some(other_ph)) => {
+                    let ordering = self_ph.cmp(&other_ph);
+                    if ordering != Ordering::Equal {
+                        break ordering;
+                    }
+                },
+
+                (Some(_), None) => break Ordering::Greater,
+                (None, Some(_)) => break Ordering::Less,
+                (None, None) => break Ordering::Equal,
+            }
+        }
     }
 }
 
@@ -618,7 +702,7 @@ pub struct OnsetParseError {
     pub phonemes: Vec<Phoneme>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Coda {
     inner: Option<Phoneme>,
     outer: Option<Phoneme>,
@@ -656,12 +740,40 @@ impl Coda {
         matches!(inner, Some(Approximant) | None)
     }
 
-    pub fn iter<'this>(
+    pub fn phonemes<'this>(
         &'this self,
     ) -> impl DoubleEndedIterator<Item = Phoneme> + 'this {
         iter::once(self.inner)
             .chain(iter::once(self.outer))
             .filter_map(|opt| opt)
+    }
+}
+
+impl PartialOrd for Coda {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Coda {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let mut self_iter = self.phonemes();
+        let mut other_iter = other.phonemes();
+
+        loop {
+            match (self_iter.next(), other_iter.next()) {
+                (Some(self_ph), Some(other_ph)) => {
+                    let ordering = self_ph.cmp(&other_ph);
+                    if ordering != Ordering::Equal {
+                        break ordering;
+                    }
+                },
+
+                (Some(_), None) => break Ordering::Greater,
+                (None, Some(_)) => break Ordering::Less,
+                (None, None) => break Ordering::Equal,
+            }
+        }
     }
 }
 
@@ -1032,19 +1144,19 @@ mod test {
         Onset::new(Some(H), None, None).unwrap();
 
         let onset = Onset::new(None, None, Some(W)).unwrap();
-        assert_eq!(vec![W], onset.iter().collect::<Vec<_>>());
+        assert_eq!(vec![W], onset.phonemes().collect::<Vec<_>>());
 
         let onset = Onset::new(Some(X), Some(Mg), Some(R)).unwrap();
-        assert_eq!(vec![X, Mg, R], onset.iter().collect::<Vec<_>>());
+        assert_eq!(vec![X, Mg, R], onset.phonemes().collect::<Vec<_>>());
 
         let onset = Onset::new(None, Some(Ng), Some(Y)).unwrap();
-        assert_eq!(vec![Ng, Y], onset.iter().collect::<Vec<_>>());
+        assert_eq!(vec![Ng, Y], onset.phonemes().collect::<Vec<_>>());
 
         let onset = Onset::new(None, Some(Nj), None).unwrap();
-        assert_eq!(vec![Nj], onset.iter().collect::<Vec<_>>());
+        assert_eq!(vec![Nj], onset.phonemes().collect::<Vec<_>>());
 
         let onset = Onset::new(None, None, None).unwrap();
-        assert_eq!(onset.iter().collect::<Vec<_>>().len(), 0);
+        assert_eq!(onset.phonemes().collect::<Vec<_>>().len(), 0);
 
         Onset::new(Some(D), Some(C), Some(R)).unwrap_err();
         Onset::new(Some(P), Some(C), Some(T)).unwrap_err();
@@ -1063,16 +1175,16 @@ mod test {
         Coda::new(None, Some(M)).unwrap();
 
         let coda = Coda::new(Some(R), Some(N)).unwrap();
-        assert_eq!(vec![R, N], coda.iter().collect::<Vec<_>>());
+        assert_eq!(vec![R, N], coda.phonemes().collect::<Vec<_>>());
 
         let coda = Coda::new(Some(W), None).unwrap();
-        assert_eq!(vec![W], coda.iter().collect::<Vec<_>>());
+        assert_eq!(vec![W], coda.phonemes().collect::<Vec<_>>());
 
         let coda = Coda::new(None, Some(S)).unwrap();
-        assert_eq!(vec![S], coda.iter().collect::<Vec<_>>());
+        assert_eq!(vec![S], coda.phonemes().collect::<Vec<_>>());
 
         let coda = Coda::new(None, None).unwrap();
-        assert_eq!(coda.iter().collect::<Vec<_>>().len(), 0);
+        assert_eq!(coda.phonemes().collect::<Vec<_>>().len(), 0);
 
         Coda::new(Some(F), None).unwrap_err();
         Coda::new(Some(N), None).unwrap_err();

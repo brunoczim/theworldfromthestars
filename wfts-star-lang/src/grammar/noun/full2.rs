@@ -83,7 +83,7 @@ impl fmt::Display for Affix {
         write!(fmt, "-")?;
         match self {
             Affix::Coda(coda) => {
-                for ph in coda.iter() {
+                for ph in coda.phonemes() {
                     write!(fmt, "{}", ph.to_text())?;
                 }
             },
