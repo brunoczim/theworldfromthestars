@@ -11,3 +11,4 @@ wfts-lang = { path = "../wfts-lang" }
 wfts-pedia-ssg = { path = "../wfts-pedia-ssg" }
 anyhow = "1.0.31"
 thiserror = "1.0.19"
+indexmap = "1.5.1"
