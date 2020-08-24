@@ -1,4 +1,7 @@
-use crate::{grammar::noun, StarLang};
+use crate::{
+    grammar::{adjective, noun},
+    StarLang,
+};
 use wfts_lang::Lang;
 use wfts_pedia_ssg::{
     component::{
@@ -135,7 +138,13 @@ pub fn make(dir: &mut Directory) {
                          gender.",
                     )
                     .to_dyn(),
-                    children: vec![],
+                    children: vec![Section {
+                        title: "Inflection Classes".to_dyn(),
+                        id: Id::new("adjective-classes").unwrap(),
+                        body: vec![adjective::regular::Word::affix_table()]
+                            .to_dyn(),
+                        children: vec![],
+                    }],
                 },
                 Section {
                     title: "Pronouns".to_dyn(),

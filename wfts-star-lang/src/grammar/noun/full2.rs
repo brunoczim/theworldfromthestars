@@ -1,4 +1,5 @@
 use crate::{
+    component,
     component::WithStarAlphabet,
     dictionary,
     grammar::{
@@ -64,8 +65,8 @@ impl Definition {
 
 #[derive(Debug, Clone, Error)]
 #[error(
-    "Invalid nominative divine singular {nom_div_sing:?} for noun variable \
-     class 1"
+    "Invalid nominative divine singular {nom_div_sing:?} for noun \
+     full-inflection class 1"
 )]
 pub struct Invalid {
     pub nom_div_sing: phonology::Word,
@@ -116,7 +117,7 @@ impl Word {
     }
 
     pub fn table(&self, entry_id: &Id) -> table::Entries<DynComponent> {
-        noun::full_inflection_table(|case, gender, number| {
+        component::bcase_gender_number_table(|case, gender, number| {
             let inflected =
                 self.inflect(case, gender, number).phonemes.to_text();
             let link = Link {
@@ -323,14 +324,16 @@ impl Word {
     pub fn affix_table() -> Table<&'static str, DynComponent> {
         Table {
             title: "Inflection For Full-Inflection Class 2",
-            entries: noun::full_inflection_table(|case, gender, number| {
-                let affix = Self::affix(case, gender, number);
-                UnmarkedList(vec![
-                    WithStarAlphabet(affix.to_string()).to_dyn(),
-                    affix.to_string().to_dyn(),
-                ])
-                .to_dyn()
-            }),
+            entries: component::bcase_gender_number_table(
+                |case, gender, number| {
+                    let affix = Self::affix(case, gender, number);
+                    UnmarkedList(vec![
+                        WithStarAlphabet(affix.to_string()).to_dyn(),
+                        affix.to_string().to_dyn(),
+                    ])
+                    .to_dyn()
+                },
+            ),
         }
     }
 }

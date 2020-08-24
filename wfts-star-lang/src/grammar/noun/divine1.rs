@@ -1,4 +1,5 @@
 use crate::{
+    component,
     component::WithStarAlphabet,
     dictionary,
     grammar::{
@@ -104,7 +105,7 @@ impl Word {
     }
 
     pub fn table(&self, entry_id: &Id) -> table::Entries<DynComponent> {
-        noun::fixed_gender_inflection_table(Gender::Divine, |case, number| {
+        component::bcase_fgender_number_table(Gender::Divine, |case, number| {
             let inflected = self.inflect(case, number).phonemes.to_text();
             let link = Link {
                 location: Location::internal(format!(
@@ -173,7 +174,7 @@ impl Word {
     pub fn affix_table() -> Table<&'static str, DynComponent> {
         Table {
             title: "Inflection For Divine Class 1",
-            entries: noun::fixed_gender_inflection_table(
+            entries: component::bcase_fgender_number_table(
                 Gender::Divine,
                 |case, number| {
                     let affix = Self::affix(case, number);

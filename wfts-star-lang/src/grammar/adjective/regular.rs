@@ -38,7 +38,7 @@ impl Definition {
     pub fn to_dict_entry(self) -> dictionary::Entry {
         dictionary::Entry {
             inflection_table: self.word.table(&self.id),
-            class: "Full-Inflection Class 1".to_owned(),
+            class: "Regular Class".to_owned(),
             id: self.id,
             inflections: {
                 let mut map = HashMap::new();
@@ -65,8 +65,8 @@ impl Definition {
 
 #[derive(Debug, Clone, Error)]
 #[error(
-    "Invalid nominative divine singular {nom_div_sing:?} for noun \
-     full-inflection class 1"
+    "Invalid nominative divine singular {nom_div_sing:?} for adjective \
+     regular class"
 )]
 pub struct Invalid {
     pub nom_div_sing: phonology::Word,
@@ -151,16 +151,17 @@ impl Word {
         let topical2 = Coda::new(Some(Phoneme::W), None).unwrap();
         let topical3 = Coda::new(Some(Phoneme::Y), None).unwrap();
         let postpositional =
-            Coda::new(Some(Phoneme::Y), Some(Phoneme::S)).unwrap();
-        let postpositional2 = Coda::new(Some(Phoneme::Y), None).unwrap();
+            Coda::new(Some(Phoneme::W), Some(Phoneme::S)).unwrap();
+        let postpositional2 = Coda::new(Some(Phoneme::W), None).unwrap();
         let animate = Phoneme::Aa;
         let animate2 = Phoneme::Ee;
         let inanimate = Phoneme::I;
 
-        let plural = Syllable::parse(&[Phoneme::Ee]).unwrap();
-        let nullar = Syllable::parse(&[Phoneme::E, Phoneme::N]).unwrap();
-        let collective = Syllable::parse(&[Phoneme::I, Phoneme::Xw]).unwrap();
-        let collective2 = Syllable::parse(&[Phoneme::I, Phoneme::W]).unwrap();
+        let plural = Syllable::parse(&[Phoneme::Rr, Phoneme::Ee]).unwrap();
+        let nullar = Syllable::parse(&[Phoneme::M, Phoneme::Ee]).unwrap();
+        let collective = Syllable::parse(&[Phoneme::I, Phoneme::X]).unwrap();
+        let collective2 =
+            Syllable::parse(&[Phoneme::X, Phoneme::I, Phoneme::W]).unwrap();
 
         let coda = match (case, gender, number) {
             (Nominative, ..) => None,
@@ -221,7 +222,7 @@ impl Word {
 
     pub fn affix_table() -> Table<&'static str, DynComponent> {
         Table {
-            title: "Inflection For Full-Inflection Class 1",
+            title: "Inflection For Regular Class",
             entries: component::bcase_gender_number_table(
                 |case, gender, number| {
                     let affix = Self::affix(case, gender, number);

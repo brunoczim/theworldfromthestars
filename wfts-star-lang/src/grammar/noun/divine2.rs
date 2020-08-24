@@ -1,4 +1,5 @@
 use crate::{
+    component,
     component::WithStarAlphabet,
     dictionary,
     grammar::{
@@ -58,7 +59,7 @@ impl Definition {
 }
 
 #[derive(Debug, Clone, Error)]
-#[error("Invalid nominative singular {nom_sing:?} for noun divine class 1")]
+#[error("Invalid nominative singular {nom_sing:?} for noun divine class 2")]
 pub struct Invalid {
     pub nom_sing: phonology::Word,
 }
@@ -108,7 +109,7 @@ impl Word {
     }
 
     pub fn table(&self, entry_id: &Id) -> table::Entries<DynComponent> {
-        noun::fixed_gender_inflection_table(Gender::Divine, |case, number| {
+        component::bcase_fgender_number_table(Gender::Divine, |case, number| {
             let inflected = self.inflect(case, number).phonemes.to_text();
             let link = Link {
                 location: Location::internal(format!(
@@ -198,7 +199,7 @@ impl Word {
     pub fn affix_table() -> Table<&'static str, DynComponent> {
         Table {
             title: "Inflection For Divine Class 2",
-            entries: noun::fixed_gender_inflection_table(
+            entries: component::bcase_fgender_number_table(
                 Gender::Divine,
                 |case, number| {
                     let affix = Self::affix(case, number);
