@@ -144,15 +144,14 @@ impl Word {
         use Gender::*;
         use Number::*;
 
-        let accusative = Coda::new(None, Some(Phoneme::N)).unwrap();
-        let accusative2 = Coda::new(None, Some(Phoneme::Mg)).unwrap();
-        let accusative3 = Coda::new(Some(Phoneme::W), None).unwrap();
-        let topical = Coda::new(None, Some(Phoneme::F)).unwrap();
-        let topical2 = Coda::new(Some(Phoneme::W), None).unwrap();
-        let topical3 = Coda::new(Some(Phoneme::Y), None).unwrap();
-        let postpositional =
-            Coda::new(Some(Phoneme::Y), Some(Phoneme::S)).unwrap();
-        let postpositional2 = Coda::new(Some(Phoneme::Y), None).unwrap();
+        let accusative = Coda::parse(&[Phoneme::N]).unwrap();
+        let accusative2 = Coda::parse(&[Phoneme::Mg]).unwrap();
+        let accusative3 = Coda::parse(&[Phoneme::W]).unwrap();
+        let topical = Coda::parse(&[Phoneme::F]).unwrap();
+        let topical2 = Coda::parse(&[Phoneme::W]).unwrap();
+        let topical3 = Coda::parse(&[Phoneme::Y]).unwrap();
+        let postpositional = Coda::parse(&[Phoneme::Y, Phoneme::S]).unwrap();
+        let postpositional2 = Coda::parse(&[Phoneme::Y]).unwrap();
         let animate = Phoneme::Aa;
         let animate2 = Phoneme::Ee;
         let inanimate = Phoneme::I;

@@ -74,25 +74,16 @@ pub struct Invalid {
 
 #[derive(Debug, Clone)]
 pub struct Affix {
-    pub nucleus: Option<Phoneme>,
-    pub coda: Option<Coda>,
+    pub nucleus: Phoneme,
+    pub coda: Coda,
     pub suffix: Option<Syllable>,
 }
 
 impl fmt::Display for Affix {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "-")?;
-        let mut needs_dash = false;
-        if let Some(nucleus) = self.nucleus {
-            write!(fmt, "{}", nucleus.to_text())?;
-            needs_dash = true;
-        }
-        if let Some(coda) = self.coda {
-            for ph in coda.phonemes() {
-                write!(fmt, "{}", ph.to_text())?;
-            }
-        } else if needs_dash {
-            write!(fmt, "-")?;
+        write!(fmt, "-{}", self.nucleus.to_text())?;
+        for ph in self.coda.phonemes() {
+            write!(fmt, "{}", ph.to_text())?;
         }
         if let Some(suffix) = self.suffix {
             for ph in suffix.phonemes() {
@@ -110,13 +101,10 @@ pub struct Word {
 
 impl Word {
     pub fn new(nom_div_sing: phonology::Word) -> anyhow::Result<Self> {
-        let last = nom_div_sing.syllables().last().unwrap();
-        let no_coda = last.coda().phonemes().next().is_none();
-        match last.nucleus() {
-            Phoneme::E | Phoneme::Ee | Phoneme::I if no_coda => {
-                Err(Invalid { nom_div_sing })?
-            },
-            _ => Ok(Self { nom_div_sing }),
+        let last = nom_div_sing.phonemes().next_back().unwrap();
+        match last {
+            Phoneme::Ii => Ok(Self { nom_div_sing }),
+            _ => Err(Invalid { nom_div_sing })?,
         }
     }
 
@@ -144,15 +132,16 @@ impl Word {
         use Gender::*;
         use Number::*;
 
-        let accusative = Coda::new(None, Some(Phoneme::N)).unwrap();
-        let accusative2 = Coda::new(None, Some(Phoneme::Mg)).unwrap();
-        let accusative3 = Coda::new(Some(Phoneme::W), None).unwrap();
-        let topical = Coda::new(None, Some(Phoneme::F)).unwrap();
-        let topical2 = Coda::new(Some(Phoneme::W), None).unwrap();
-        let topical3 = Coda::new(Some(Phoneme::Y), None).unwrap();
-        let postpositional =
-            Coda::new(Some(Phoneme::W), Some(Phoneme::S)).unwrap();
-        let postpositional2 = Coda::new(Some(Phoneme::W), None).unwrap();
+        let nominative = Coda::parse(&[]).unwrap();
+        let accusative = Coda::parse(&[Phoneme::N]).unwrap();
+        let accusative2 = Coda::parse(&[Phoneme::Mg]).unwrap();
+        let accusative3 = Coda::parse(&[Phoneme::W]).unwrap();
+        let topical = Coda::parse(&[Phoneme::F]).unwrap();
+        let topical2 = Coda::parse(&[Phoneme::W]).unwrap();
+        let topical3 = Coda::parse(&[Phoneme::Y]).unwrap();
+        let postpositional = Coda::parse(&[Phoneme::S]).unwrap();
+        let postpositional2 = Coda::parse(&[Phoneme::W]).unwrap();
+        let divine = Phoneme::Ii;
         let animate = Phoneme::Aa;
         let animate2 = Phoneme::Ee;
         let inanimate = Phoneme::I;
@@ -160,27 +149,26 @@ impl Word {
         let plural = Syllable::parse(&[Phoneme::Rr, Phoneme::Ee]).unwrap();
         let nullar = Syllable::parse(&[Phoneme::M, Phoneme::Ee]).unwrap();
         let collective = Syllable::parse(&[Phoneme::I, Phoneme::X]).unwrap();
-        let collective2 =
-            Syllable::parse(&[Phoneme::X, Phoneme::I, Phoneme::W]).unwrap();
+        let collective2 = Syllable::parse(&[Phoneme::X, Phoneme::I]).unwrap();
 
         let coda = match (case, gender, number) {
-            (Nominative, ..) => None,
-            (Accusative, _, Nullar) => Some(accusative2),
-            (Accusative, _, Collective) => Some(accusative3),
-            (Accusative, ..) => Some(accusative),
-            (Topical, Animate, _) => Some(topical2),
-            (Topical, Inanimate, Nullar) => Some(topical3),
-            (Topical, ..) => Some(topical),
-            (Postpositional, Animate, _) => Some(postpositional2),
-            (Postpositional, ..) => Some(postpositional),
+            (Nominative, ..) => nominative,
+            (Accusative, _, Nullar) => accusative2,
+            (Accusative, _, Collective) => accusative3,
+            (Accusative, ..) => accusative,
+            (Topical, Animate, _) => topical2,
+            (Topical, Inanimate, Nullar) => topical3,
+            (Topical, ..) => topical,
+            (Postpositional, Animate, _) => postpositional2,
+            (Postpositional, ..) => postpositional,
         };
 
         let nucleus = match (case, gender, number) {
-            (_, Divine, _) => None,
+            (_, Divine, _) => divine,
             (Accusative, Animate, Nullar)
-            | (Accusative, Animate, Collective) => Some(animate2),
-            (_, Animate, _) => Some(animate),
-            (_, Inanimate, _) => Some(inanimate),
+            | (Accusative, Animate, Collective) => animate2,
+            (_, Animate, _) => animate,
+            (_, Inanimate, _) => inanimate,
         };
 
         let suffix = match (case, number) {
@@ -201,18 +189,10 @@ impl Word {
         number: Number,
     ) -> noun::Inflected {
         let affix = Self::affix(case, gender, number);
-        let mut phonemes = match (affix.nucleus, affix.coda) {
-            (Some(nucleus), Some(coda)) => {
-                self.nom_div_sing.replace_final_rhyme(nucleus, coda).unwrap()
-            },
-            (Some(nucleus), None) => {
-                self.nom_div_sing.replace_final_nucleus(nucleus).unwrap()
-            },
-            (None, Some(coda)) => {
-                self.nom_div_sing.replace_final_coda(coda).unwrap()
-            },
-            (None, None) => self.nom_div_sing.clone(),
-        };
+        let mut phonemes = self
+            .nom_div_sing
+            .replace_final_rhyme(affix.nucleus, affix.coda)
+            .unwrap();
         if let Some(suffix) = affix.suffix {
             phonemes = phonemes.append(suffix).unwrap();
         }
@@ -238,10 +218,5 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![Definition {
-        id: Id::new("eye").unwrap(),
-        meanings: vec![Meaning::Eye],
-        notes: "".blocking().to_dyn(),
-        word: Word::new(phonology::Word::parse_str("gas").unwrap()).unwrap(),
-    }]
+    vec![]
 }

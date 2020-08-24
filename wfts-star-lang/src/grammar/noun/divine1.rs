@@ -126,12 +126,11 @@ impl Word {
         use BasicCase::*;
         use Number::*;
 
-        let accusative = Coda::new(None, Some(Phoneme::N)).unwrap();
-        let accusative2 = Coda::new(None, Some(Phoneme::Nj)).unwrap();
-        let accusative3 = Coda::new(Some(Phoneme::Y), None).unwrap();
-        let topical = Coda::new(None, Some(Phoneme::F)).unwrap();
-        let postpositional =
-            Coda::new(Some(Phoneme::Y), Some(Phoneme::S)).unwrap();
+        let accusative = Coda::parse(&[Phoneme::N]).unwrap();
+        let accusative2 = Coda::parse(&[Phoneme::Nj]).unwrap();
+        let accusative3 = Coda::parse(&[Phoneme::Y]).unwrap();
+        let topical = Coda::parse(&[Phoneme::F]).unwrap();
+        let postpositional = Coda::parse(&[Phoneme::Y, Phoneme::S]).unwrap();
 
         let plural = Syllable::parse(&[Phoneme::Ee]).unwrap();
         let nullar = Syllable::parse(&[Phoneme::E, Phoneme::N]).unwrap();
