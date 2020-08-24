@@ -148,7 +148,7 @@ impl Word {
 
         let plural = Syllable::parse(&[Phoneme::Rr, Phoneme::Ee]).unwrap();
         let nullar = Syllable::parse(&[Phoneme::M, Phoneme::Ee]).unwrap();
-        let collective = Syllable::parse(&[Phoneme::I, Phoneme::X]).unwrap();
+        let collective = Syllable::parse(&[Phoneme::A, Phoneme::X]).unwrap();
         let collective2 = Syllable::parse(&[Phoneme::X, Phoneme::I]).unwrap();
 
         let coda = match (case, gender, number) {
@@ -218,5 +218,10 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![]
+    vec![Definition {
+        id: Id::new("big").unwrap(),
+        meanings: vec![Meaning::Big],
+        notes: "".blocking().to_dyn(),
+        word: Word::new(phonology::Word::parse_str("mací").unwrap()).unwrap(),
+    }]
 }

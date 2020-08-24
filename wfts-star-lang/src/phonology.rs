@@ -188,11 +188,18 @@ impl Word {
 
     fn map_patalization(&self) -> Vec<bool> {
         let mut is_palatal = Vec::new();
+        let mut prev = None;
         for phoneme in self.phonemes() {
-            let can_be = phoneme.can_be_palatalized_progress();
-            let prev_palatal = is_palatal.last().map_or(false, |&is| is);
-            let curr_palatal = phoneme.is_palatal();
-            is_palatal.push(can_be && prev_palatal || curr_palatal);
+            let curr_palatal = if let Some(prev) = prev {
+                let can_be = phoneme.can_be_palatalized_progress(prev);
+                let prev_palatal = is_palatal.last().cloned().unwrap_or(false);
+                let curr_palatal = phoneme.is_palatal();
+                can_be && prev_palatal || curr_palatal
+            } else {
+                false
+            };
+            is_palatal.push(curr_palatal);
+            prev = Some(phoneme);
         }
 
         let mut prev = None;
@@ -265,8 +272,8 @@ impl Word {
     pub fn audio_early(&self) -> Option<Audio> {
         let text = self.to_text();
         let suffix = match text.as_str() {
-            "saŋ" | "dse" | "gas" | "kef" | "fwi" => Some(""),
-            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" => {
+            "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" => Some(""),
+            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis" => {
                 Some("-early")
             },
             _ => None,
@@ -287,8 +294,8 @@ impl Word {
     pub fn audio_late(&self) -> Option<Audio> {
         let text = self.to_text();
         let suffix = match text.as_str() {
-            "saŋ" | "dse" | "gas" | "kef" | "fwi" => Some(""),
-            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" => {
+            "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" => Some(""),
+            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis" => {
                 Some("-late")
             },
             _ => None,
@@ -892,9 +899,13 @@ impl Phoneme {
         matches!(self, S | X | Xw)
     }
 
-    pub fn can_be_palatalized_progress(self) -> bool {
+    pub fn can_be_palatalized_progress(self, prev: Self) -> bool {
         use Phoneme::*;
-        matches!(self, S | X | Xw | A | Aa | E | Ee | I | Ii)
+        match self {
+            S | X | Xw => true,
+            A | Aa | E | Ee | I | Ii => prev.classify() != PhonemeClass::Vowel,
+            _ => false,
+        }
     }
 
     pub fn triggers_retraction(self) -> bool {

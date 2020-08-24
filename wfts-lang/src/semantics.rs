@@ -36,6 +36,7 @@ pub enum Meaning {
     Wind,
     Fire,
     Tree,
+    Big,
 }
 
 impl Meaning {
@@ -75,6 +76,7 @@ impl Meaning {
             Wind => "wind",
             Fire => "fire",
             Tree => "tree",
+            Big => "big",
         }
     }
 
@@ -89,6 +91,7 @@ impl Meaning {
             Wind => "The wind; the air that blows naturally.",
             Fire => "Fire; the light and heat emitted by burning something.",
             Tree => "A tree.",
+            Big => "Big; the quality of having a big size, but not huge.",
         }
     }
 }
