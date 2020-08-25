@@ -171,6 +171,7 @@ ul.unmarked-list {
 }
 
 ul.unmarked-list > li {
+    white-space: nowrap;
     line-height: 1.25;
 }
 
