@@ -279,7 +279,7 @@ pub fn definitions() -> Vec<Definition> {
     vec![Definition {
         id: Id::new("this").unwrap(),
         word: Word::new(phonology::Word::parse_str("nyá").unwrap()).unwrap(),
-        meanings: vec![Meaning::ThisNotSoFar],
+        meanings: vec![Meaning::ThisNearFar],
         notes: "".blocking().to_dyn(),
     }]
 }

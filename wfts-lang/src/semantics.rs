@@ -37,7 +37,10 @@ pub enum Meaning {
     Fire,
     Tree,
     Big,
-    ThisNotSoFar,
+    ThisNear,
+    ThisNearFar,
+    ThisFar,
+    ThisVeryFar,
 }
 
 impl Meaning {
@@ -62,6 +65,9 @@ impl Meaning {
             (Star, NightStar) => Some(Hyperonym),
             (Star, Sun) => Some(Hyperonym),
             (NightStar, Sun) => Some(Coordinate),
+            (ThisNearFar, ThisNear) => Some(Hyperonym),
+            (ThisNearFar, ThisFar) => Some(Hyperonym),
+            (ThisVeryFar, ThisNearFar) => Some(Coordinate),
             _ => None,
         }
     }
@@ -78,7 +84,10 @@ impl Meaning {
             Fire => "fire",
             Tree => "tree",
             Big => "big",
-            ThisNotSoFar => "near-medial this",
+            ThisNear => "near this",
+            ThisNearFar => "near-far this",
+            ThisFar => "far this",
+            ThisVeryFar => "emphatic far this",
         }
     }
 
@@ -94,9 +103,17 @@ impl Meaning {
             Fire => "Fire; the light and heat emitted by burning something.",
             Tree => "A tree.",
             Big => "Big; the quality of having a big size, but not huge.",
-            ThisNotSoFar => {
+            ThisNear => "Demonstrative pronoun used for near things; this.",
+            ThisNearFar => {
                 "Demonstrative pronoun used for near things, and also used for \
                  far but not so far things; this, sometimes that."
+            },
+            ThisFar => {
+                "Demonstrative pronoun used far but not so far things; that."
+            },
+            ThisVeryFar => {
+                "Demonstrative pronoun used for very far things, in an \
+                 emphatic manner; that."
             },
         }
     }
