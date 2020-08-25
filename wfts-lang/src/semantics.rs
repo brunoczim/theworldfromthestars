@@ -37,6 +37,7 @@ pub enum Meaning {
     Fire,
     Tree,
     Big,
+    ThisNotSoFar,
 }
 
 impl Meaning {
@@ -77,6 +78,7 @@ impl Meaning {
             Fire => "fire",
             Tree => "tree",
             Big => "big",
+            ThisNotSoFar => "near-medial this",
         }
     }
 
@@ -92,6 +94,10 @@ impl Meaning {
             Fire => "Fire; the light and heat emitted by burning something.",
             Tree => "A tree.",
             Big => "Big; the quality of having a big size, but not huge.",
+            ThisNotSoFar => {
+                "This; demonstrative pronoun but not only used for near \
+                 things, also used for medial or not so far things."
+            },
         }
     }
 }

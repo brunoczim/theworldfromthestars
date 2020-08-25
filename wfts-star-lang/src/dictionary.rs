@@ -1,6 +1,6 @@
 use crate::{
     component::{DefinitionHead, Pronunciation, WithStarAlphabet},
-    grammar::{adjective, noun},
+    grammar::{adjective, noun, pronoun},
     morphology::Morpheme,
 };
 use std::collections::HashMap;
@@ -114,6 +114,7 @@ impl Entry {
     pub fn all() -> Vec<Self> {
         let mut entries = noun::entries();
         entries.append(&mut adjective::entries());
+        entries.append(&mut pronoun::entries());
         entries
     }
 }

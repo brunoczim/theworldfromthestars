@@ -105,12 +105,18 @@ pub struct Word {
 
 impl Word {
     pub fn new(fst_nom_div_sing: phonology::Word) -> anyhow::Result<Self> {
-        let last = fst_nom_div_sing.syllables().last().unwrap();
-        let no_coda = last.coda().phonemes().next().is_none();
-        match last.nucleus() {
-            Phoneme::E | Phoneme::Ee | Phoneme::I if no_coda => {
-                Err(Invalid { fst_nom_div_sing })?
-            },
+        let first = fst_nom_div_sing.phonemes().next().unwrap();
+        match first {
+            Phoneme::A
+            | Phoneme::Aa
+            | Phoneme::E
+            | Phoneme::Ee
+            | Phoneme::I
+            | Phoneme::Ii
+            | Phoneme::Y
+            | Phoneme::Nj
+            | Phoneme::W
+            | Phoneme::Mg => Err(Invalid { fst_nom_div_sing })?,
             _ => Ok(Self { fst_nom_div_sing }),
         }
     }
@@ -270,5 +276,10 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![]
+    vec![Definition {
+        id: Id::new("this").unwrap(),
+        word: Word::new(phonology::Word::parse_str("nyá").unwrap()).unwrap(),
+        meanings: vec![Meaning::ThisNotSoFar],
+        notes: "".blocking().to_dyn(),
+    }]
 }
