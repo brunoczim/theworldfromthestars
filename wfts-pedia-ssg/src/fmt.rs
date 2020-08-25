@@ -21,7 +21,7 @@ impl StrExt for str {
         while slice.len() > 0 {
             let index = match slice
                 .char_indices()
-                .find(|(_, ch)| !ch.is_alphabetic())
+                .find(|&(i, ch)| i > 0 && !ch.is_alphabetic())
             {
                 Some((index, _)) => index,
                 None => slice.len(),

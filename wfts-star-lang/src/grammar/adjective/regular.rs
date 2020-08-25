@@ -3,8 +3,8 @@ use crate::{
     component::WithStarAlphabet,
     dictionary,
     grammar::{
+        adjective,
         grammemes::{BasicCase, Gender, Number},
-        noun,
     },
     phonology::{self, Coda, Parse, Phoneme, Syllable},
     StarLang,
@@ -187,7 +187,7 @@ impl Word {
         case: BasicCase,
         gender: Gender,
         number: Number,
-    ) -> noun::Inflected {
+    ) -> adjective::Inflected {
         let affix = Self::affix(case, gender, number);
         let mut phonemes = self
             .nom_div_sing
@@ -197,7 +197,7 @@ impl Word {
             phonemes = phonemes.append(suffix).unwrap();
         }
 
-        noun::Inflected { phonemes, case, gender, number }
+        adjective::Inflected { phonemes, case, gender, number }
     }
 
     pub fn affix_table() -> Table<&'static str, DynComponent> {

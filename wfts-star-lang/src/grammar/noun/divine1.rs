@@ -75,12 +75,12 @@ impl fmt::Display for Affix {
         write!(fmt, "-")?;
         if let Some(coda) = self.coda {
             for ph in coda.phonemes() {
-                write!(fmt, "{}", ph.to_text())?;
+                write!(fmt, "{}", ph)?;
             }
         }
         if let Some(suffix) = self.suffix {
             for ph in suffix.phonemes() {
-                write!(fmt, "{}", ph.to_text())?;
+                write!(fmt, "{}", ph)?;
             }
         }
         Ok(())

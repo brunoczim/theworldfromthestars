@@ -1,5 +1,5 @@
 use crate::{
-    grammar::grammemes::{BasicCase, Gender, Number},
+    grammar::grammemes::{BasicCase, Case, Gender, Number, Person},
     morphology::Morpheme,
 };
 use std::fmt;
@@ -242,6 +242,73 @@ where
         }
         table.push(row);
         row = Vec::new();
+    }
+
+    table
+}
+
+/// Person x Case x Gender x Number table.
+pub fn person_case_gender_number_table<F>(
+    mut make_data: F,
+) -> table::Entries<DynComponent>
+where
+    F: FnMut(Person, Case, Gender, Number) -> DynComponent,
+{
+    let mut table = vec![];
+    let mut row = vec![table::Entry {
+        header: true,
+        rowspan: 2,
+        colspan: 2,
+        data: "".blocking().to_dyn(),
+    }];
+    for &person in Person::ALL {
+        row.push(table::Entry {
+            header: true,
+            rowspan: 1,
+            colspan: Number::ALL.len() as u32,
+            data: person.to_string().capitalize().blocking().to_dyn(),
+        });
+    }
+    table.push(row);
+
+    row = Vec::new();
+    for _ in 0 .. Person::ALL.len() {
+        for &number in Number::ALL {
+            row.push(table::Entry {
+                header: true,
+                rowspan: 1,
+                colspan: 1,
+                data: number.to_string().capitalize().blocking().to_dyn(),
+            });
+        }
+    }
+    table.push(row);
+
+    row = Vec::new();
+    for &gender in Gender::ALL {
+        row.push(table::Entry {
+            header: true,
+            rowspan: Case::ALL.len() as u32,
+            colspan: 1,
+            data: gender.to_string().capitalize().blocking().to_dyn(),
+        });
+        for &case in Case::ALL {
+            row.push(table::Entry {
+                header: true,
+                rowspan: 1,
+                colspan: 1,
+                data: case.to_string().capitalize().blocking().to_dyn(),
+            });
+            for &person in Person::ALL {
+                for &number in Number::ALL {
+                    row.push(table::Entry::new(make_data(
+                        person, case, gender, number,
+                    )));
+                }
+            }
+            table.push(row);
+            row = Vec::new();
+        }
     }
 
     table

@@ -77,12 +77,12 @@ impl fmt::Display for Affix {
         match self {
             Affix::Coda(coda) => {
                 for ph in coda.phonemes() {
-                    write!(fmt, "{}", ph.to_text())?;
+                    write!(fmt, "{}", ph)?;
                 }
             },
             Affix::Suffix(suffix) => {
                 for ph in suffix.phonemes() {
-                    write!(fmt, "{}", ph.to_text())?;
+                    write!(fmt, "{}", ph)?;
                 }
             },
             Affix::Empty => (),

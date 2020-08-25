@@ -260,6 +260,15 @@ impl Word {
         Self::new(syllables)
     }
 
+    pub fn prepend(&self, mut syllable: Syllable) -> anyhow::Result<Self> {
+        let mut syllables = self.syllables.to_vec();
+        if let Some(first) = syllables.first_mut() {
+            balance_cluster(&mut syllable.coda, &mut first.onset);
+        }
+        syllables.insert(0, syllable);
+        Self::new(syllables)
+    }
+
     pub fn append(&self, mut syllable: Syllable) -> anyhow::Result<Self> {
         let mut syllables = self.syllables.to_vec();
         if let Some(last) = syllables.last_mut() {
@@ -1025,10 +1034,10 @@ impl Phoneme {
         }
     }
 
-    pub fn to_text(&self) -> Cow<str> {
+    pub fn to_text(&self) -> &'static str {
         use Phoneme::*;
 
-        Cow::from(match self {
+        match self {
             B => "b",
             Gw => "ǵ",
             D => "d",
@@ -1059,13 +1068,13 @@ impl Phoneme {
             Rr => "ŕ",
             A => "a",
             Aa => "á",
-        })
+        }
     }
 
-    pub fn to_broad_ipa(&self) -> Cow<str> {
+    pub fn to_broad_ipa(&self) -> &'static str {
         use Phoneme::*;
 
-        Cow::from(match self {
+        match self {
             B => "pʼ",
             Gw => "kʷʼ",
             D => "tʼ",
@@ -1096,7 +1105,7 @@ impl Phoneme {
             Rr => "ʕ",
             A => "a",
             Aa => "aː",
-        })
+        }
     }
 }
 
@@ -1106,6 +1115,12 @@ impl Parse for Phoneme {
             &[ph] => Ok(ph),
             _ => Err(PhonemeParseError { phonemes: phonemes.to_vec() })?,
         }
+    }
+}
+
+impl fmt::Display for Phoneme {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad(self.to_text())
     }
 }
 

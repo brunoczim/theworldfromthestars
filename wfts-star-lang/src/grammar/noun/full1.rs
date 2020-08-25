@@ -84,19 +84,19 @@ impl fmt::Display for Affix {
         write!(fmt, "-")?;
         let mut needs_dash = false;
         if let Some(nucleus) = self.nucleus {
-            write!(fmt, "{}", nucleus.to_text())?;
+            write!(fmt, "{}", nucleus)?;
             needs_dash = true;
         }
         if let Some(coda) = self.coda {
             for ph in coda.phonemes() {
-                write!(fmt, "{}", ph.to_text())?;
+                write!(fmt, "{}", ph)?;
             }
         } else if needs_dash {
             write!(fmt, "-")?;
         }
         if let Some(suffix) = self.suffix {
             for ph in suffix.phonemes() {
-                write!(fmt, "{}", ph.to_text())?;
+                write!(fmt, "{}", ph)?;
             }
         }
         Ok(())
