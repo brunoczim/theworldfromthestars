@@ -278,14 +278,23 @@ impl Word {
         Self::new(syllables)
     }
 
-    pub fn audio_early(&self) -> Option<Audio> {
-        let text = self.to_text();
-        let suffix = match text.as_str() {
-            "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" => Some(""),
+    fn same_audio(text: &str) -> Option<bool> {
+        match text {
+            "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" | "reŋ" | "nyá"
+            | "xim" => Some(true),
             "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis" => {
-                Some("-early")
+                Some(false)
             },
             _ => None,
+        }
+    }
+
+    pub fn audio_early(&self) -> Option<Audio> {
+        let text = self.to_text();
+        let suffix = match Self::same_audio(&text) {
+            Some(true) => Some(""),
+            Some(false) => Some("-early"),
+            None => None,
         };
         if let Some(suffix) = suffix {
             let location = Location::internal(format!(
@@ -302,12 +311,10 @@ impl Word {
 
     pub fn audio_late(&self) -> Option<Audio> {
         let text = self.to_text();
-        let suffix = match text.as_str() {
-            "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" => Some(""),
-            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis" => {
-                Some("-late")
-            },
-            _ => None,
+        let suffix = match Self::same_audio(&text) {
+            Some(true) => Some(""),
+            Some(false) => Some("-late"),
+            None => None,
         };
         if let Some(suffix) = suffix {
             let location = Location::internal(format!(
