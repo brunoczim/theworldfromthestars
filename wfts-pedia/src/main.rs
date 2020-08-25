@@ -48,7 +48,7 @@ fn index_page() -> Page {
             title: "List Of Languages".to_dyn(),
             body: UnorderedList(vec![Link {
                 location: StarLang.path().into(),
-                text: "Star Language",
+                text: "Classical Star Language",
             }])
             .to_dyn(),
             id: Id::new("list-of-langs").unwrap(),
