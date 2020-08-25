@@ -282,9 +282,8 @@ impl Word {
         match text {
             "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" | "reŋ" | "nyá"
             | "xim" => Some(true),
-            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis" => {
-                Some(false)
-            },
+            "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis"
+            | "éyxám" => Some(false),
             _ => None,
         }
     }
