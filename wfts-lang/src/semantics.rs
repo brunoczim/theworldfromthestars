@@ -95,8 +95,8 @@ impl Meaning {
             Tree => "A tree.",
             Big => "Big; the quality of having a big size, but not huge.",
             ThisNotSoFar => {
-                "This; demonstrative pronoun but not only used for near \
-                 things, also used for medial or not so far things."
+                "Demonstrative pronoun used for near things, and also used for \
+                 far but not so far things; this, sometimes that."
             },
         }
     }
