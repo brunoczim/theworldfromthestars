@@ -276,10 +276,43 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![Definition {
-        id: Id::new("this").unwrap(),
-        word: Word::new(phonology::Word::parse_str("nyá").unwrap()).unwrap(),
-        meanings: vec![Meaning::ThisNearFar],
-        notes: "".blocking().to_dyn(),
-    }]
+    vec![
+        Definition {
+            id: Id::new("this-near-far").unwrap(),
+            word: Word::new(phonology::Word::parse_str("nyá").unwrap())
+                .unwrap(),
+            meanings: vec![Meaning::ThisNear, Meaning::ThisFar],
+            notes: "Sense 2 is only used if there is no contrast between near \
+                    and far demonstratives."
+                .blocking()
+                .to_dyn(),
+        },
+        Definition {
+            id: Id::new("this-very-far").unwrap(),
+            word: Word::new(phonology::Word::parse_str("xím").unwrap())
+                .unwrap(),
+            meanings: vec![Meaning::ThisVeryFar],
+            notes: "".blocking().to_dyn(),
+        },
+        Definition {
+            id: Id::new("this-far").unwrap(),
+            word: Word::new(phonology::Word::parse_str("reŋ").unwrap())
+                .unwrap(),
+            meanings: vec![Meaning::ThisFar],
+            notes: vec![
+                "Note: only used when contrast is needed with ".to_dyn(),
+                Link {
+                    location: Location::internal(format!(
+                        "{}/dictionary/nyá#this-near-far",
+                        StarLang.path()
+                    )),
+                    text: WithStarAlphabet("nyá"),
+                }
+                .to_dyn(),
+                ".".to_dyn(),
+            ]
+            .blocking()
+            .to_dyn(),
+        },
+    ]
 }
