@@ -196,7 +196,7 @@ impl Word {
         let plural = Phoneme::H;
         let plural2 = Phoneme::S;
         let nullar = Phoneme::N;
-        let collective = Phoneme::Mg;
+        let collective = Phoneme::S;
         let collective2 = Phoneme::Ng;
 
         let first = Phoneme::Aa;
@@ -248,7 +248,9 @@ impl Word {
             (Passive, Plural) => Some(plural2),
             (_, Plural) => Some(plural),
             (_, Nullar) => Some(nullar),
-            (Basic(Postpositional), Collective) => Some(collective2),
+            (Basic(Postpositional), Collective) | (Passive, Collective) => {
+                Some(collective2)
+            },
             (_, Collective) => Some(collective),
         };
 
