@@ -41,6 +41,7 @@ pub enum Meaning {
     ThisFar,
     ThisVeryFar,
     InformalPersonal,
+    FormalPersonal,
 }
 
 impl Meaning {
@@ -88,6 +89,7 @@ impl Meaning {
             ThisFar => "far this",
             ThisVeryFar => "emphatic far this",
             InformalPersonal => "informal personal pronoun",
+            FormalPersonal => "formal personal pronoun",
         }
     }
 
@@ -114,6 +116,10 @@ impl Meaning {
             InformalPersonal => {
                 "Informal personal pronoun, informal I, you, he, she, they, \
                  it, we, etc."
+            },
+            FormalPersonal => {
+                "Formal personal pronoun, informal I, you, he, she, they, it, \
+                 we, etc."
             },
         }
     }

@@ -322,10 +322,18 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![Definition {
-        id: Id::new("informal-personal").unwrap(),
-        word: Word::new(phonology::Word::parse_str("fá").unwrap()).unwrap(),
-        meanings: vec![Meaning::InformalPersonal],
-        notes: "".blocking().to_dyn(),
-    }]
+    vec![
+        Definition {
+            id: Id::new("informal-personal").unwrap(),
+            word: Word::new(phonology::Word::parse_str("fá").unwrap()).unwrap(),
+            meanings: vec![Meaning::InformalPersonal],
+            notes: "".blocking().to_dyn(),
+        },
+        Definition {
+            id: Id::new("formal-personal").unwrap(),
+            word: Word::new(phonology::Word::parse_str("jí").unwrap()).unwrap(),
+            meanings: vec![Meaning::FormalPersonal],
+            notes: "".blocking().to_dyn(),
+        },
+    ]
 }
