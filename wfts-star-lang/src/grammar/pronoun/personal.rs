@@ -261,7 +261,9 @@ impl Word {
             (First, _, _, Plural) => Some(first),
             (First, _, _, Singular) => None,
             (Second, Basic(Topical), Animate, _)
-            | (Second, Basic(Postpositional), Animate, _) => Some(second2),
+            | (Second, Basic(Postpositional), Animate, _)
+            | (Second, _, _, Nullar)
+            | (Second, _, _, Collective) => Some(second2),
             (Second, _, ..) => Some(second),
             (Third, _, _, Collective)
             | (Third, _, _, Nullar)
