@@ -114,7 +114,7 @@ impl Word {
             | Phoneme::I
             | Phoneme::Ii
             | Phoneme::Y
-            | Phoneme::Nj
+            | Phoneme::M
             | Phoneme::W
             | Phoneme::Mg => Err(Invalid { fst_nom_div_sing })?,
             _ => Ok(Self { fst_nom_div_sing }),
@@ -175,7 +175,7 @@ impl Word {
 
         let singular = Coda::parse(&[]).unwrap();
         let plural = Coda::parse(&[Phoneme::Y]).unwrap();
-        let nullar = Coda::parse(&[Phoneme::Nj]).unwrap();
+        let nullar = Coda::parse(&[Phoneme::M]).unwrap();
         let collective = Coda::parse(&[Phoneme::Mg]).unwrap();
         let collective2 = Coda::parse(&[Phoneme::W]).unwrap();
 

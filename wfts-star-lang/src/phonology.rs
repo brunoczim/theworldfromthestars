@@ -220,15 +220,61 @@ impl Word {
         format!("{}", self)
     }
 
-    pub fn replace_final_coda(&self, coda: Coda) -> anyhow::Result<Self> {
-        let last = *self.syllables().last().unwrap();
-        let mut new_last = Syllable::new(last.onset(), last.nucleus(), coda)?;
+    pub fn replace_initial_onset(&self, onset: Onset) -> anyhow::Result<Self> {
         let mut syllables = self.syllables().to_vec();
-        syllables.pop();
-        if let Some(last) = syllables.last_mut() {
-            balance_cluster(&mut last.coda, &mut new_last.onset);
+        let first = syllables.first_mut().unwrap();
+        *first = Syllable::new(onset, first.nucleus(), first.coda())?;
+        Self::new(syllables)
+    }
+
+    pub fn replace_initial_coda(&self, coda: Coda) -> anyhow::Result<Self> {
+        let mut syllables = self.syllables().to_vec();
+        let (first, rest) = syllables.split_first_mut().unwrap();
+        *first = Syllable::new(first.onset(), first.nucleus(), coda)?;
+        if let Some(second) = rest.first_mut() {
+            balance_cluster(&mut first.coda, &mut second.onset);
         }
-        syllables.push(new_last);
+        Self::new(syllables)
+    }
+
+    pub fn replace_initial_rhyme(
+        &self,
+        nucleus: Phoneme,
+        coda: Coda,
+    ) -> anyhow::Result<Self> {
+        let mut syllables = self.syllables().to_vec();
+        let (first, rest) = syllables.split_first_mut().unwrap();
+        *first = Syllable::new(first.onset(), nucleus, coda)?;
+        if let Some(second) = rest.first_mut() {
+            balance_cluster(&mut first.coda, &mut second.onset);
+        }
+        Self::new(syllables)
+    }
+
+    pub fn replace_initial_nucleus(
+        &self,
+        nucleus: Phoneme,
+    ) -> anyhow::Result<Self> {
+        let mut syllables = self.syllables().to_vec();
+        let first = syllables.first_mut().unwrap();
+        *first = Syllable::new(first.onset(), nucleus, first.coda())?;
+        Self::new(syllables)
+    }
+
+    pub fn replace_final_onset(&self, onset: Onset) -> anyhow::Result<Self> {
+        let mut syllables = self.syllables().to_vec();
+        let (last, init) = syllables.split_last_mut().unwrap();
+        *last = Syllable::new(onset, last.nucleus(), last.coda())?;
+        if let Some(before_last) = init.last_mut() {
+            balance_cluster(&mut before_last.coda, &mut last.onset);
+        }
+        Self::new(syllables)
+    }
+
+    pub fn replace_final_coda(&self, coda: Coda) -> anyhow::Result<Self> {
+        let mut syllables = self.syllables().to_vec();
+        let last = syllables.last_mut().unwrap();
+        *last = Syllable::new(last.onset(), last.nucleus(), coda)?;
         Self::new(syllables)
     }
 
@@ -237,14 +283,9 @@ impl Word {
         nucleus: Phoneme,
         coda: Coda,
     ) -> anyhow::Result<Self> {
-        let last = *self.syllables().last().unwrap();
-        let mut new_last = Syllable::new(last.onset(), nucleus, coda)?;
         let mut syllables = self.syllables().to_vec();
-        syllables.pop();
-        if let Some(last) = syllables.last_mut() {
-            balance_cluster(&mut last.coda, &mut new_last.onset);
-        }
-        syllables.push(new_last);
+        let last = syllables.last_mut().unwrap();
+        *last = Syllable::new(last.onset(), nucleus, coda)?;
         Self::new(syllables)
     }
 
@@ -252,11 +293,9 @@ impl Word {
         &self,
         nucleus: Phoneme,
     ) -> anyhow::Result<Self> {
-        let last = *self.syllables().last().unwrap();
-        let new_last = Syllable::new(last.onset(), nucleus, last.coda())?;
         let mut syllables = self.syllables().to_vec();
-        syllables.pop();
-        syllables.push(new_last);
+        let last = syllables.last_mut().unwrap();
+        *last = Syllable::new(last.onset(), nucleus, last.coda())?;
         Self::new(syllables)
     }
 
@@ -598,6 +637,31 @@ impl Onset {
         }
 
         Ok(Self { outer, medial, inner })
+    }
+
+    pub fn replace_keep_plosive(
+        self,
+        outer_medial: Option<Phoneme>,
+        inner: Option<Phoneme>,
+    ) -> anyhow::Result<Self> {
+        use PhonemeClass::*;
+
+        let this = self.outer().map(Phoneme::classify);
+        let param = outer_medial.map(Phoneme::classify);
+
+        let (outer, medial) = match this {
+            Some(Fricative) | None => match param {
+                Some(Fricative) => (outer_medial, None),
+                Some(_) => (None, outer_medial),
+                None => (self.outer(), self.medial()),
+            },
+            _ => match param {
+                Some(_) => (self.outer(), outer_medial),
+                None => (self.outer(), self.medial()),
+            },
+        };
+
+        Self::new(outer, medial, inner.or(self.inner()))
     }
 
     pub fn outer(&self) -> Option<Phoneme> {

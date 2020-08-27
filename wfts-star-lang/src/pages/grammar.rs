@@ -191,8 +191,11 @@ pub fn make(dir: &mut Directory) {
                     children: vec![Section {
                         title: "Inflection Classes".to_dyn(),
                         id: Id::new("pronoun-classes").unwrap(),
-                        body: vec![pronoun::demonstrative::Word::affix_table()]
-                            .to_dyn(),
+                        body: vec![
+                            pronoun::demonstrative::Word::affix_table(),
+                            pronoun::personal::Word::affix_table(),
+                        ]
+                        .to_dyn(),
                         children: vec![],
                     }],
                 },
