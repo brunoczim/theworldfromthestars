@@ -194,6 +194,7 @@ pub fn make(dir: &mut Directory) {
                         body: vec![
                             pronoun::demonstrative::Word::affix_table(),
                             pronoun::personal::Word::affix_table(),
+                            pronoun::relative::Word::affix_table(),
                         ]
                         .to_dyn(),
                         children: vec![],

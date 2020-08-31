@@ -1,5 +1,6 @@
 pub mod demonstrative;
 pub mod personal;
+pub mod relative;
 
 use crate::{
     dictionary::Entry,
@@ -14,6 +15,9 @@ pub fn entries() -> Vec<Entry> {
         entries.push(def.to_dict_entry())
     }
     for def in personal::definitions() {
+        entries.push(def.to_dict_entry())
+    }
+    for def in relative::definitions() {
         entries.push(def.to_dict_entry())
     }
 
