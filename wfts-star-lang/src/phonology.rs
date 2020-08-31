@@ -320,7 +320,7 @@ impl Word {
     fn same_audio(text: &str) -> Option<bool> {
         match text {
             "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" | "reŋ" | "nyá"
-            | "xim" | "xím" => Some(true),
+            | "xim" | "xím" | "kas" => Some(true),
             "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis"
             | "éyxám" => Some(false),
             _ => None,
@@ -1054,6 +1054,7 @@ impl Phoneme {
             Kw => "kʷʰ",
             T => "tʰ",
             C => "cʰ",
+            K if triggers_retraction => "qʰ",
             K => "kʰ",
             M => "m",
             Mg if triggers_retraction => "ɴ͡mʷ",

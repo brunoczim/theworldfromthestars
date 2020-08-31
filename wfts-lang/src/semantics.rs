@@ -38,10 +38,12 @@ pub enum Meaning {
     Tree,
     Big,
     ThisNear,
-    ThisFar,
-    ThisVeryFar,
+    ThatFar,
+    ThatVeryFar,
     InformalPersonal,
     FormalPersonal,
+    What,
+    ThatRelative,
 }
 
 impl Meaning {
@@ -66,9 +68,9 @@ impl Meaning {
             (Star, NightStar) => Some(Hyperonym),
             (Star, Sun) => Some(Hyperonym),
             (NightStar, Sun) => Some(Coordinate),
-            (ThisNear, ThisFar) => Some(Coordinate),
-            (ThisNear, ThisVeryFar) => Some(Coordinate),
-            (ThisFar, ThisVeryFar) => Some(Coordinate),
+            (ThisNear, ThatFar) => Some(Coordinate),
+            (ThisNear, ThatVeryFar) => Some(Coordinate),
+            (ThatFar, ThatVeryFar) => Some(Coordinate),
             _ => None,
         }
     }
@@ -86,10 +88,12 @@ impl Meaning {
             Tree => "tree",
             Big => "big",
             ThisNear => "near this",
-            ThisFar => "far this",
-            ThisVeryFar => "emphatic far this",
+            ThatFar => "far this",
+            ThatVeryFar => "emphatic far this",
             InformalPersonal => "informal personal pronoun",
             FormalPersonal => "formal personal pronoun",
+            ThatRelative => "relative that",
+            What => "what",
         }
     }
 
@@ -106,10 +110,10 @@ impl Meaning {
             Tree => "A tree.",
             Big => "Big; the quality of having a big size, but not huge.",
             ThisNear => "Demonstrative pronoun used for near things; this.",
-            ThisFar => {
+            ThatFar => {
                 "Demonstrative pronoun used far but not so far things; that."
             },
-            ThisVeryFar => {
+            ThatVeryFar => {
                 "Demonstrative pronoun used for very far things, in an \
                  emphatic manner; that."
             },
@@ -120,6 +124,12 @@ impl Meaning {
             FormalPersonal => {
                 "Formal personal pronoun, informal I, you, he, she, they, it, \
                  we, etc."
+            },
+            ThatRelative => {
+                "Relative pronoun used to refer to things in general; that."
+            },
+            What => {
+                "Question pronoun used to refer to things in general; what."
             },
         }
     }

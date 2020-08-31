@@ -281,7 +281,7 @@ pub fn definitions() -> Vec<Definition> {
             id: Id::new("this-near-far").unwrap(),
             word: Word::new(phonology::Word::parse_str("nyá").unwrap())
                 .unwrap(),
-            meanings: vec![Meaning::ThisNear, Meaning::ThisFar],
+            meanings: vec![Meaning::ThisNear, Meaning::ThatFar],
             notes: "Sense 2 is only used if there is no contrast between near \
                     and far demonstratives."
                 .blocking()
@@ -291,14 +291,14 @@ pub fn definitions() -> Vec<Definition> {
             id: Id::new("this-very-far").unwrap(),
             word: Word::new(phonology::Word::parse_str("xím").unwrap())
                 .unwrap(),
-            meanings: vec![Meaning::ThisVeryFar],
+            meanings: vec![Meaning::ThatVeryFar],
             notes: "".blocking().to_dyn(),
         },
         Definition {
             id: Id::new("this-far").unwrap(),
             word: Word::new(phonology::Word::parse_str("reŋ").unwrap())
                 .unwrap(),
-            meanings: vec![Meaning::ThisFar],
+            meanings: vec![Meaning::ThatFar],
             notes: vec![
                 "Note: only used when contrast is needed with ".to_dyn(),
                 Link {
