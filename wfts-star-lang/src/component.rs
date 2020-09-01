@@ -1,5 +1,5 @@
 use crate::{
-    grammar::grammemes::{BasicCase, Case, Gender, Number, Person},
+    grammar::grammemes::{BasicCase, Case, ClauseCase, Gender, Number, Person},
     morphology::Morpheme,
 };
 use std::fmt;
@@ -148,7 +148,7 @@ impl Component for Pronunciation {
     }
 }
 
-/// BasicCase x Gender x Number table.
+/// Case table.
 pub fn case_table<F>(mut make_data: F) -> table::Entries<DynComponent>
 where
     F: FnMut(Case) -> DynComponent,
@@ -156,6 +156,28 @@ where
     let mut table = Vec::new();
     let mut row = Vec::new();
     for &case in Case::ALL {
+        row.push(table::Entry {
+            header: true,
+            rowspan: 1,
+            colspan: 1,
+            data: case.to_string().capitalize().blocking().to_dyn(),
+        });
+        row.push(table::Entry::new(make_data(case)));
+        table.push(row);
+        row = Vec::new();
+    }
+
+    table
+}
+
+/// ClauseCase table.
+pub fn ccase_table<F>(mut make_data: F) -> table::Entries<DynComponent>
+where
+    F: FnMut(ClauseCase) -> DynComponent,
+{
+    let mut table = Vec::new();
+    let mut row = Vec::new();
+    for &case in ClauseCase::ALL {
         row.push(table::Entry {
             header: true,
             rowspan: 1,

@@ -1,15 +1,11 @@
-pub mod unary;
-pub mod binary;
+pub mod additive;
 
-use crate::{dictionary::Entry, grammar::grammemes::Case, phonology};
+use crate::{dictionary::Entry, grammar::grammemes::ClauseCase, phonology};
 
 pub fn entries() -> Vec<Entry> {
     let mut entries = Vec::new();
 
-    for def in unary::definitions() {
-        entries.push(def.to_dict_entry())
-    }
-    for def in binary::definitions() {
+    for def in additive::definitions() {
         entries.push(def.to_dict_entry())
     }
 
@@ -19,5 +15,5 @@ pub fn entries() -> Vec<Entry> {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Inflected {
     pub phonemes: phonology::Word,
-    pub case: Case,
+    pub case: ClauseCase,
 }

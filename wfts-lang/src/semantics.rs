@@ -44,6 +44,8 @@ pub enum Meaning {
     FormalPersonal,
     What,
     ThatRelative,
+    To,
+    Of,
 }
 
 impl Meaning {
@@ -94,6 +96,8 @@ impl Meaning {
             FormalPersonal => "formal personal pronoun",
             ThatRelative => "relative that",
             What => "what",
+            To => "to",
+            Of => "of",
         }
     }
 
@@ -130,6 +134,11 @@ impl Meaning {
             },
             What => {
                 "Question pronoun used to refer to things in general; what."
+            },
+            To => "Particle used to indicate destination; to",
+            Of => {
+                "Particle used to express a relationship between two things, \
+                 usually possession or pertinence; of."
             },
         }
     }

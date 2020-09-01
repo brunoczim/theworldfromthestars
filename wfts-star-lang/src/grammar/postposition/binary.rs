@@ -38,7 +38,7 @@ impl Definition {
     pub fn to_dict_entry(self) -> dictionary::Entry {
         dictionary::Entry {
             inflection_table: self.word.table(&self.id),
-            class: "Unary Class".to_owned(),
+            class: "Binary Class".to_owned(),
             id: self.id,
             inflections: {
                 let mut map = HashMap::new();
@@ -57,7 +57,7 @@ impl Definition {
 }
 
 #[derive(Debug, Clone, Error)]
-#[error("Invalid nominative {nom:?} for postposition unary class")]
+#[error("Invalid nominative {nom:?} for postposition binary class")]
 pub struct Invalid {
     pub nom: phonology::Word,
 }
@@ -125,10 +125,10 @@ impl Word {
                 (Some(Phoneme::E), Some(Coda::parse(&[Phoneme::M]).unwrap()))
             },
             Basic(Topical) => {
-                (Some(Phoneme::I), Some(Coda::parse(&[Phoneme::F]).unwrap()))
+                (Some(Phoneme::E), Some(Coda::parse(&[Phoneme::R]).unwrap()))
             },
             Basic(Postpositional) => (Some(Phoneme::Ee), None),
-            Passive => (Some(Phoneme::Aa), None),
+            Passive => (Some(Phoneme::A), None),
         };
 
         Affix { nucleus, coda }
@@ -153,7 +153,7 @@ impl Word {
 
     pub fn affix_table() -> Table<&'static str, DynComponent> {
         Table {
-            title: "Inflection For Unary Class",
+            title: "Inflection For Binary Class",
             entries: component::case_table(|case| {
                 let affix = Self::affix(case);
                 UnmarkedList(vec![
@@ -168,9 +168,9 @@ impl Word {
 
 pub fn definitions() -> Vec<Definition> {
     vec![Definition {
-        id: Id::new("to").unwrap(),
-        meanings: vec![Meaning::To],
+        id: Id::new("of").unwrap(),
+        meanings: vec![Meaning::Of],
         notes: "".blocking().to_dyn(),
-        word: Word::new(phonology::Word::parse_str("pa").unwrap()),
+        word: Word::new(phonology::Word::parse_str("ḱen").unwrap()),
     }]
 }
