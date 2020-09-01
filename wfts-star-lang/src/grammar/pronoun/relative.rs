@@ -101,18 +101,15 @@ pub struct Word {
 
 impl Word {
     pub fn new(fst_nom_div_sing: phonology::Word) -> anyhow::Result<Self> {
-        let first = fst_nom_div_sing.phonemes().next().unwrap();
-        match first {
-            Phoneme::A
-            | Phoneme::Aa
-            | Phoneme::E
-            | Phoneme::Ee
-            | Phoneme::I
-            | Phoneme::Ii
+        let last = fst_nom_div_sing.phonemes().next_back().unwrap();
+        match last {
+            Phoneme::R
+            | Phoneme::Rr
             | Phoneme::Y
-            | Phoneme::M
-            | Phoneme::W
-            | Phoneme::Mg => Err(Invalid { fst_nom_div_sing })?,
+            | Phoneme::A
+            | Phoneme::E
+            | Phoneme::I
+            | Phoneme::Ii => Err(Invalid { fst_nom_div_sing })?,
             _ => Ok(Self { fst_nom_div_sing }),
         }
     }
