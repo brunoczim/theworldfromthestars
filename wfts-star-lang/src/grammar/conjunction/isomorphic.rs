@@ -141,7 +141,7 @@ impl Word {
     pub fn inflect(&self, case: ClauseCase) -> conjunction::Inflected {
         let affix = Self::affix(case);
 
-        let phonemes = match (affix.before, affix.after) {
+        let mut phonemes = match (affix.before, affix.after) {
             (None, None) => self.nom.clone(),
             (Some(nucleus), None) => {
                 let mut syllables = self.nom.syllables().to_vec();
@@ -183,6 +183,14 @@ impl Word {
                 phonology::Word::new(syllables).unwrap()
             },
         };
+
+        if let Some(outer) = affix.coda_outer {
+            let mut syllables = phonemes.syllables().to_vec();
+            let last = syllables.last_mut().unwrap();
+            let coda = Coda::new(last.coda().inner(), Some(outer)).unwrap();
+            *last = Syllable::new(last.onset(), last.nucleus(), coda).unwrap();
+            phonemes = phonology::Word::new(syllables).unwrap();
+        }
 
         conjunction::Inflected { phonemes, case }
     }
