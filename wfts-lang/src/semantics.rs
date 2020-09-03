@@ -46,6 +46,8 @@ pub enum Meaning {
     ThatRelative,
     To,
     Of,
+    And,
+    CompoundConj,
 }
 
 impl Meaning {
@@ -98,6 +100,8 @@ impl Meaning {
             What => "what",
             To => "to",
             Of => "of",
+            And => "and",
+            CompoundConj => "equals",
         }
     }
 
@@ -140,6 +144,11 @@ impl Meaning {
                 "Particle used to express a relationship between two things, \
                  usually possession or pertinence; of."
             },
+            And => {
+                "Conjunction used to express that all the clauses are true; \
+                 and."
+            },
+            CompoundConj => "Conjunction used to compound phrases.",
         }
     }
 }

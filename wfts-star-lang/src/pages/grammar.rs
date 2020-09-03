@@ -248,8 +248,11 @@ pub fn make(dir: &mut Directory) {
                     children: vec![Section {
                         title: "Inflection Classes".to_dyn(),
                         id: Id::new("conjunction-classes").unwrap(),
-                        body: vec![conjunction::additive::Word::affix_table()]
-                            .to_dyn(),
+                        body: vec![
+                            conjunction::additive::Word::affix_table(),
+                            conjunction::isomorphic::Word::affix_table(),
+                        ]
+                        .to_dyn(),
                         children: vec![],
                     }],
                 },

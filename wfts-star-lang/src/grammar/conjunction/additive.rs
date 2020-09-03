@@ -168,5 +168,10 @@ impl Word {
 }
 
 pub fn definitions() -> Vec<Definition> {
-    vec![]
+    vec![Definition {
+        id: Id::new("and").unwrap(),
+        meanings: vec![Meaning::And],
+        notes: "".blocking().to_dyn(),
+        word: Word::new(phonology::Word::parse_str("eta").unwrap()),
+    }]
 }

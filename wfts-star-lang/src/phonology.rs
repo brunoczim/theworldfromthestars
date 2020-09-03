@@ -320,9 +320,8 @@ impl Word {
     fn same_audio(text: &str) -> Option<bool> {
         match text {
             "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" | "reŋ" | "nyá"
-            | "xim" | "xím" | "kas" | "fá" | "jí" | "ḱen" | "pa" => {
-                Some(true)
-            },
+            | "xim" | "xím" | "kas" | "fá" | "jí" | "ḱen" | "pa" | "eta"
+            | "r" | "etif" | "etiŕ" => Some(true),
             "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis"
             | "éyxám" => Some(false),
             _ => None,
