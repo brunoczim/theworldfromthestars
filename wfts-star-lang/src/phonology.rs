@@ -137,7 +137,7 @@ impl Word {
             for next in iter {
                 output.push_str(curr.to_narrow_ipa(prev, Some(next), false));
                 if first {
-                    if prev.is_some() {
+                    if last.is_some() {
                         output.push('.');
                     }
                     first = false;
@@ -170,7 +170,7 @@ impl Word {
                     is_palatal[i],
                 ));
                 if first {
-                    if prev.is_some() {
+                    if last.is_some() {
                         output.push('.');
                     }
                     first = false;
