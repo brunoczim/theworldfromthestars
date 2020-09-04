@@ -3,6 +3,7 @@ use crate::{
     grammar::{adjective, conjunction, noun, postposition, pronoun, verb},
     morphology::Morpheme,
 };
+use indexmap::IndexMap;
 use std::collections::HashMap;
 use wfts_lang::semantics::Meaning;
 use wfts_pedia_ssg::{
@@ -20,7 +21,7 @@ use wfts_pedia_ssg::{
 pub struct Entry {
     pub id: Id,
     pub class: String,
-    pub inflections: HashMap<String, Morpheme>,
+    pub inflections: IndexMap<String, Morpheme>,
     pub meanings: Vec<Meaning>,
     pub notes: DynComponent,
     pub inflection_table: table::Entries<DynComponent>,

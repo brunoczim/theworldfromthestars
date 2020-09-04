@@ -9,7 +9,8 @@ use crate::{
     phonology::{self, Coda, Parse, Phoneme},
     StarLang,
 };
-use std::{collections::HashMap, fmt};
+use indexmap::IndexMap;
+use std::fmt;
 use thiserror::Error;
 use wfts_lang::{semantics::Meaning, Lang};
 use wfts_pedia_ssg::{
@@ -38,7 +39,7 @@ impl Definition {
             class: "Additive Class".to_owned(),
             id: self.id,
             inflections: {
-                let mut map = HashMap::new();
+                let mut map = IndexMap::new();
                 for &case in ClauseCase::ALL {
                     map.insert(
                         format!("{}", case),

@@ -14,7 +14,8 @@ use crate::{
     phonology::{self, Parse, Phoneme, Syllable},
     StarLang,
 };
-use std::{collections::HashMap, fmt};
+use indexmap::IndexMap;
+use std::fmt;
 use thiserror::Error;
 use wfts_lang::{semantics::Meaning, Lang};
 use wfts_pedia_ssg::{
@@ -43,7 +44,7 @@ impl Definition {
             class: "Regular Class 1".to_owned(),
             id: self.id,
             inflections: {
-                let mut map = HashMap::new();
+                let mut map = IndexMap::new();
                 for &person in Person::ALL {
                     for &tense in Tense::ALL {
                         map.insert(

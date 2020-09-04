@@ -9,10 +9,8 @@ use crate::{
     phonology::{self, Coda, Onset, Parse, Phoneme, Syllable},
     StarLang,
 };
-use std::{
-    collections::HashMap,
-    fmt::{self},
-};
+use indexmap::IndexMap;
+use std::fmt;
 use thiserror::Error;
 use wfts_lang::{semantics::Meaning, Lang};
 use wfts_pedia_ssg::{
@@ -41,7 +39,7 @@ impl Definition {
             class: "Demonstrative Class".to_owned(),
             id: self.id,
             inflections: {
-                let mut map = HashMap::new();
+                let mut map = IndexMap::new();
                 for &person in Person::ALL {
                     for &case in Case::ALL {
                         for &gender in Gender::ALL {
