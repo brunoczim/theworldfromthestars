@@ -48,6 +48,7 @@ pub enum Meaning {
     Of,
     And,
     CompoundConj,
+    ToWalk,
 }
 
 impl Meaning {
@@ -102,6 +103,7 @@ impl Meaning {
             Of => "of",
             And => "and",
             CompoundConj => "equals",
+            ToWalk => "to walk",
         }
     }
 
@@ -149,6 +151,7 @@ impl Meaning {
                  and."
             },
             CompoundConj => "Conjunction used to compound phrases.",
+            ToWalk => "To walk.",
         }
     }
 }

@@ -1,5 +1,16 @@
 use crate::{
-    grammar::grammemes::{BasicCase, Case, ClauseCase, Gender, Number, Person},
+    grammar::grammemes::{
+        BasicCase,
+        BasicMood,
+        Case,
+        ClauseCase,
+        Gender,
+        ImperativeTense,
+        IndicativeTense,
+        Number,
+        Person,
+        Tense,
+    },
     morphology::Morpheme,
 };
 use std::fmt;
@@ -352,6 +363,96 @@ where
             }
             table.push(row);
             row = Vec::new();
+        }
+    }
+
+    table
+}
+
+/// Person x Tense table.
+pub fn person_tense_table<F>(mut make_data: F) -> table::Entries<DynComponent>
+where
+    F: FnMut(Person, Tense) -> DynComponent,
+{
+    let mut table = Vec::new();
+    let mut row = vec![table::Entry {
+        header: true,
+        rowspan: 1,
+        colspan: 2,
+        data: "".blocking().to_dyn(),
+    }];
+    for &person in Person::ALL {
+        row.push(table::Entry {
+            header: true,
+            rowspan: 1,
+            colspan: 1,
+            data: person.to_string().capitalize().blocking().to_dyn(),
+        });
+    }
+    table.push(row);
+    row = Vec::new();
+
+    for &mood in BasicMood::ALL {
+        match mood {
+            BasicMood::Indicative => {
+                row.push(table::Entry {
+                    header: true,
+                    rowspan: IndicativeTense::ALL.len() as u32,
+                    colspan: 1,
+                    data: mood.to_string().capitalize().blocking().to_dyn(),
+                });
+
+                for &tense in IndicativeTense::ALL {
+                    row.push(table::Entry {
+                        header: true,
+                        rowspan: 1,
+                        colspan: 1,
+                        data: tense
+                            .to_string()
+                            .capitalize()
+                            .blocking()
+                            .to_dyn(),
+                    });
+                    for &person in Person::ALL {
+                        row.push(table::Entry::new(make_data(
+                            person,
+                            tense.into(),
+                        )));
+                    }
+                    table.push(row);
+                    row = Vec::new();
+                }
+            },
+
+            BasicMood::Imperative => {
+                row.push(table::Entry {
+                    header: true,
+                    rowspan: ImperativeTense::ALL.len() as u32,
+                    colspan: 1,
+                    data: mood.to_string().capitalize().blocking().to_dyn(),
+                });
+
+                for &tense in ImperativeTense::ALL {
+                    row.push(table::Entry {
+                        header: true,
+                        rowspan: 1,
+                        colspan: 1,
+                        data: tense
+                            .to_string()
+                            .capitalize()
+                            .blocking()
+                            .to_dyn(),
+                    });
+                    for &person in Person::ALL {
+                        row.push(table::Entry::new(make_data(
+                            person,
+                            tense.into(),
+                        )));
+                    }
+                    table.push(row);
+                    row = Vec::new();
+                }
+            },
         }
     }
 

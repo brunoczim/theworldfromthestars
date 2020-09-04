@@ -261,6 +261,12 @@ impl Agreement<Mood> for BasicMood {
     }
 }
 
+impl Agreement<Tense> for BasicMood {
+    fn agrees(&self, other: &Tense) -> bool {
+        other.agrees(self)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Mood {
     Basic(BasicMood),
@@ -305,6 +311,12 @@ impl Agreement<BasicMood> for Mood {
             },
             Mood::Optative => *other == BasicMood::Imperative,
         }
+    }
+}
+
+impl Agreement<Tense> for Mood {
+    fn agrees(&self, other: &Tense) -> bool {
+        other.agrees(self)
     }
 }
 
@@ -365,5 +377,76 @@ impl fmt::Display for ImperativeTense {
 impl Agreement for ImperativeTense {
     fn agrees(&self, other: &Self) -> bool {
         self == other
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Tense {
+    Indicative(IndicativeTense),
+    Imperative(ImperativeTense),
+}
+
+impl Tense {
+    pub const ALL: &'static [Self] = &[
+        Tense::Indicative(IndicativeTense::Present),
+        Tense::Indicative(IndicativeTense::Past),
+        Tense::Indicative(IndicativeTense::NearFuture),
+        Tense::Indicative(IndicativeTense::FarFuture),
+        Tense::Imperative(ImperativeTense::Present),
+        Tense::Imperative(ImperativeTense::Future),
+    ];
+
+    pub fn basic_mood(self) -> BasicMood {
+        match self {
+            Tense::Indicative(_) => BasicMood::Indicative,
+            Tense::Imperative(_) => BasicMood::Imperative,
+        }
+    }
+}
+
+impl fmt::Display for Tense {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad(match self {
+            Tense::Indicative(IndicativeTense::Present) => "indicative present",
+            Tense::Indicative(IndicativeTense::Past) => "indicative past",
+            Tense::Indicative(IndicativeTense::NearFuture) => {
+                "indicative near-future"
+            },
+            Tense::Indicative(IndicativeTense::FarFuture) => {
+                "indicative far-future"
+            },
+            Tense::Imperative(ImperativeTense::Present) => "imperative present",
+            Tense::Imperative(ImperativeTense::Future) => "imperative future",
+        })
+    }
+}
+
+impl From<IndicativeTense> for Tense {
+    fn from(tense: IndicativeTense) -> Self {
+        Tense::Indicative(tense)
+    }
+}
+
+impl From<ImperativeTense> for Tense {
+    fn from(tense: ImperativeTense) -> Self {
+        Tense::Imperative(tense)
+    }
+}
+
+impl Agreement for Tense {
+    fn agrees(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl Agreement<BasicMood> for Tense {
+    fn agrees(&self, other: &BasicMood) -> bool {
+        self.basic_mood().agrees(other)
+    }
+}
+
+impl Agreement<Mood> for Tense {
+    fn agrees(&self, other: &Mood) -> bool {
+        self.basic_mood().agrees(other)
     }
 }

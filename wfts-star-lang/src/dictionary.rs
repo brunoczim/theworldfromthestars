@@ -1,6 +1,6 @@
 use crate::{
     component::{DefinitionHead, Pronunciation, WithStarAlphabet},
-    grammar::{adjective, conjunction, noun, postposition, pronoun},
+    grammar::{adjective, conjunction, noun, postposition, pronoun, verb},
     morphology::Morpheme,
 };
 use std::collections::HashMap;
@@ -117,6 +117,7 @@ impl Entry {
         entries.append(&mut pronoun::entries());
         entries.append(&mut postposition::entries());
         entries.append(&mut conjunction::entries());
+        entries.append(&mut verb::entries());
         entries
     }
 }

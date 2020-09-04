@@ -54,7 +54,7 @@ impl Definition {
 }
 
 #[derive(Debug, Clone, Error)]
-#[error("Invalid nominative {coord:?} for conjunction additive class")]
+#[error("Invalid coordinative {coord:?} for conjunction additive class")]
 pub struct Invalid {
     pub coord: phonology::Word,
 }

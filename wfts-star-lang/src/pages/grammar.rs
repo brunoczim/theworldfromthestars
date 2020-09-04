@@ -1,5 +1,5 @@
 use crate::{
-    grammar::{adjective, conjunction, noun, postposition, pronoun},
+    grammar::{adjective, conjunction, noun, postposition, pronoun, verb},
     StarLang,
 };
 use wfts_lang::Lang;
@@ -304,7 +304,13 @@ pub fn make(dir: &mut Directory) {
                         .to_dyn(),
                     ]
                     .to_dyn(),
-                    children: vec![],
+                    children: vec![Section {
+                        title: "Inflection Classes".to_dyn(),
+                        id: Id::new("verb-classes").unwrap(),
+                        body: vec![verb::regular1::Word::affix_table()]
+                            .to_dyn(),
+                        children: vec![],
+                    }],
                 },
                 Section {
                     title: "Adverb".to_dyn(),

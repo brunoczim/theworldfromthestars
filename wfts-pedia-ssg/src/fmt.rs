@@ -23,7 +23,7 @@ impl StrExt for str {
                 .char_indices()
                 .find(|&(i, ch)| i > 0 && !ch.is_alphabetic())
             {
-                Some((index, _)) => index,
+                Some((index, _)) => index + 1,
                 None => slice.len(),
             };
             let mut chars = slice[.. index].chars();

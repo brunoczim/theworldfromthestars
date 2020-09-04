@@ -321,7 +321,7 @@ impl Word {
         match text {
             "saŋ" | "dse" | "gas" | "kef" | "fwi" | "mací" | "reŋ" | "nyá"
             | "xim" | "xím" | "kas" | "fá" | "jí" | "ḱen" | "pa" | "eta"
-            | "r" | "etif" | "etiŕ" => Some(true),
+            | "r" | "etif" | "etiŕ" | "wiya" | "wiyabi" => Some(true),
             "saysen" | "says" | "saysé" | "sayiẋ" | "dseńix" | "macis"
             | "éyxám" => Some(false),
             _ => None,
