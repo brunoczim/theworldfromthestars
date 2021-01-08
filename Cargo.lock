@@ -153,6 +153,7 @@ name = "wfts-lang"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "indexmap",
  "thiserror",
  "wfts-pedia-ssg",
 ]
