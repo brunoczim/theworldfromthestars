@@ -614,7 +614,7 @@ impl<'comp> DoubleEndedIterator for CompositeRoots<'comp> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Transcription {
     phonemes: Vec<Phoneme>,
     syl_breaks: Vec<usize>,
@@ -622,11 +622,102 @@ pub struct Transcription {
 }
 
 impl Transcription {
+    pub fn add_phoneme(&mut self, phoneme: Phoneme) {
+        self.phonemes.push(phoneme);
+    }
+
+    pub fn mark_syl_break(&mut self) {
+        let index = self.phonemes.len();
+        self.syl_breaks.push(index);
+    }
+
+    pub fn mark_word_break(&mut self) {
+        let index = self.syl_breaks.len();
+        self.word_breaks.push(index);
+    }
+
+    pub fn add_syllable(&mut self, root: Root) {
+        for phoneme in root {
+            self.add_phoneme(phoneme);
+        }
+
+        if self.syl_breaks.len() > 0 {
+            self.mark_syl_break();
+        }
+    }
+
+    pub fn add_word(&mut self, composite: Composite) {
+        for root in composite.roots() {
+            self.add_syllable(root);
+        }
+
+        if self.word_breaks.len() > 0 {
+            self.mark_word_break();
+        }
+    }
+
+    pub fn narrow_pronunc(&self) -> Variation {
+        let mut ctxs = self.build_progressive();
+        self.regress(&mut ctxs);
+        self.make_variation(&ctxs)
+    }
+
+    fn build_progressive(&self) -> Vec<Context> {
+        let mut ctxs = Vec::new();
+        let mut prev_trigger = Triggers::default();
+        let mut phonemes_iter = self.phonemes.iter();
+
+        let mut curr_phoneme = match phonemes_iter.next() {
+            Some(curr) => curr,
+            None => return ctxs,
+        };
+
+        for next_phoneme in phonemes_iter {
+            let curr_ctx = Context::from_triggers(
+                prev_trigger,
+                next_phoneme.phonetic_triggers(),
+            );
+            ctxs.push(curr_ctx);
+            prev_trigger = curr_phoneme.phonetic_triggers().with_ctx(curr_ctx);
+            curr_phoneme = next_phoneme;
+        }
+
+        let next_trigger = Triggers::default();
+        let curr_ctx = Context::from_triggers(prev_trigger, next_trigger);
+        ctxs.push(curr_ctx);
+
+        ctxs
+    }
+
+    fn regress(&self, ctxs: &mut [Context]) {
+        let phonemes_iter = self.phonemes.iter().rev();
+        let ctxs_iter = ctxs.iter_mut().rev();
+
+        let mut zipped_iter = phonemes_iter.zip(ctxs_iter);
+
+        let mut next_trigger = Triggers::default();
+        let (mut curr_phoneme, mut curr_ctx) = match zipped_iter.next() {
+            Some(pair) => pair,
+            None => return,
+        };
+
+        for (prev_phoneme, prev_ctx) in zipped_iter {
+            let prev_trigger =
+                prev_phoneme.phonetic_triggers().with_ctx(*prev_ctx);
+            *curr_ctx = Context::from_triggers(prev_trigger, next_trigger);
+            next_trigger = curr_phoneme.phonetic_triggers().with_ctx(*curr_ctx);
+            curr_ctx = prev_ctx;
+            curr_phoneme = prev_phoneme;
+        }
+
+        let prev_trigger = Triggers::default();
+        *curr_ctx = Context::from_triggers(prev_trigger, next_trigger);
+    }
+
     fn make_variation(&self, ctxs: &[Context]) -> Variation {
         let mut variation = Variation::default();
 
         let mut syl_breaks = self.syl_breaks.iter().copied();
-        let mut curr_syl_start = 0;
         let mut curr_syl_i = 0;
         let mut curr_syl_end = syl_breaks.next().unwrap_or(self.phonemes.len());
 
@@ -640,7 +731,6 @@ impl Transcription {
 
         for (phoneme_i, (phoneme, ctx)) in phonemes.zip(ctxs_iter).enumerate() {
             if phoneme_i == curr_syl_end {
-                curr_syl_start = curr_syl_end;
                 curr_syl_end = syl_breaks.next().unwrap_or(self.phonemes.len());
 
                 if curr_syl_i == curr_word_end {
@@ -661,60 +751,9 @@ impl Transcription {
                 }
             }
 
-            phoneme.narrow_pronunc(ctx, &mut variation);
+            phoneme.narrow_pronunc(&mut variation, ctx);
         }
 
         variation
-    }
-
-    pub fn narrow_pronunc(&self) -> Variation {
-        let mut ctxs = Vec::new();
-        let mut prev_trigger = Triggers::default();
-        let mut phonemes_iter = self.phonemes.iter();
-
-        let mut curr_phoneme = match phonemes_iter.next() {
-            Some(curr) => curr,
-            None => return self.make_variation(&ctxs),
-        };
-
-        for next_phoneme in phonemes_iter {
-            let curr_ctx = Context::from_triggers(
-                prev_trigger,
-                next_phoneme.phonetic_triggers(),
-            );
-            ctxs.push(curr_ctx);
-            prev_trigger = curr_phoneme.phonetic_triggers().with_ctx(curr_ctx);
-            curr_phoneme = next_phoneme;
-        }
-
-        let mut next_trigger = Triggers::default();
-        let curr_ctx = Context::from_triggers(prev_trigger, next_trigger);
-        ctxs.push(curr_ctx);
-        next_trigger = curr_phoneme.phonetic_triggers().with_ctx(curr_ctx);
-
-        let phonemes_iter = self.phonemes.iter().rev();
-        let ctxs_iter = ctxs.iter_mut().rev();
-
-        let mut zipped_iter = phonemes_iter.zip(ctxs_iter);
-        zipped_iter.next();
-
-        let (mut curr_phoneme, mut curr_ctx) = match zipped_iter.next() {
-            Some(pair) => pair,
-            None => return self.make_variation(&ctxs),
-        };
-
-        for (prev_phoneme, prev_ctx) in phonemes_iter.zip(ctxs_iter) {
-            let prev_trigger =
-                prev_phoneme.phonetic_triggers().with_ctx(*prev_ctx);
-            *curr_ctx = Context::from_triggers(prev_trigger, next_trigger);
-            next_trigger = curr_phoneme.phonetic_triggers().with_ctx(*curr_ctx);
-            curr_ctx = prev_ctx;
-            curr_phoneme = prev_phoneme;
-        }
-
-        let prev_trigger = Triggers::default();
-        *curr_ctx = Context::from_triggers(prev_trigger, next_trigger);
-
-        self.make_variation(&ctxs)
     }
 }
