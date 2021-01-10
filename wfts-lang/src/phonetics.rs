@@ -110,14 +110,20 @@ pub struct Pronunc {
     root: Vec<Phone>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Variation {
     pronuncs: Vec<Pronunc>,
 }
 
+impl Default for Variation {
+    fn default() -> Self {
+        Self { pronuncs: vec![Pronunc::default()] }
+    }
+}
+
 impl Variation {
     pub fn add_phones(&mut self, phones: &[Phone]) {
-        let capacity = phones.len() * self.pronuncs.len();
+        let capacity = phones.len() * (self.pronuncs.len() + 1);
         let mut new_pronuncs = Vec::with_capacity(capacity);
         for &phone in phones {
             for pronunc in &self.pronuncs {

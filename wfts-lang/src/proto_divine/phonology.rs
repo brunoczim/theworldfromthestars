@@ -340,16 +340,6 @@ pub struct Onset {
     pub inner: Option<Sonorant>,
 }
 
-impl Onset {
-    pub fn first(self) -> Option<Consonant> {
-        self.outer.map(Into::into).or(self.inner.map(Into::into))
-    }
-
-    pub fn last(self) -> Option<Consonant> {
-        self.inner.map(Into::into).or(self.outer.map(Into::into))
-    }
-}
-
 impl IntoIterator for Onset {
     type Item = Consonant;
     type IntoIter = OnsetIter;
@@ -406,12 +396,10 @@ pub struct Root {
 }
 
 impl Root {
-    pub fn first(self) -> Phoneme {
-        self.onset.first().map_or(self.nucleus.into(), Into::into)
-    }
-
-    pub fn last(self) -> Phoneme {
-        self.coda.map_or(self.nucleus.into(), Into::into)
+    pub fn narrow_pronunc(self) -> Variation {
+        let mut trans = Transcription::default();
+        trans.add_syllable(self);
+        trans.narrow_pronunc()
     }
 }
 
@@ -532,6 +520,23 @@ impl Composite {
     pub fn last(&self) -> Root {
         self.tail.last().copied().unwrap_or(self.head)
     }
+
+    pub fn narrow_pronunc(self) -> Variation {
+        let mut trans = Transcription::default();
+        trans.add_word(self);
+        trans.narrow_pronunc()
+    }
+}
+
+pub fn pronounce_words<I>(words: I) -> Variation
+where
+    I: IntoIterator<Item = Composite>,
+{
+    let mut transcription = Transcription::default();
+    for word in words {
+        transcription.add_word(word);
+    }
+    transcription.narrow_pronunc()
 }
 
 impl<'comp> IntoIterator for &'comp Composite {
@@ -637,12 +642,14 @@ impl Transcription {
     }
 
     pub fn add_syllable(&mut self, root: Root) {
-        for phoneme in root {
-            self.add_phoneme(phoneme);
+        let needs_break = self.phonemes.len() > 0;
+
+        if needs_break {
+            self.mark_syl_break();
         }
 
-        if self.syl_breaks.len() > 0 {
-            self.mark_syl_break();
+        for phoneme in root {
+            self.add_phoneme(phoneme);
         }
     }
 
@@ -718,29 +725,36 @@ impl Transcription {
         let mut variation = Variation::default();
 
         let mut syl_breaks = self.syl_breaks.iter().copied();
+        let mut curr_syl_start = 0;
         let mut curr_syl_i = 0;
         let mut curr_syl_end = syl_breaks.next().unwrap_or(self.phonemes.len());
 
         let mut word_breaks = self.word_breaks.iter().copied();
         let mut curr_word_start = 0;
         let mut curr_word_end =
-            word_breaks.next().unwrap_or(self.syl_breaks.len());
+            word_breaks.next().unwrap_or(self.syl_breaks.len()) + 1;
 
         let phonemes = self.phonemes.iter().copied();
         let ctxs_iter = ctxs.iter().copied();
 
         for (phoneme_i, (phoneme, ctx)) in phonemes.zip(ctxs_iter).enumerate() {
+            eprintln!("{}, {}", phoneme_i, curr_syl_end);
             if phoneme_i == curr_syl_end {
+                curr_syl_start = curr_syl_end;
                 curr_syl_end = syl_breaks.next().unwrap_or(self.phonemes.len());
 
                 if curr_syl_i == curr_word_end {
                     curr_word_start = curr_word_end;
                     curr_word_end =
-                        word_breaks.next().unwrap_or(self.syl_breaks.len());
+                        word_breaks.next().unwrap_or(self.syl_breaks.len()) + 1;
                 }
 
                 curr_syl_i += 1;
+            }
 
+            eprintln!("{}, {}", phoneme_i, curr_syl_end);
+
+            if phoneme_i == curr_syl_start {
                 let curr_syl_in_word = curr_syl_i - curr_word_start;
                 if curr_syl_in_word == 0 {
                     variation.add_phones(&[Phone::Stress]);
