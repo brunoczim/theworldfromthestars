@@ -521,22 +521,11 @@ impl Composite {
         self.tail.last().copied().unwrap_or(self.head)
     }
 
-    pub fn narrow_pronunc(self) -> Variation {
+    pub fn narrow_pronunc(&self) -> Variation {
         let mut trans = Transcription::default();
         trans.add_word(self);
         trans.narrow_pronunc()
     }
-}
-
-pub fn pronounce_words<I>(words: I) -> Variation
-where
-    I: IntoIterator<Item = Composite>,
-{
-    let mut transcription = Transcription::default();
-    for word in words {
-        transcription.add_word(word);
-    }
-    transcription.narrow_pronunc()
 }
 
 impl<'comp> IntoIterator for &'comp Composite {
@@ -653,13 +642,15 @@ impl Transcription {
         }
     }
 
-    pub fn add_word(&mut self, composite: Composite) {
-        for root in composite.roots() {
-            self.add_syllable(root);
+    pub fn add_word(&mut self, composite: &Composite) {
+        let needs_break = self.phonemes.len() > 0;
+
+        if needs_break {
+            self.mark_word_break();
         }
 
-        if self.word_breaks.len() > 0 {
-            self.mark_word_break();
+        for root in composite.roots() {
+            self.add_syllable(root);
         }
     }
 
@@ -738,21 +729,18 @@ impl Transcription {
         let ctxs_iter = ctxs.iter().copied();
 
         for (phoneme_i, (phoneme, ctx)) in phonemes.zip(ctxs_iter).enumerate() {
-            eprintln!("{}, {}", phoneme_i, curr_syl_end);
             if phoneme_i == curr_syl_end {
                 curr_syl_start = curr_syl_end;
                 curr_syl_end = syl_breaks.next().unwrap_or(self.phonemes.len());
+
+                curr_syl_i += 1;
 
                 if curr_syl_i == curr_word_end {
                     curr_word_start = curr_word_end;
                     curr_word_end =
                         word_breaks.next().unwrap_or(self.syl_breaks.len()) + 1;
                 }
-
-                curr_syl_i += 1;
             }
-
-            eprintln!("{}, {}", phoneme_i, curr_syl_end);
 
             if phoneme_i == curr_syl_start {
                 let curr_syl_in_word = curr_syl_i - curr_word_start;
@@ -770,4 +758,15 @@ impl Transcription {
 
         variation
     }
+}
+
+pub fn pronounce_words<'word, I>(words: I) -> Variation
+where
+    I: IntoIterator<Item = &'word Composite>,
+{
+    let mut transcription = Transcription::default();
+    for word in words {
+        transcription.add_word(word);
+    }
+    transcription.narrow_pronunc()
 }
