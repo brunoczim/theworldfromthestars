@@ -164,7 +164,6 @@ version = "0.1.0"
 dependencies = [
  "wfts-lang",
  "wfts-pedia-ssg",
- "wfts-star-lang",
 ]
 
 [[package]]

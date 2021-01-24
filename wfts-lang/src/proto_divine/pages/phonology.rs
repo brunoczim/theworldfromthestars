@@ -1,13 +1,11 @@
 use crate::{proto_divine::ProtoDivine, Lang};
 use wfts_pedia_ssg::{
     component::{
-        img::{Figure, Image},
-        list::UnorderedList,
         table::{Entry, Table},
         text::{Link, Paragraph},
         Component,
     },
-    location::{Fragment, Id, InternalPath},
+    location::{Fragment, Id, InternalLoc, InternalPath},
     page::{Page, Section},
     site::{Directory, Node},
 };
@@ -151,13 +149,14 @@ pub fn make(dir: &mut Directory) {
                             )
                             .to_dyn(),
                             Paragraph(
-                                "/j/ is always palatal. /k, ŋ/ are by default \
-                                 velar [k, ŋ] (the same applies to voiced \
-                                 allophone [g] of /k/). /h/ ranges between \
-                                 debuccalized [h] and velar [x] by default, \
-                                 if voiceless. When voiced, it is always \
-                                 velar [ɣ] by default. Besides their default \
-                                 pronunciation /k, h, ŋ/ can be palatalized.",
+                                "/j/ is always palatal [j]. /k, ŋ/ are by \
+                                 default velar [k, ŋ] (the same applies to \
+                                 voiced allophone [g] of /k/). /h/ ranges \
+                                 between debuccalized [h] and velar [x] by \
+                                 default, if voiceless. When voiced, it is \
+                                 always velar [ɣ] by default. Besides their \
+                                 default pronunciation /k, h, ŋ/ can be \
+                                 palatalized.",
                             )
                             .to_dyn(),
                             Paragraph(
@@ -188,13 +187,180 @@ pub fn make(dir: &mut Directory) {
                 Section {
                     title: "Vowels".to_dyn(),
                     id: Id::new("vowels").unwrap(),
-                    body: vec![].to_dyn(),
-                    children: vec![].to_dyn(),
+                    body: vec![
+                        Paragraph("Proto-Divine had 6 phonemic vowels.")
+                            .to_dyn(),
+                        Table {
+                            title: "Proto-Divine Vowels".to_owned(),
+                            entries: vec![
+                                vec![
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "",
+                                    },
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Front/Unrounded",
+                                    },
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Back/Rounded",
+                                    },
+                                ],
+                                vec![
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "High",
+                                    },
+                                    Entry::new("i"),
+                                    Entry::new("u"),
+                                ],
+                                vec![
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Mid",
+                                    },
+                                    Entry::new("e"),
+                                    Entry::new("o"),
+                                ],
+                                vec![
+                                    Entry {
+                                        colspan: 1,
+                                        rowspan: 1,
+                                        header: true,
+                                        data: "Open",
+                                    },
+                                    Entry::new("a"),
+                                    Entry::new("ɒ"),
+                                ],
+                            ],
+                        }
+                        .to_dyn(),
+                    ]
+                    .to_dyn(),
+                    children: vec![Section {
+                        title: "Allophonic Variation".to_dyn(),
+                        id: Id::new("consonant-allophony").unwrap(),
+                        body: vec![
+                            Paragraph(
+                                "Front vowels get slightly lowered when \
+                                 following or followed by /j/. Back vowels \
+                                 get slightly lowered when following or \
+                                 followed by /w/. For instance, /i/ is close \
+                                 [i] by default, near-close [ɪ] in the \
+                                 vicinity of /j/. Similarly, /u/ is close [u] \
+                                 by default, but near-close [ʊ] in the \
+                                 vicinity of /w/.",
+                            )
+                            .to_dyn(),
+                            Paragraph(
+                                "/e/ by default varies between close-mid [e] \
+                                 and mid [e̞], but in the vicinity of /j/, it \
+                                 is always mid [e̞]. In the same way, /o/ by \
+                                 default varies between close mid [o] and mid \
+                                 [o̞], but it is mid [o̞] in the vicinity of \
+                                 /w/.",
+                            )
+                            .to_dyn(),
+                            Paragraph(
+                                "/a/ by default varies between near-open [æ] \
+                                 and open [a], but in the vicinity of /j/, it \
+                                 is always near-open [æ]. In the same way, \
+                                 /ɒ/ by default varies between near-open [ɒ̝] \
+                                 and open [ɒ], but it is open [ɒ] in the \
+                                 vicinity of /w/.",
+                            )
+                            .to_dyn(),
+                        ]
+                        .to_dyn(),
+                        children: vec![],
+                    }],
                 },
                 Section {
                     title: "Phonotactics".to_dyn(),
                     id: Id::new("phonotactics").unwrap(),
-                    body: vec![].to_dyn(),
+                    body: vec![Paragraph(vec![
+                        "Syllable structure of the language is (C)(C)V(C), or \
+                         more specifically, (O)(S)V(C). /O/ is any obstruent \
+                         /p, t, k, f, s, h/, while /S/ is any sonorant /m, n, \
+                         ŋ, w, l, j/, /V/ is any vowel /a, e, i, ɒ, o, u/, \
+                         and /C/ is either /O/ or /S/. If boundary between \
+                         two consecutive syllables /VCV/ is found like this, \
+                         for example, there is a difference between /V.CV/ \
+                         and /VC.V/ in terms of prosody. "
+                            .to_dyn(),
+                        Link {
+                            location: InternalLoc::parse("#prosody")
+                                .unwrap()
+                                .into(),
+                            text: "See below",
+                        }
+                        .to_dyn(),
+                        ".".to_dyn(),
+                    ])
+                    .to_dyn()]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Prosody".to_dyn(),
+                    id: Id::new("prosody").unwrap(),
+                    body: vec![
+                        Paragraph(vec![
+                            "Proto-Divine is a stress-accent language, but \
+                             the stress is fixed. The first syllable of a \
+                             word is always stressed, odd syllables other \
+                             than the first carry a secondary stress. Stress \
+                             might help to determine where are word \
+                             boundaries. As stated in "
+                                .to_dyn(),
+                            Link {
+                                location: InternalLoc::parse("#phonotactics")
+                                    .unwrap()
+                                    .into(),
+                                text: "phonotactics section",
+                            }
+                            .to_dyn(),
+                            ", it makes difference to which syllable a \
+                             consonant belongs."
+                                .to_dyn(),
+                        ])
+                        .to_dyn(),
+                        Paragraph(vec![
+                            "More specifically, in boundaries like /VCV/ or \
+                             /VOSV/, it makes a difference whether it is \
+                             /V.CV/ and /V.OSV/ or if it is /VC.V/ and \
+                             /VO.SV/. This difference is manifested through \
+                             placement of a secondary stress in syllable \
+                             boundaries inside a word. Such difference is \
+                             likely caused because every syllable in \
+                             Proto-Divine has an independent form. "
+                                .to_dyn(),
+                            Link {
+                                location: ProtoDivine
+                                    .path()
+                                    .append(
+                                        Fragment::new("morphology").unwrap(),
+                                    )
+                                    .into(),
+                                text: "See morphology",
+                            }
+                            .to_dyn(),
+                            ".".to_dyn(),
+                        ])
+                        .to_dyn(),
+                    ]
+                    .to_dyn(),
                     children: vec![],
                 },
             ],

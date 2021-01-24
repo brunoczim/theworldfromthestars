@@ -1,5 +1,5 @@
 use std::{collections::HashMap, path::PathBuf, process};
-use wfts_lang::Lang;
+use wfts_lang::{proto_divine::ProtoDivine, Lang};
 use wfts_pedia_ssg::{
     component::{
         list::UnorderedList,
@@ -10,7 +10,6 @@ use wfts_pedia_ssg::{
     page::{Page, Section},
     site::{Directory, Generator, Node, Site},
 };
-use wfts_star_lang::StarLang;
 
 fn main() {
     let mut site = Site { root: Directory { contents: HashMap::new() } };
@@ -20,7 +19,7 @@ fn main() {
         Node::Page(index_page()),
     );
 
-    site.root.insert(StarLang.path(), StarLang.subsite().into());
+    ProtoDivine.add_to_site(&mut site);
 
     let generator = Generator {
         site,
@@ -47,8 +46,8 @@ fn index_page() -> Page {
         sections: vec![Section {
             title: "List Of Languages".to_dyn(),
             body: UnorderedList(vec![Link {
-                location: StarLang.path().into(),
-                text: "Classical Star Language",
+                location: ProtoDivine.path().into(),
+                text: "Proto-Divine Language",
             }])
             .to_dyn(),
             id: Id::new("list-of-langs").unwrap(),
