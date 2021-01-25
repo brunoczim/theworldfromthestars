@@ -275,10 +275,10 @@ pub fn make(dir: &mut Directory) {
                             Paragraph(
                                 "/a/ by default varies between near-open [æ] \
                                  and open [a], but in the vicinity of /j/, it \
-                                 is always near-open [æ]. In the same way, \
-                                 /ɒ/ by default varies between near-open [ɒ̝] \
-                                 and open [ɒ], but it is open [ɒ] in the \
-                                 vicinity of /w/.",
+                                 is always open [a]. In the same way, /ɒ/ by \
+                                 default varies between near-open [ɒ̝] and \
+                                 open [ɒ], but it is open [ɒ] in the vicinity \
+                                 of /w/.",
                             )
                             .to_dyn(),
                         ]
@@ -300,9 +300,13 @@ pub fn make(dir: &mut Directory) {
                          and /VC.V/ in terms of prosody. "
                             .to_dyn(),
                         Link {
-                            location: InternalLoc::parse("#prosody")
-                                .unwrap()
-                                .into(),
+                            location: InternalLoc {
+                                path: ProtoDivine.path().append(
+                                    Fragment::new("phonology").unwrap(),
+                                ),
+                                id: Some(Id::new("prosody").unwrap()),
+                            }
+                            .into(),
                             text: "See below",
                         }
                         .to_dyn(),
