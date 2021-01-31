@@ -675,7 +675,7 @@ pub fn make(dir: &mut Directory) {
                         "Nouns are direct names to things. They all have a \
                          gender, and vary in case and number. Some nouns have \
                          a fixed gender, some can vary in gender. Morpheme \
-                         order is root-number-case.",
+                         order is stem-number-case.",
                     )
                     .to_dyn()]
                     .to_dyn(),
@@ -687,7 +687,7 @@ pub fn make(dir: &mut Directory) {
                     body: vec![Paragraph(
                         "Adjectives gives more information and details about \
                          nouns. They all vary in case, number and gender. \
-                         Morpheme order is root-number-case.",
+                         Morpheme order is stem-number-case.",
                     )
                     .to_dyn()]
                     .to_dyn(),
@@ -708,7 +708,7 @@ pub fn make(dir: &mut Directory) {
                         )
                         .to_dyn(),
                         Paragraph(
-                            "Morpheme order is root-person-tense-apsect-mood. \
+                            "Morpheme order is stem-person-tense-apsect-mood. \
                              Morphemes used for first person are the first \
                              person singular pronoun, for the second person \
                              this is the second person singular pronoun, \
@@ -784,7 +784,7 @@ pub fn make(dir: &mut Directory) {
                         Paragraph(
                             " They may be used as interjections when suffixed \
                              with the vocative case morpheme for the divine \
-                             gender. Morpheme order is root-case-mood.",
+                             gender. Morpheme order is stem-case-mood.",
                         )
                         .to_dyn(),
                     ]
