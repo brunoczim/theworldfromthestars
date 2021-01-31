@@ -784,7 +784,7 @@ pub fn make(dir: &mut Directory) {
                         Paragraph(
                             " They may be used as interjections when suffixed \
                              with the vocative case morpheme for the divine \
-                             gender.Morpheme order is root-case-mood.",
+                             gender. Morpheme order is root-case-mood.",
                         )
                         .to_dyn(),
                     ]
