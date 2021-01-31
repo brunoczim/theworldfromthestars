@@ -389,13 +389,13 @@ impl Iterator for OnsetIter {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Root {
+pub struct Morpheme {
     pub onset: Onset,
     pub nucleus: Vowel,
     pub coda: Option<Consonant>,
 }
 
-impl Root {
+impl Morpheme {
     pub fn narrow_pronunc(self) -> Variation {
         let mut trans = Transcription::default();
         trans.add_syllable(self);
@@ -403,21 +403,21 @@ impl Root {
     }
 }
 
-impl IntoIterator for Root {
+impl IntoIterator for Morpheme {
     type Item = Phoneme;
-    type IntoIter = RootIter;
+    type IntoIter = MorphemeIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        RootIter {
-            root: self,
-            front: RootIterState::OnsetOuter,
-            back: RootIterState::Done,
+        MorphemeIter {
+            morpheme: self,
+            front: MorphemeIterState::OnsetOuter,
+            back: MorphemeIterState::Done,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-enum RootIterState {
+enum MorphemeIterState {
     OnsetOuter,
     OnsetInner,
     Nucleus,
@@ -426,13 +426,13 @@ enum RootIterState {
 }
 
 #[derive(Debug, Clone)]
-pub struct RootIter {
-    root: Root,
-    front: RootIterState,
-    back: RootIterState,
+pub struct MorphemeIter {
+    morpheme: Morpheme,
+    front: MorphemeIterState,
+    back: MorphemeIterState,
 }
 
-impl Iterator for RootIter {
+impl Iterator for MorphemeIter {
     type Item = Phoneme;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -442,26 +442,26 @@ impl Iterator for RootIter {
         loop {
             match self.front {
                 _ if self.front == self.back => break None,
-                RootIterState::Done => break None,
-                RootIterState::OnsetOuter => {
-                    self.front = RootIterState::OnsetInner;
-                    if let Some(obs) = self.root.onset.outer {
+                MorphemeIterState::Done => break None,
+                MorphemeIterState::OnsetOuter => {
+                    self.front = MorphemeIterState::OnsetInner;
+                    if let Some(obs) = self.morpheme.onset.outer {
                         break Some(Conson(Obs(obs)));
                     }
                 },
-                RootIterState::OnsetInner => {
-                    self.front = RootIterState::Nucleus;
-                    if let Some(son) = self.root.onset.inner {
+                MorphemeIterState::OnsetInner => {
+                    self.front = MorphemeIterState::Nucleus;
+                    if let Some(son) = self.morpheme.onset.inner {
                         break Some(Conson(Son(son)));
                     }
                 },
-                RootIterState::Nucleus => {
-                    self.front = RootIterState::Coda;
-                    break Some(Vowel(self.root.nucleus));
+                MorphemeIterState::Nucleus => {
+                    self.front = MorphemeIterState::Coda;
+                    break Some(Vowel(self.morpheme.nucleus));
                 },
-                RootIterState::Coda => {
-                    self.front = RootIterState::Done;
-                    if let Some(cons) = self.root.coda {
+                MorphemeIterState::Coda => {
+                    self.front = MorphemeIterState::Done;
+                    if let Some(cons) = self.morpheme.coda {
                         break Some(Conson(cons));
                     }
                 },
@@ -470,7 +470,7 @@ impl Iterator for RootIter {
     }
 }
 
-impl DoubleEndedIterator for RootIter {
+impl DoubleEndedIterator for MorphemeIter {
     fn next_back(&mut self) -> Option<Self::Item> {
         use Consonant::*;
         use Phoneme::*;
@@ -478,26 +478,26 @@ impl DoubleEndedIterator for RootIter {
         loop {
             match self.back {
                 _ if self.front == self.back => break None,
-                RootIterState::OnsetOuter => break None,
-                RootIterState::OnsetInner => {
-                    self.back = RootIterState::OnsetOuter;
-                    if let Some(obs) = self.root.onset.outer {
+                MorphemeIterState::OnsetOuter => break None,
+                MorphemeIterState::OnsetInner => {
+                    self.back = MorphemeIterState::OnsetOuter;
+                    if let Some(obs) = self.morpheme.onset.outer {
                         break Some(Conson(Obs(obs)));
                     }
                 },
-                RootIterState::Nucleus => {
-                    self.back = RootIterState::OnsetInner;
-                    if let Some(son) = self.root.onset.inner {
+                MorphemeIterState::Nucleus => {
+                    self.back = MorphemeIterState::OnsetInner;
+                    if let Some(son) = self.morpheme.onset.inner {
                         break Some(Conson(Son(son)));
                     }
                 },
-                RootIterState::Coda => {
-                    self.back = RootIterState::Nucleus;
-                    break Some(Vowel(self.root.nucleus));
+                MorphemeIterState::Coda => {
+                    self.back = MorphemeIterState::Nucleus;
+                    break Some(Vowel(self.morpheme.nucleus));
                 },
-                RootIterState::Done => {
-                    self.back = RootIterState::Coda;
-                    if let Some(cons) = self.root.coda {
+                MorphemeIterState::Done => {
+                    self.back = MorphemeIterState::Coda;
+                    if let Some(cons) = self.morpheme.coda {
                         break Some(Conson(cons));
                     }
                 },
@@ -508,16 +508,16 @@ impl DoubleEndedIterator for RootIter {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Composite {
-    pub head: Root,
-    pub tail: Vec<Root>,
+    pub head: Morpheme,
+    pub tail: Vec<Morpheme>,
 }
 
 impl Composite {
-    pub fn roots(&self) -> CompositeRoots {
-        CompositeRoots { curr: Some(self.head), others: self.tail.iter() }
+    pub fn morphemes(&self) -> CompositeMorphemes {
+        CompositeMorphemes { curr: Some(self.head), others: self.tail.iter() }
     }
 
-    pub fn last(&self) -> Root {
+    pub fn last(&self) -> Morpheme {
         self.tail.last().copied().unwrap_or(self.head)
     }
 
@@ -536,7 +536,7 @@ impl<'comp> IntoIterator for &'comp Composite {
         let mut others = self.tail.iter();
         CompositeIter {
             front: self.head.into_iter(),
-            back: others.next_back().copied().map(Root::into_iter),
+            back: others.next_back().copied().map(Morpheme::into_iter),
             others,
         }
     }
@@ -544,9 +544,9 @@ impl<'comp> IntoIterator for &'comp Composite {
 
 #[derive(Debug, Clone)]
 pub struct CompositeIter<'comp> {
-    front: RootIter,
-    back: Option<RootIter>,
-    others: slice::Iter<'comp, Root>,
+    front: MorphemeIter,
+    back: Option<MorphemeIter>,
+    others: slice::Iter<'comp, Morpheme>,
 }
 
 impl<'comp> Iterator for CompositeIter<'comp> {
@@ -559,7 +559,7 @@ impl<'comp> Iterator for CompositeIter<'comp> {
             }
 
             match self.others.next() {
-                Some(root) => self.front = root.into_iter(),
+                Some(morpheme) => self.front = morpheme.into_iter(),
                 None => break self.back.as_mut()?.next(),
             }
         }
@@ -574,7 +574,7 @@ impl<'comp> DoubleEndedIterator for CompositeIter<'comp> {
             }
 
             match self.others.next_back() {
-                Some(root) => self.back = Some(root.into_iter()),
+                Some(morpheme) => self.back = Some(morpheme.into_iter()),
                 None => break self.front.next_back(),
             }
         }
@@ -582,13 +582,13 @@ impl<'comp> DoubleEndedIterator for CompositeIter<'comp> {
 }
 
 #[derive(Debug, Clone)]
-pub struct CompositeRoots<'comp> {
-    curr: Option<Root>,
-    others: slice::Iter<'comp, Root>,
+pub struct CompositeMorphemes<'comp> {
+    curr: Option<Morpheme>,
+    others: slice::Iter<'comp, Morpheme>,
 }
 
-impl<'comp> Iterator for CompositeRoots<'comp> {
-    type Item = Root;
+impl<'comp> Iterator for CompositeMorphemes<'comp> {
+    type Item = Morpheme;
 
     fn next(&mut self) -> Option<Self::Item> {
         let curr = self.curr?;
@@ -597,7 +597,7 @@ impl<'comp> Iterator for CompositeRoots<'comp> {
     }
 }
 
-impl<'comp> DoubleEndedIterator for CompositeRoots<'comp> {
+impl<'comp> DoubleEndedIterator for CompositeMorphemes<'comp> {
     fn next_back(&mut self) -> Option<Self::Item> {
         let back = self.others.next_back().copied();
         if back.is_some() {
@@ -630,14 +630,14 @@ impl Transcription {
         self.word_breaks.push(index);
     }
 
-    pub fn add_syllable(&mut self, root: Root) {
+    pub fn add_syllable(&mut self, morpheme: Morpheme) {
         let needs_break = self.phonemes.len() > 0;
 
         if needs_break {
             self.mark_syl_break();
         }
 
-        for phoneme in root {
+        for phoneme in morpheme {
             self.add_phoneme(phoneme);
         }
     }
@@ -649,8 +649,8 @@ impl Transcription {
             self.mark_word_break();
         }
 
-        for root in composite.roots() {
-            self.add_syllable(root);
+        for morpheme in composite.morphemes() {
+            self.add_syllable(morpheme);
         }
     }
 

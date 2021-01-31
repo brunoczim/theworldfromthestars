@@ -1,9 +1,9 @@
 use super::phonology::{
     pronounce_words,
     Composite,
+    Morpheme,
     Obstruent,
     Onset,
-    Root,
     Sonorant,
     Vowel,
 };
@@ -12,7 +12,7 @@ use crate::phonetics::{Phone, Variation};
 #[test]
 fn narrow_pronunc() {
     let word = Composite {
-        head: Root {
+        head: Morpheme {
             onset: Onset {
                 outer: Some(Obstruent::K),
                 inner: Some(Sonorant::W),
@@ -33,18 +33,18 @@ fn narrow_pronunc() {
     assert_eq!(expected, word.narrow_pronunc());
 
     let word = Composite {
-        head: Root {
+        head: Morpheme {
             onset: Onset { outer: None, inner: Some(Sonorant::M) },
             nucleus: Vowel::O,
             coda: Some(Obstruent::F.into()),
         },
         tail: vec![
-            Root {
+            Morpheme {
                 onset: Onset { outer: None, inner: Some(Sonorant::J) },
                 nucleus: Vowel::I,
                 coda: None,
             },
-            Root {
+            Morpheme {
                 onset: Onset {
                     outer: Some(Obstruent::H),
                     inner: Some(Sonorant::J),
@@ -72,18 +72,18 @@ fn narrow_pronunc() {
 
     let words = [
         Composite {
-            head: Root {
+            head: Morpheme {
                 onset: Onset { outer: None, inner: Some(Sonorant::M) },
                 nucleus: Vowel::O,
                 coda: Some(Obstruent::F.into()),
             },
             tail: vec![
-                Root {
+                Morpheme {
                     onset: Onset { outer: None, inner: Some(Sonorant::J) },
                     nucleus: Vowel::I,
                     coda: None,
                 },
-                Root {
+                Morpheme {
                     onset: Onset {
                         outer: Some(Obstruent::H),
                         inner: Some(Sonorant::J),
@@ -94,7 +94,7 @@ fn narrow_pronunc() {
             ],
         },
         Composite {
-            head: Root {
+            head: Morpheme {
                 onset: Onset {
                     outer: Some(Obstruent::K),
                     inner: Some(Sonorant::W),
@@ -105,12 +105,12 @@ fn narrow_pronunc() {
             tail: Vec::new(),
         },
         Composite {
-            head: Root {
+            head: Morpheme {
                 onset: Onset { outer: None, inner: Some(Sonorant::M) },
                 nucleus: Vowel::E,
                 coda: Some(Obstruent::P.into()),
             },
-            tail: vec![Root {
+            tail: vec![Morpheme {
                 onset: Onset { outer: None, inner: Some(Sonorant::W) },
                 nucleus: Vowel::U,
                 coda: Some(Obstruent::S.into()),
