@@ -6,7 +6,7 @@ use wfts_pedia_ssg::{
         text::{Link, Paragraph},
         Component,
     },
-    location::{Fragment, Id, InternalLoc, InternalPath},
+    location::{Id, InternalPath},
     page::{Page, Section},
     site::{Directory, Node},
 };
@@ -109,8 +109,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Nominative",
                                     },
-                                    Entry::new("∅"),
-                                    Entry::new("∅"),
+                                    Entry::new("*∅"),
+                                    Entry::new("*∅"),
                                     Entry::new("Subject, usually the agent."),
                                 ],
                                 vec![
@@ -120,8 +120,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Accusative",
                                     },
-                                    Entry::new("a"),
-                                    Entry::new("å"),
+                                    Entry::new("*a"),
+                                    Entry::new("*å"),
                                     Entry::new(
                                         "Direct object, usually the \
                                          \"direct\" patient.",
@@ -134,8 +134,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Dative",
                                     },
-                                    Entry::new("i"),
-                                    Entry::new("jå"),
+                                    Entry::new("*i"),
+                                    Entry::new("*jå"),
                                     Entry::new(
                                         "Indirect object, usually the \
                                          receiver with movement.",
@@ -148,8 +148,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Genitive",
                                     },
-                                    Entry::new("tis"),
-                                    Entry::new("twos"),
+                                    Entry::new("*tis"),
+                                    Entry::new("*wos"),
                                     Entry::new(
                                         "The main component of a generic \
                                          relation, usually the possessor.",
@@ -162,8 +162,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Instrumental",
                                     },
-                                    Entry::new("wa"),
-                                    Entry::new("wå"),
+                                    Entry::new("*wa"),
+                                    Entry::new("*wå"),
                                     Entry::new(
                                         "Means used to perform the action, \
                                          usually a tool.",
@@ -176,8 +176,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Comitative",
                                     },
-                                    Entry::new("ja"),
-                                    Entry::new("jo"),
+                                    Entry::new("*ja"),
+                                    Entry::new("*jo"),
                                     Entry::new("Companion on the action."),
                                 ],
                                 vec![
@@ -187,8 +187,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Ablative",
                                     },
-                                    Entry::new("je"),
-                                    Entry::new("jo"),
+                                    Entry::new("*je"),
+                                    Entry::new("*jo"),
                                     Entry::new("Away from something."),
                                 ],
                                 vec![
@@ -198,8 +198,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Allative",
                                     },
-                                    Entry::new("ŋi"),
-                                    Entry::new("ŋo"),
+                                    Entry::new("*si"),
+                                    Entry::new("*ŋo"),
                                     Entry::new("Into something."),
                                 ],
                                 vec![
@@ -209,8 +209,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Adessive",
                                     },
-                                    Entry::new("ka"),
-                                    Entry::new("ku"),
+                                    Entry::new("*ka"),
+                                    Entry::new("*ku"),
                                     Entry::new("At something."),
                                 ],
                                 vec![
@@ -220,8 +220,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Inessive",
                                     },
-                                    Entry::new("kje"),
-                                    Entry::new("kjå"),
+                                    Entry::new("*kje"),
+                                    Entry::new("*kjå"),
                                     Entry::new("In something."),
                                 ],
                                 vec![
@@ -231,8 +231,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Supersessive",
                                     },
-                                    Entry::new("kje"),
-                                    Entry::new("ja"),
+                                    Entry::new("*kje"),
+                                    Entry::new("*ja"),
                                     Entry::new("On something."),
                                 ],
                                 vec![
@@ -242,8 +242,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Perlative",
                                     },
-                                    Entry::new("pi"),
-                                    Entry::new("pe"),
+                                    Entry::new("*pi"),
+                                    Entry::new("*ŋe"),
                                     Entry::new("Through something."),
                                 ],
                                 vec![
@@ -253,8 +253,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Temporal",
                                     },
-                                    Entry::new("im"),
-                                    Entry::new("em"),
+                                    Entry::new("*im"),
+                                    Entry::new("*em"),
                                     Entry::new("Time of an event."),
                                 ],
                                 vec![
@@ -264,8 +264,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Vocative",
                                     },
-                                    Entry::new("o"),
-                                    Entry::new("on"),
+                                    Entry::new("*o"),
+                                    Entry::new("*on"),
                                     Entry::new("Something called."),
                                 ],
                             ],
@@ -325,10 +325,10 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Singular",
                                     },
-                                    Entry::new("∅"),
+                                    Entry::new("*∅"),
                                     Entry::new(
-                                        "u (for adjectives and gender \
-                                         variable nouns), ∅ (for gender \
+                                        "*u (for adjectives and gender \
+                                         variable nouns), *∅ (for gender \
                                          non-variable nouns).",
                                     ),
                                     Entry::new("A single item."),
@@ -340,8 +340,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Plural",
                                     },
-                                    Entry::new("so"),
-                                    Entry::new("så"),
+                                    Entry::new("*so"),
+                                    Entry::new("*så"),
                                     Entry::new(
                                         "Many items, not necessarily all.",
                                     ),
@@ -353,8 +353,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Nullar",
                                     },
-                                    Entry::new("nu"),
-                                    Entry::new("no"),
+                                    Entry::new("*nu"),
+                                    Entry::new("*no"),
                                     Entry::new("No item."),
                                 ],
                                 vec![
@@ -364,8 +364,8 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Collective",
                                     },
-                                    Entry::new("su"),
-                                    Entry::new("så"),
+                                    Entry::new("*su"),
+                                    Entry::new("*så"),
                                     Entry::new("All items as a collective."),
                                 ],
                             ],
@@ -432,7 +432,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Present",
                                     },
-                                    Entry::new("∅"),
+                                    Entry::new("*∅"),
                                     Entry::new(
                                         "Something that happens/is happening \
                                          in the present.",
@@ -445,7 +445,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Past",
                                     },
-                                    Entry::new("at"),
+                                    Entry::new("*at"),
                                     Entry::new(
                                         "Something that happened/was \
                                          happening in the past, but not so \
@@ -459,7 +459,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Future",
                                     },
-                                    Entry::new("le"),
+                                    Entry::new("*le"),
                                     Entry::new(
                                         "Something that will happen in the \
                                          past, but not so far.",
@@ -472,7 +472,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Remote-Past",
                                     },
-                                    Entry::new("jat"),
+                                    Entry::new("*jat"),
                                     Entry::new(
                                         "Something that happened/was \
                                          happening in the past, but far back \
@@ -486,7 +486,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Remote-Future",
                                     },
-                                    Entry::new("led"),
+                                    Entry::new("*led"),
                                     Entry::new(
                                         "Something that will happen in the \
                                          future, but far ahead in time.",
@@ -542,7 +542,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Indicative",
                                     },
-                                    Entry::new("∅"),
+                                    Entry::new("*∅"),
                                     Entry::new("Certain, real, factual."),
                                 ],
                                 vec![
@@ -552,7 +552,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Subjunctive",
                                     },
-                                    Entry::new("jal"),
+                                    Entry::new("*jal"),
                                     Entry::new("Uncertain, hypothetical."),
                                 ],
                                 vec![
@@ -562,7 +562,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Imperative",
                                     },
-                                    Entry::new("ok"),
+                                    Entry::new("*ok"),
                                     Entry::new("Order, command."),
                                 ],
                                 vec![
@@ -572,7 +572,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Optative",
                                     },
-                                    Entry::new("maw"),
+                                    Entry::new("*maw"),
                                     Entry::new("Wish, hope, request."),
                                 ],
                             ],
@@ -625,7 +625,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Perfect",
                                     },
-                                    Entry::new("∅"),
+                                    Entry::new("*∅"),
                                     Entry::new(
                                         "Viewing an action outside of its \
                                          time frame.",
@@ -638,7 +638,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Continuous",
                                     },
-                                    Entry::new("oŋ"),
+                                    Entry::new("*oŋ"),
                                     Entry::new(
                                         "Viewing an action inside of its time \
                                          frame but as a single indivisible \
@@ -653,7 +653,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Habitual",
                                     },
-                                    Entry::new("eŋ"),
+                                    Entry::new("*eŋ"),
                                     Entry::new(
                                         "Viewing an action inside of its time \
                                          but such that the action is composed \
@@ -674,7 +674,8 @@ pub fn make(dir: &mut Directory) {
                     body: vec![Paragraph(
                         "Nouns are direct names to things. They all have a \
                          gender, and vary in case and number. Some nouns have \
-                         a fixed gender, some can vary in gender.",
+                         a fixed gender, some can vary in gender. Morpheme \
+                         order is root-number-case.",
                     )
                     .to_dyn()]
                     .to_dyn(),
@@ -685,7 +686,8 @@ pub fn make(dir: &mut Directory) {
                     id: Id::new("adjectives").unwrap(),
                     body: vec![Paragraph(
                         "Adjectives gives more information and details about \
-                         nouns. They all vary in case, number and gender.",
+                         nouns. They all vary in case, number and gender. \
+                         Morpheme order is root-number-case.",
                     )
                     .to_dyn()]
                     .to_dyn(),
@@ -694,16 +696,26 @@ pub fn make(dir: &mut Directory) {
                 Section {
                     title: "Verbs".to_dyn(),
                     id: Id::new("verbs").unwrap(),
-                    body: vec![Paragraph(
-                        "Verbs are words that connect the \"arguments\" of a \
-                         clause, and generally express an action or state. \
-                         Verbs vary in tense, person, aspect and mood. \
-                         Persons are the traditional first, second and third \
-                         person. Additionally, there is a nominalized form of \
-                         each verb, whose exactly meaning depends on the \
-                         preposition before it.",
-                    )
-                    .to_dyn()]
+                    body: vec![
+                        Paragraph(
+                            "Verbs are words that connect the \"arguments\" \
+                             of a clause, and generally express an action or \
+                             state. Verbs vary in tense, person, aspect and \
+                             mood. Persons are the traditional first, second \
+                             and third person. Additionally, there is a \
+                             nominalized form of each verb, whose exactly \
+                             meaning depends on the preposition before it.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "Morpheme order is root-person-tense-apsect-mood. \
+                             Morphemes used for first person are the first \
+                             person singular pronoun, for the second person \
+                             this is the second person singular pronoun, \
+                             while for the third person nothing is used.",
+                        )
+                        .to_dyn(),
+                    ]
                     .to_dyn(),
                     children: vec![],
                 },
@@ -724,9 +736,183 @@ pub fn make(dir: &mut Directory) {
                     id: Id::new("pronouns").unwrap(),
                     body: vec![Paragraph(
                         "Pronouns are indirect references to things in the \
-                         speech.",
+                         speech. Pronouns are marked by case and number. \
+                         However, inflection of pronouns is highly irregular, \
+                         and it is not marked by simply appending a morpheme. \
+                         Pronouns can act either as nouns or as adjectives.",
                     )
                     .to_dyn()]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Conjunctions".to_dyn(),
+                    id: Id::new("conjunctions").unwrap(),
+                    body: vec![Paragraph(
+                        "Conjunctions are words that connect two clauses, \
+                         either with independence or with dependence between \
+                         the clauses. They also connect noun phrases.",
+                    )
+                    .to_dyn()]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Numerals".to_dyn(),
+                    id: Id::new("numerals").unwrap(),
+                    body: vec![Paragraph(
+                        "Numerals represent numbers. They can act as \
+                         adjectives or as nouns.",
+                    )
+                    .to_dyn()]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Adverbs".to_dyn(),
+                    id: Id::new("adverbs").unwrap(),
+                    body: vec![
+                        Paragraph(
+                            "Adverbs are words that modifies another adverb, \
+                             a verb, an adjective, a pronoun, a clause or a \
+                             sentence. When modifying a verb, they inflect \
+                             for aspect. When modifying another adverb, they \
+                             are suffixed with the comitative case morpheme \
+                             for the divine gender.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            " They may be used as interjections when suffixed \
+                             with the vocative case morpheme for the divine \
+                             gender.Morpheme order is root-case-mood.",
+                        )
+                        .to_dyn(),
+                    ]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Syntax".to_dyn(),
+                    id: Id::new("syntax").unwrap(),
+                    body: vec![Paragraph(
+                        "Syntax has a free word order, but the preferred \
+                         order is OSV. Adjectives come before nouns. \
+                         Prepositions must never have their target omitted.",
+                    )
+                    .to_dyn()]
+                    .to_dyn(),
+                    children: vec![],
+                },
+                Section {
+                    title: "Rules".to_dyn(),
+                    id: Id::new("rules").unwrap(),
+                    body: vec![
+                        Paragraph(
+                            "An adjective compound is a an optional sequence \
+                             of adverbs, followed by an adjective. All \
+                             adverbs but the last are suffixed with the \
+                             morpheme for the comitative case of the divine \
+                             gender.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A true noun phrase is an optional sequence of \
+                             adjective compounds followed by a noun. Every \
+                             element of this phrase must agree in case, \
+                             gender and number.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A verb noun phrase is an optional sequence of \
+                             adjectives, followed by an optional preposition, \
+                             followed by a nominalized verb. Every element of \
+                             this phrase must agree in case, gender, and \
+                             number.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A prepositional noun phrase is a preposition \
+                             followed by a noun phrase. Such noun phrase must \
+                             be inflected according to what is required by \
+                             the preposition.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A relational clause is a relational pronoun, \
+                             followed by a clause. The pronoun inflects to \
+                             the apropriate case.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A subordinate clause is a subordinate \
+                             conjunction, followed by a clause. The \
+                             conjunction inflects to the apropriate case.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A noun phrase is either a true noun phrase, a \
+                             verb noun phrase, a prepositional noun phrase, a \
+                             relational clause, a subordinate clause, a \
+                             pronoun or a numeral.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A verb phrase is a non-empty sequence of verbs. \
+                             All verbs must agree in tense, aspect, person \
+                             and mood.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "An adverb phrase is a non-empty sequence of \
+                             adverbs. All adverbs must agree in aspect, if \
+                             any aspect is required (otherwise, no ending is \
+                             used). The non-last adverbs must have the suffix \
+                             for the comitative case of divine gender.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A clause is a noun phrase as a subject, a verb \
+                             phrase, adverbs modifying the verb phrase, and \
+                             noun phrases as objects and adverbial adjuncts. \
+                             A vocative noun phrase is also allowed. Such \
+                             elements can be in any order.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "Subject is always inflected for the nominative \
+                             case. Objects and adverbial adjuncts are \
+                             inflected for their appropriate case, depending \
+                             on the meaning, with as many of them as required \
+                             or allowed by the verb. Verb phrase agrees in \
+                             person to the subject. Adverbs agree in aspect \
+                             to the verb phrase. Vocative noun-phrase is \
+                             always inflected for the vocative.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A conjunction construct is a conjunction, \
+                             followed by an adverb phrase (non-inflected), \
+                             followed by a clause.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "An interjection is a non-empty sequence of \
+                             adverbs. All adverbs are suffixed with the \
+                             vocative case morpheme for the divine case.",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A sentence component is either a clause, \
+                             conjunction construct, an adverb phrase or an \
+                             interjection",
+                        )
+                        .to_dyn(),
+                        Paragraph(
+                            "A sentence is a non-empty sequence of sentence \
+                             components.",
+                        )
+                        .to_dyn(),
+                    ]
                     .to_dyn(),
                     children: vec![],
                 },
