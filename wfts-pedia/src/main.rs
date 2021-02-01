@@ -1,3 +1,5 @@
+//! This programs generates the WFTS encyclopedia.
+
 use std::{collections::HashMap, path::PathBuf, process};
 use wfts_lang::{proto_divine::ProtoDivine, Lang};
 use wfts_pedia_ssg::{
@@ -33,6 +35,7 @@ fn main() {
     }
 }
 
+/// Creates the initial page of the encyclopedia.
 fn index_page() -> Page {
     let body = vec![Paragraph(vec![String::from(
         "This is the front page of the encyclopedia of \"The World From The \
