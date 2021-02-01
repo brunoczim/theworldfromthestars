@@ -1,6 +1,9 @@
+//! This module exports list components.
+
 use crate::component::{BlockComponent, Component, Context};
 use std::fmt;
 
+/// A list of elements, with enumeration on each item.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OrderedList<T>(pub Vec<T>)
 where
@@ -32,6 +35,8 @@ where
     }
 }
 
+/// A list of elements, with no enumeration, but still with a bullet before each
+/// item.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UnorderedList<T>(pub Vec<T>)
 where
@@ -63,6 +68,7 @@ where
     }
 }
 
+/// A list of elements, with no enumeration and no bullet on the items.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UnmarkedList<T>(pub Vec<T>)
 where

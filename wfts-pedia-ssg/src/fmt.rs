@@ -1,5 +1,10 @@
+//! This module provides formatting extensions to Rust.
+
+/// Extension to the string type.
 pub trait StrExt {
+    /// Capitalizes first letter only.
     fn capitalize_first(&self) -> String;
+    /// Capitalizes every first letter of every word.
     fn capitalize(&self) -> String;
 }
 

@@ -1,9 +1,12 @@
+//! This module exports components more related to text.
+
 use crate::{
     component::{BlockComponent, Component, Context, InlineComponent},
     location::Location,
 };
 use std::fmt;
 
+/// Bold text. The parameter is wrapped to make its text bold.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Bold<T, K>(pub T)
 where
@@ -33,6 +36,7 @@ where
     }
 }
 
+/// Italic text. The parameter is wrapped to make its text italic.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Italic<T, K>(pub T)
 where
@@ -62,6 +66,8 @@ where
     }
 }
 
+/// Preformatted text. The parameter is wrapped to make its text monospaced
+/// and/or treated like code.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Preformatted<T, K>(pub T)
 where
@@ -91,6 +97,7 @@ where
     }
 }
 
+/// Wraps the given component into a paragraph.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Paragraph<T>(pub T)
 where
@@ -108,12 +115,15 @@ where
     }
 }
 
+/// A link to some location.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Link<T>
 where
     T: Component<Kind = InlineComponent>,
 {
+    /// The text displayed for the link.
     pub text: T,
+    /// The location to which this link points to.
     pub location: Location,
 }
 

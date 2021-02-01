@@ -1,9 +1,12 @@
+//! This module provides an audio component for the encyclopedia.
+
 use crate::{
     component::{Component, Context, InlineComponent},
     location::Location,
 };
 use std::fmt;
 
+/// The audio component, with the location of the audio file.
 #[derive(Debug, Clone)]
 pub struct Audio(pub Location);
 

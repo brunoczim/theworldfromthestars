@@ -1,3 +1,6 @@
+//! This module covers the more exterior pieces of a page, other than the more
+//! inner components.
+
 use crate::{
     component::{Context, DynComponent, InlineComponent},
     location::{Id, InternalLoc, InternalPath},
@@ -5,14 +8,21 @@ use crate::{
 };
 use std::fmt;
 
+/// A section of the page, on either top-level, nested in one level, nested in
+/// two leves, etc.
 #[derive(Debug, Clone)]
 pub struct Section {
+    /// Title of the section. Displayed above.
     pub title: DynComponent<InlineComponent>,
+    /// Body of the section. Main display.
     pub body: DynComponent,
+    /// ID that references the section.
     pub id: Id,
+    /// Children sections. Possibly empty.
     pub children: Vec<Section>,
 }
 
+/// Internal (private) section renderer.
 #[derive(Debug, Clone, Copy)]
 struct RenderSection<'section, 'loc, 'site> {
     section: &'section Section,
@@ -64,10 +74,14 @@ impl<'section, 'loc, 'site> fmt::Display
     }
 }
 
+/// A page of the encyclopedia. Contains everything in a page.
 #[derive(Debug, Clone)]
 pub struct Page {
+    /// The external-most title of the page.
     pub title: String,
+    /// The external-most body of the page.
     pub body: DynComponent,
+    /// Child sections of the page.
     pub sections: Vec<Section>,
 }
 
@@ -83,10 +97,14 @@ impl AsMut<Page> for Page {
     }
 }
 
+/// The renderer of a page. Publicly usable and creatable.
 #[derive(Debug, Clone, Copy)]
 pub struct RenderPage<'page, 'loc, 'site> {
+    /// The page being rendered.
     pub page: &'page Page,
+    /// Path to this page.
     pub location: &'loc InternalPath,
+    /// The target site (not modified).
     pub site: &'site Site,
 }
 
