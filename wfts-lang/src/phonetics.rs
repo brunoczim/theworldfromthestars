@@ -1,6 +1,6 @@
 //! This module exports phonetics utilites related to any language.
 
-use std::fmt;
+use std::{fmt, slice};
 
 /// Phones possibly used by any language.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -158,7 +158,39 @@ impl fmt::Display for Phone {
 /// A single, narrow pronunciation of a piece of speech.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Pronunc {
-    root: Vec<Phone>,
+    phones: Vec<Phone>,
+}
+
+impl fmt::Display for Pronunc {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        for phone in self {
+            write!(fmt, "{}", phone)?;
+        }
+        Ok(())
+    }
+}
+
+impl<'pronunc> IntoIterator for &'pronunc Pronunc {
+    type Item = Phone;
+    type IntoIter = PronuncPhones<'pronunc>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        PronuncPhones { inner: self.phones.iter() }
+    }
+}
+
+/// Iterator over the phones of a pronunciation.
+#[derive(Debug, Clone)]
+pub struct PronuncPhones<'pronunc> {
+    inner: slice::Iter<'pronunc, Phone>,
+}
+
+impl<'pronunc> Iterator for PronuncPhones<'pronunc> {
+    type Item = Phone;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next().copied()
+    }
 }
 
 /// A variation of narrow pronunciations.
@@ -184,7 +216,7 @@ impl Variation {
         for &phone in phones {
             for pronunc in &self.pronuncs {
                 let mut pronunc = pronunc.clone();
-                pronunc.root.push(phone);
+                pronunc.phones.push(phone);
                 new_pronuncs.push(pronunc);
             }
         }
@@ -203,10 +235,48 @@ impl Variation {
         for &seq in seqs {
             for pronunc in &self.pronuncs {
                 let mut pronunc = pronunc.clone();
-                pronunc.root.extend_from_slice(seq);
+                pronunc.phones.extend_from_slice(seq);
                 new_pronuncs.push(pronunc);
             }
         }
         self.pronuncs = new_pronuncs;
+    }
+}
+
+impl fmt::Display for Variation {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        let mut first = true;
+        for variation in self {
+            if first {
+                first = false;
+            } else {
+                write!(fmt, " ~ ")?;
+            }
+            write!(fmt, "{}", variation)?;
+        }
+        Ok(())
+    }
+}
+
+impl<'var> IntoIterator for &'var Variation {
+    type Item = &'var Pronunc;
+    type IntoIter = VariationPronuncs<'var>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        VariationPronuncs { inner: self.pronuncs.iter() }
+    }
+}
+
+/// Iterator over the pronunciation points of a variation.
+#[derive(Debug, Clone)]
+pub struct VariationPronuncs<'var> {
+    inner: slice::Iter<'var, Pronunc>,
+}
+
+impl<'var> Iterator for VariationPronuncs<'var> {
+    type Item = &'var Pronunc;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
     }
 }
