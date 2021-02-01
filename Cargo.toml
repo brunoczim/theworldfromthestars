@@ -2,7 +2,6 @@
 members = [
     ".",
     "wfts-lang",
-    "wfts-star-lang",
     "wfts-pedia-ssg",
     "wfts-pedia"
 ]

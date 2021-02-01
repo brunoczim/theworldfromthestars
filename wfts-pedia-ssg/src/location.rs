@@ -1,12 +1,17 @@
+//! This module provides location, paths, URLs.
+
 use crate::component::{Component, Context, InlineComponent};
 use percent_encoding::{percent_encode, CONTROLS};
 use std::{fmt, path::PathBuf, str};
 use thiserror::Error;
 use url::Url;
 
+/// A location of a page, either internal or external.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Location {
+    /// An external page (or an internal page encoded as an external URL).
     URL(Url),
+    /// An internal location.
     Internal(InternalLoc),
 }
 
@@ -29,6 +34,7 @@ impl From<Url> for Location {
 }
 
 impl Location {
+    /// Parses an internal location but returns a generic location.
     pub fn internal<S>(contents: S) -> Self
     where
         S: AsRef<str>,
@@ -48,12 +54,16 @@ impl Component for Location {
     }
 }
 
+/// An internal path, without any ID. Always absolute (with the root pointing to
+/// the root of the encyclopedia).
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct InternalPath {
+    /// Fragments of the path (i.e. each piece, each element).
     pub fragments: Vec<Fragment>,
 }
 
 impl InternalPath {
+    /// Parser the internal path. Fragments separated by "/".
     pub fn parse<S>(string: S) -> anyhow::Result<Self>
     where
         S: AsRef<str>,
@@ -70,22 +80,28 @@ impl InternalPath {
         Ok(this)
     }
 
+    /// Path to the root of the encyclopedia.
     pub fn root() -> Self {
         Self { fragments: Vec::new() }
     }
 
+    /// Tests if this path leads to the root.
     pub fn is_root(&self) -> bool {
         self.fragments.len() == 0
     }
 
+    /// Counts the directory depth.
     pub fn dir_depth(&self) -> usize {
         self.fragments.len().saturating_sub(1)
     }
 
+    /// Creates an OS path buffer.
     pub fn to_fs_path(&self) -> PathBuf {
         PathBuf::from(format!("{}", self))
     }
 
+    /// Appends a fragment (a piece) to the end of this path. Returns the
+    /// modified path.
     pub fn append(mut self, fragment: Fragment) -> Self {
         self.fragments.push(fragment);
         self
@@ -129,9 +145,13 @@ impl Component for InternalPath {
     }
 }
 
+/// A location to an internal page, with optional ID. Always absolute (with the
+/// root pointing to the root of the encyclopedia).
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct InternalLoc {
+    /// Path to the document.
     pub path: InternalPath,
+    /// ID of the section or specific object inside of the document.
     pub id: Option<Id>,
 }
 
@@ -142,6 +162,9 @@ impl From<InternalPath> for InternalLoc {
 }
 
 impl InternalLoc {
+    /// Parses an internal location. Path fragments separated by "/", ID
+    /// appended to the end with "#" between the path and the ID, if any ID
+    /// at all.
     pub fn parse<S>(string: S) -> anyhow::Result<Self>
     where
         S: AsRef<str>,
@@ -190,16 +213,20 @@ impl Component for InternalLoc {
     }
 }
 
+/// Error when an invalid ID string is given to be parsed.
 #[derive(Debug, Clone, Error)]
 #[error("Invalid ID string")]
 pub struct InvalidId;
 
+/// An ID of a location.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id {
     contents: Box<str>,
 }
 
 impl Id {
+    /// Creates an ID from the desired string contents. The string can only
+    /// contain alphanumeric characters or '_' or '-'.
     pub fn new<S>(contents: S) -> anyhow::Result<Self>
     where
         S: AsRef<str> + Into<Box<str>>,
@@ -217,6 +244,7 @@ impl Id {
         Ok(Self { contents: contents.into() })
     }
 
+    /// The string contents of this ID.
     pub fn as_str(&self) -> &str {
         &self.contents
     }
@@ -236,16 +264,22 @@ impl Component for Id {
     }
 }
 
+/// Error when an invalid fragment (piece of a path) string is given to be
+/// parsed.
 #[derive(Debug, Clone, Error)]
 #[error("Invalid location fragment string")]
 pub struct InvalidFragment;
 
+/// A fragment of a path, that is, a piece, an element of it.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Fragment {
     contents: Box<str>,
 }
 
 impl Fragment {
+    /// Creates a fragment from the desired string contents. The string cannot
+    /// contain '/' or '#', it cannot be empty or composed of only "." or
+    /// ".." as well.
     pub fn new<S>(contents: S) -> anyhow::Result<Self>
     where
         S: AsRef<str> + Into<Box<str>>,
@@ -263,6 +297,7 @@ impl Fragment {
         Ok(Self { contents: contents.into() })
     }
 
+    /// The string contents of this fragment.
     pub fn as_str(&self) -> &str {
         &self.contents
     }

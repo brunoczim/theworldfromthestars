@@ -175,14 +175,3 @@ dependencies = [
  "thiserror",
  "url",
 ]
-
-[[package]]
-name = "wfts-star-lang"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "indexmap",
- "thiserror",
- "wfts-lang",
- "wfts-pedia-ssg",
-]

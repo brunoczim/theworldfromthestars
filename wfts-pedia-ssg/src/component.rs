@@ -1,3 +1,5 @@
+//! This module specify the inner components of a page.
+
 pub mod text;
 pub mod img;
 pub mod table;
@@ -19,12 +21,19 @@ fn html_escape(ch: char) -> Option<&'static str> {
     }
 }
 
+/// The type to tag a block component (via `Component<Kind = BlockComponent>`).
+/// Block components cannot be inserted into the middle of the text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BlockComponent;
 
+/// The type to tag an inline component (via `Component<Kind =
+/// InlineComponent>`). Inline components can be inserted into the middle of the
+/// text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct InlineComponent;
 
+/// The context of a component rendering. Cannot be created manually. Used to
+/// identify things such as the current page's location.
 #[derive(Debug, Clone, Copy)]
 pub struct Context<'loc, 'site> {
     location: &'loc InternalPath,
@@ -32,18 +41,18 @@ pub struct Context<'loc, 'site> {
 }
 
 impl<'loc, 'site> Context<'loc, 'site> {
+    /// Creates the context from the current page's location and the given site.
     pub(crate) fn new(location: &'loc InternalPath, site: &'site Site) -> Self {
         Self { location, site }
     }
 
+    /// The location of the current page.
     pub fn location(self) -> &'loc InternalPath {
         self.location
     }
 
-    pub fn subpages(self) -> &'loc InternalPath {
-        self.location
-    }
-
+    /// Creates a renderer over a component from this context. The `Display`
+    /// trait can be used on the renderer.
     pub fn renderer<T>(self, component: T) -> Renderer<'loc, 'site, T>
     where
         T: Component,
@@ -52,12 +61,16 @@ impl<'loc, 'site> Context<'loc, 'site> {
     }
 }
 
+/// A renderer over a component. The `Display` trait can be used on the
+/// renderer.
 #[derive(Debug, Clone, Copy)]
 pub struct Renderer<'loc, 'site, T>
 where
     T: Component,
 {
+    /// The component being rendered.
     pub component: T,
+    /// The context at which the component will be rendered.
     pub context: Context<'loc, 'site>,
 }
 
@@ -70,14 +83,21 @@ where
     }
 }
 
+/// A helper type to specify a dynamic dispatch component.
 pub type DynComponent<Kind = BlockComponent> =
     Arc<dyn Component<Kind = Kind> + Send + Sync>;
 
+/// The component trait. It specifies a rendering method for a component, as
+/// well some helper methods.
 pub trait Component: fmt::Debug {
+    /// The kind of the component. Either [`BlockComponent`] or
+    /// [`InlineComponent`].
     type Kind;
 
+    /// Renders this component given the context and the output formatter.
     fn to_html(&self, fmt: &mut fmt::Formatter, ctx: Context) -> fmt::Result;
 
+    /// Ensures this component can be used as a blocking component.
     fn blocking(self) -> Blocking<Self>
     where
         Self: Sized,
@@ -85,6 +105,7 @@ pub trait Component: fmt::Debug {
         Blocking(self)
     }
 
+    /// Transforms this component into a dynamic dispatch component.
     fn to_dyn(self) -> DynComponent<Self::Kind>
     where
         Self: Sized + Send + Sync + 'static,
@@ -205,6 +226,7 @@ impl Component for String {
     }
 }
 
+/// Wrapper over any component in order to force it to be blocking.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Blocking<T>(pub T)
 where
