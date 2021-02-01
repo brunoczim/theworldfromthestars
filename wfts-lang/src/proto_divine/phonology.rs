@@ -1,18 +1,28 @@
+//! This module defines phonological items related to Proto-Divine.
+
 use super::phonetics::{Context, Triggers};
 use crate::phonetics::{Phone, Variation};
 use std::slice;
 
+/// Obstruents of Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Obstruent {
+    /// *p
     P,
+    /// *t
     T,
+    /// *k
     K,
+    /// *f
     F,
+    /// *s
     S,
+    /// *h
     H,
 }
 
 impl Obstruent {
+    /// Returns the reconstructed orthographic representation of this obstruent.
     pub fn orthography(self) -> &'static str {
         use Obstruent::*;
 
@@ -26,6 +36,8 @@ impl Obstruent {
         }
     }
 
+    /// Returns the reconstructed broad phonemic pronunciation of this
+    /// obstruent.
     pub fn broad_pronunc(self) -> &'static str {
         use Obstruent::*;
 
@@ -39,6 +51,7 @@ impl Obstruent {
         }
     }
 
+    /// Returns the isolated phonetic triggers of this obstruent.
     pub fn phonetic_triggers(self) -> Triggers {
         use Obstruent::*;
 
@@ -51,6 +64,8 @@ impl Obstruent {
         }
     }
 
+    /// Adds the phonetic variations of this obstruent to the variation object,
+    /// given the phonetic context. This is the "narrow pronunciation".
     pub fn narrow_pronunc(self, variations: &mut Variation, ctx: Context) {
         use Obstruent::*;
         let phones: &[_] = match self {
@@ -75,17 +90,25 @@ impl Obstruent {
     }
 }
 
+/// Sonorant consonants of Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Sonorant {
+    /// *m
     M,
+    /// *n
     N,
+    /// *ŋ
     Ng,
+    /// *w
     W,
+    /// *l
     L,
+    /// *j
     J,
 }
 
 impl Sonorant {
+    /// Returns the reconstructed orthographic representation of this sonorant.
     pub fn orthography(&self) -> &'static str {
         use Sonorant::*;
 
@@ -99,6 +122,8 @@ impl Sonorant {
         }
     }
 
+    /// Returns the reconstructed broad phonemic pronunciation of this
+    /// sonorant.
     pub fn broad_pronunc(&self) -> &'static str {
         use Sonorant::*;
 
@@ -112,6 +137,7 @@ impl Sonorant {
         }
     }
 
+    /// Returns the isolated phonetic triggers of this sonorant.
     pub fn phonetic_triggers(self) -> Triggers {
         use Sonorant::*;
 
@@ -124,6 +150,8 @@ impl Sonorant {
         }
     }
 
+    /// Adds the phonetic variations of this sonorant to the variation object,
+    /// given the phonetic context. This is the "narrow pronunciation".
     pub fn narrow_pronunc(self, variations: &mut Variation, ctx: Context) {
         use Sonorant::*;
 
@@ -140,13 +168,17 @@ impl Sonorant {
     }
 }
 
+/// A generic consonant of the Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Consonant {
+    /// A sonorant.
     Son(Sonorant),
+    /// An obstruent.
     Obs(Obstruent),
 }
 
 impl Consonant {
+    /// Returns the reconstructed orthographic representation of this consonant.
     pub fn orthography(self) -> &'static str {
         use Consonant::*;
 
@@ -156,6 +188,8 @@ impl Consonant {
         }
     }
 
+    /// Returns the reconstructed broad phonemic pronunciation of this
+    /// consonant.
     pub fn broad_pronunc(self) -> &'static str {
         use Consonant::*;
 
@@ -165,6 +199,7 @@ impl Consonant {
         }
     }
 
+    /// Returns the isolated phonetic triggers of this consonant.
     pub fn phonetic_triggers(self) -> Triggers {
         use Consonant::*;
 
@@ -174,6 +209,8 @@ impl Consonant {
         }
     }
 
+    /// Adds the phonetic variations of this consonant to the variation object,
+    /// given the phonetic context. This is the "narrow pronunciation".
     pub fn narrow_pronunc(self, variations: &mut Variation, ctx: Context) {
         use Consonant::*;
 
@@ -196,17 +233,25 @@ impl From<Obstruent> for Consonant {
     }
 }
 
+/// The vowels of Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Vowel {
+    /// *a
     Ae,
+    /// *e
     E,
+    /// *i
     I,
+    /// *å
     Ao,
+    /// *o
     O,
+    /// *u
     U,
 }
 
 impl Vowel {
+    /// Returns the reconstructed orthographic representation of this vowel.
     pub fn orthography(&self) -> &'static str {
         use Vowel::*;
 
@@ -220,6 +265,8 @@ impl Vowel {
         }
     }
 
+    /// Returns the reconstructed broad phonemic pronunciation of this
+    /// vowel.
     pub fn broad_pronunc(&self) -> &'static str {
         use Vowel::*;
 
@@ -233,6 +280,7 @@ impl Vowel {
         }
     }
 
+    /// Returns the isolated phonetic triggers of this vowel.
     pub fn phonetic_triggers(self) -> Triggers {
         use Vowel::*;
 
@@ -245,6 +293,8 @@ impl Vowel {
         }
     }
 
+    /// Adds the phonetic variations of this vowel to the variation object,
+    /// given the phonetic context. This is the "narrow pronunciation".
     pub fn narrow_pronunc(self, variations: &mut Variation, ctx: Context) {
         use self::Vowel::*;
 
@@ -266,13 +316,17 @@ impl Vowel {
     }
 }
 
+/// A generic phoneme of the Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Phoneme {
+    /// A vowel phoneme.
     Vowel(Vowel),
+    /// A consonant phoneme.
     Conson(Consonant),
 }
 
 impl Phoneme {
+    /// Returns the reconstructed orthographic representation of this phoneme.
     pub fn orthography(self) -> &'static str {
         use Phoneme::*;
 
@@ -282,6 +336,8 @@ impl Phoneme {
         }
     }
 
+    /// Returns the reconstructed broad phonemic pronunciation of this
+    /// phoneme.
     pub fn broad_pronunc(self) -> &'static str {
         use Phoneme::*;
 
@@ -291,6 +347,7 @@ impl Phoneme {
         }
     }
 
+    /// Returns the isolated phonetic triggers of this phoneme.
     pub fn phonetic_triggers(self) -> Triggers {
         use Phoneme::*;
 
@@ -300,6 +357,8 @@ impl Phoneme {
         }
     }
 
+    /// Adds the phonetic variations of this phoneme to the variation object,
+    /// given the phonetic context. This is the "narrow pronunciation".
     pub fn narrow_pronunc(self, variations: &mut Variation, ctx: Context) {
         use Phoneme::*;
 
@@ -334,9 +393,12 @@ impl From<Obstruent> for Phoneme {
     }
 }
 
+/// The onset of a syllable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Onset {
+    /// Outer part of the onset (the obstruent).
     pub outer: Option<Obstruent>,
+    /// Inner part of the onset (the sonorant).
     pub inner: Option<Sonorant>,
 }
 
@@ -349,12 +411,14 @@ impl IntoIterator for Onset {
     }
 }
 
+/// Iterator over the onset phonemes (0 to 2 phonemes).
 #[derive(Debug, Clone)]
 pub struct OnsetIter {
     onset: Onset,
     state: OnsetIterState,
 }
 
+/// Internal state of the onset iterator.
 #[derive(Debug, Clone)]
 enum OnsetIterState {
     Outer,
@@ -388,14 +452,20 @@ impl Iterator for OnsetIter {
     }
 }
 
+/// A morpheme of the Proto-Divine language; a single syllable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Morpheme {
+    /// Onset of the morpheme/syllable.
     pub onset: Onset,
+    /// Nucleus (vowel) of the morpheme/syllable.
     pub nucleus: Vowel,
+    /// Optiona coda of the morpheme/syllable.
     pub coda: Option<Consonant>,
 }
 
 impl Morpheme {
+    /// Returns the narrow phonetic pronunciation of this morpheme, in terms of
+    /// pronunciation variation.
     pub fn narrow_pronunc(self) -> Variation {
         let mut trans = Transcription::default();
         trans.add_syllable(self);
@@ -416,6 +486,7 @@ impl IntoIterator for Morpheme {
     }
 }
 
+/// Internal state of the morpheme iterator.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 enum MorphemeIterState {
     OnsetOuter,
@@ -425,6 +496,7 @@ enum MorphemeIterState {
     Done,
 }
 
+/// Iterator over the morpheme phonemes (1 to 4 phonemes).
 #[derive(Debug, Clone)]
 pub struct MorphemeIter {
     morpheme: Morpheme,
@@ -506,21 +578,28 @@ impl DoubleEndedIterator for MorphemeIter {
     }
 }
 
+/// Composite word, a compound of morphemes.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Composite {
+    /// Head/first morpheme of this composite word.
     pub head: Morpheme,
+    /// The rest of the morpheme of this composite word.
     pub tail: Vec<Morpheme>,
 }
 
 impl Composite {
+    /// Iterator over the morphemes of this composite word.
     pub fn morphemes(&self) -> CompositeMorphemes {
         CompositeMorphemes { curr: Some(self.head), others: self.tail.iter() }
     }
 
+    /// Returns the last morpheme of this composite word.
     pub fn last(&self) -> Morpheme {
         self.tail.last().copied().unwrap_or(self.head)
     }
 
+    /// Returns the narrow phonetic pronunciation of this composite word, in
+    /// terms of pronunciation variation.
     pub fn narrow_pronunc(&self) -> Variation {
         let mut trans = Transcription::default();
         trans.add_word(self);
@@ -542,6 +621,7 @@ impl<'comp> IntoIterator for &'comp Composite {
     }
 }
 
+/// Iterator over the phonemes of a composite word.
 #[derive(Debug, Clone)]
 pub struct CompositeIter<'comp> {
     front: MorphemeIter,
@@ -581,6 +661,7 @@ impl<'comp> DoubleEndedIterator for CompositeIter<'comp> {
     }
 }
 
+/// Iterator over the morphemes of a composite word.
 #[derive(Debug, Clone)]
 pub struct CompositeMorphemes<'comp> {
     curr: Option<Morpheme>,
@@ -608,6 +689,8 @@ impl<'comp> DoubleEndedIterator for CompositeMorphemes<'comp> {
     }
 }
 
+/// Phonemic transcriber of a speech, can be used to produce a phonetic
+/// transcription.
 #[derive(Debug, Clone, Default)]
 pub struct Transcription {
     phonemes: Vec<Phoneme>,
@@ -616,20 +699,27 @@ pub struct Transcription {
 }
 
 impl Transcription {
+    /// Adds a single phoneme to the transcription.
     pub fn add_phoneme(&mut self, phoneme: Phoneme) {
         self.phonemes.push(phoneme);
     }
 
+    /// Marks a syllable break at the current position. The first syllable
+    /// implicitly starts at the beginning of the word.
     pub fn mark_syl_break(&mut self) {
         let index = self.phonemes.len();
         self.syl_breaks.push(index);
     }
 
+    /// Marks a word break at the current position. The first word
+    /// implicitly starts at the beginning of the transcription.
     pub fn mark_word_break(&mut self) {
         let index = self.syl_breaks.len();
         self.word_breaks.push(index);
     }
 
+    /// Adds a whole syllable (a morpheme), automatically marking syllable
+    /// break. Word break not marked.
     pub fn add_syllable(&mut self, morpheme: Morpheme) {
         let needs_break = self.phonemes.len() > 0;
 
@@ -642,6 +732,8 @@ impl Transcription {
         }
     }
 
+    /// Adds a whole word (a composite, perhaps a singleton composite),
+    /// automatically marking word break and necessary syllable breaks.
     pub fn add_word(&mut self, composite: &Composite) {
         let needs_break = self.phonemes.len() > 0;
 
@@ -654,12 +746,17 @@ impl Transcription {
         }
     }
 
+    /// Performs a narrow phonetic transcription in terms of pronunciation
+    /// variation, i.e. performs narrow pronunciation.
     pub fn narrow_pronunc(&self) -> Variation {
         let mut ctxs = self.build_progressive();
         self.regress(&mut ctxs);
         self.make_variation(&ctxs)
     }
 
+    /// Internal use: builds the first attempt of phonetic contexts to
+    /// transcribe phonetically, and progressively, i.e. from the first to the
+    /// last.
     fn build_progressive(&self) -> Vec<Context> {
         let mut ctxs = Vec::new();
         let mut prev_trigger = Triggers::default();
@@ -687,6 +784,9 @@ impl Transcription {
         ctxs
     }
 
+    /// Internal use: corrects the first attempt of phonetic contexts in order
+    /// to take into account previously uncomputed neighbour contexts, and
+    /// regressively, i.e. from the last to the first.
     fn regress(&self, ctxs: &mut [Context]) {
         let phonemes_iter = self.phonemes.iter().rev();
         let ctxs_iter = ctxs.iter_mut().rev();
@@ -712,6 +812,8 @@ impl Transcription {
         *curr_ctx = Context::from_triggers(prev_trigger, next_trigger);
     }
 
+    /// Internal use: after building and correcting contexts, finally builds a
+    /// phonetic variation of pronunciation.
     fn make_variation(&self, ctxs: &[Context]) -> Variation {
         let mut variation = Variation::default();
 
@@ -760,6 +862,8 @@ impl Transcription {
     }
 }
 
+/// Pronounce phonetically an iterator of composite words as a sequence of
+/// words, using phonetic variation of pronunciation.
 pub fn pronounce_words<'word, I>(words: I) -> Variation
 where
     I: IntoIterator<Item = &'word Composite>,

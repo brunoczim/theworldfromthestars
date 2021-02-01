@@ -1,3 +1,6 @@
+//! This module exports various item related to the "Proto-Divine" language. In
+//! WFTS, it is reconstructed.
+
 pub mod phonetics;
 pub mod phonology;
 pub mod pages;
@@ -9,6 +12,7 @@ use crate::{Lang, LangCode};
 use std::collections::HashMap;
 use wfts_pedia_ssg::site::Directory;
 
+/// The handle to the Proto-Divine language.
 #[derive(Debug, Clone)]
 pub struct ProtoDivine;
 
