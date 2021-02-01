@@ -26,8 +26,8 @@ impl Lang for ProtoDivine {
         pages::index::make(&mut dir);
         pages::phonology::make(&mut dir);
         pages::grammar::make(&mut dir);
-        /*
         pages::writing::make(&mut dir);
+        /*
         pages::dictionary::make(&mut dir);
         */
         dir

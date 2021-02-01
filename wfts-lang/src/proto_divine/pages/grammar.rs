@@ -23,10 +23,11 @@ pub fn make(dir: &mut Directory) {
                     text: "Proto-Divine language",
                 }
                 .to_dyn(),
-                "The language's grammar is agglutinative. For instance, nouns \
-                 are marked by case, but the case marker is an independent \
-                 morpheme (and every morpheme is a syllable). Here, ⟨∅⟩ means \
-                 \"empty set\", in this case, \"empty sequence\"."
+                ". The language's grammar is agglutinative. For instance, \
+                 nouns are marked by case, but the case marker is an \
+                 independent morpheme (and every morpheme is a syllable). \
+                 Here, ⟨∅⟩ means \"empty set\", in this case, \"empty \
+                 sequence\"."
                     .to_dyn(),
             ])]
             .to_dyn(),
@@ -807,6 +808,13 @@ pub fn make(dir: &mut Directory) {
                     title: "Rules".to_dyn(),
                     id: Id::new("rules").unwrap(),
                     body: vec![
+                        Paragraph(
+                            "If A and B are both words, they can be attached \
+                             into AB. In this case, A is primary and B is \
+                             secondary, grammar rules will apply to AB in the \
+                             same way as to A.",
+                        )
+                        .to_dyn(),
                         Paragraph(
                             "An adjective compound is a an optional sequence \
                              of adverbs, followed by an adjective. All \
