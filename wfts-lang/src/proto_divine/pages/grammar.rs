@@ -254,7 +254,7 @@ pub fn make(dir: &mut Directory) {
                                         header: true,
                                         data: "Temporal",
                                     },
-                                    Entry::new("*im"),
+                                    Entry::new("*um"),
                                     Entry::new("*em"),
                                     Entry::new("Time of an event."),
                                 ],

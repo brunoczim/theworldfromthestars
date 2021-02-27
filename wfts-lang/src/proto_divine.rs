@@ -1,8 +1,11 @@
 //! This module exports various item related to the "Proto-Divine" language. In
 //! WFTS, it is reconstructed.
 
+pub mod components;
 pub mod phonetics;
 pub mod phonology;
+pub mod grammar;
+pub mod dictionary;
 pub mod pages;
 
 #[cfg(test)]

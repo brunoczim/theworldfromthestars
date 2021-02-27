@@ -1,8 +1,16 @@
 //! This module defines phonological items related to Proto-Divine.
 
-use super::phonetics::{Context, Triggers};
-use crate::phonetics::{Phone, Variation};
-use std::slice;
+use crate::{
+    fmt::{NarrowPronunc, WriteBroadPronunc, WriteOrthography},
+    phonetics::{Phone, Variation},
+    proto_divine::{
+        phonetics::{Context, Triggers},
+        ProtoDivine,
+    },
+    Lang,
+};
+use std::{fmt, slice};
+use wfts_pedia_ssg::{component::audio::Audio, location::Location};
 
 /// Obstruents of Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -90,6 +98,27 @@ impl Obstruent {
     }
 }
 
+impl WriteOrthography for Obstruent {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).orthography())
+    }
+}
+
+impl WriteBroadPronunc for Obstruent {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).broad_pronunc())
+    }
+}
+
+impl NarrowPronunc for Obstruent {
+    fn narrow_pronunc(&self) -> Variation {
+        let ctx = Context::default();
+        let mut variations = Variation::default();
+        (*self).narrow_pronunc(&mut variations, ctx);
+        variations
+    }
+}
+
 /// Sonorant consonants of Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Sonorant {
@@ -109,7 +138,7 @@ pub enum Sonorant {
 
 impl Sonorant {
     /// Returns the reconstructed orthographic representation of this sonorant.
-    pub fn orthography(&self) -> &'static str {
+    pub fn orthography(self) -> &'static str {
         use Sonorant::*;
 
         match self {
@@ -124,7 +153,7 @@ impl Sonorant {
 
     /// Returns the reconstructed broad phonemic pronunciation of this
     /// sonorant.
-    pub fn broad_pronunc(&self) -> &'static str {
+    pub fn broad_pronunc(self) -> &'static str {
         use Sonorant::*;
 
         match self {
@@ -165,6 +194,27 @@ impl Sonorant {
             J => &[Phone::J],
         };
         variations.add_phones(phones)
+    }
+}
+
+impl WriteOrthography for Sonorant {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).orthography())
+    }
+}
+
+impl WriteBroadPronunc for Sonorant {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).broad_pronunc())
+    }
+}
+
+impl NarrowPronunc for Sonorant {
+    fn narrow_pronunc(&self) -> Variation {
+        let ctx = Context::default();
+        let mut variations = Variation::default();
+        (*self).narrow_pronunc(&mut variations, ctx);
+        variations
     }
 }
 
@@ -233,6 +283,27 @@ impl From<Obstruent> for Consonant {
     }
 }
 
+impl WriteOrthography for Consonant {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).orthography())
+    }
+}
+
+impl WriteBroadPronunc for Consonant {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).broad_pronunc())
+    }
+}
+
+impl NarrowPronunc for Consonant {
+    fn narrow_pronunc(&self) -> Variation {
+        let ctx = Context::default();
+        let mut variations = Variation::default();
+        (*self).narrow_pronunc(&mut variations, ctx);
+        variations
+    }
+}
+
 /// The vowels of Proto-Divine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Vowel {
@@ -252,7 +323,7 @@ pub enum Vowel {
 
 impl Vowel {
     /// Returns the reconstructed orthographic representation of this vowel.
-    pub fn orthography(&self) -> &'static str {
+    pub fn orthography(self) -> &'static str {
         use Vowel::*;
 
         match self {
@@ -267,7 +338,7 @@ impl Vowel {
 
     /// Returns the reconstructed broad phonemic pronunciation of this
     /// vowel.
-    pub fn broad_pronunc(&self) -> &'static str {
+    pub fn broad_pronunc(self) -> &'static str {
         use Vowel::*;
 
         match self {
@@ -313,6 +384,27 @@ impl Vowel {
             U => &[Phone::U],
         };
         variations.add_phones(phones);
+    }
+}
+
+impl WriteOrthography for Vowel {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).orthography())
+    }
+}
+
+impl WriteBroadPronunc for Vowel {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).broad_pronunc())
+    }
+}
+
+impl NarrowPronunc for Vowel {
+    fn narrow_pronunc(&self) -> Variation {
+        let ctx = Context::default();
+        let mut variations = Variation::default();
+        (*self).narrow_pronunc(&mut variations, ctx);
+        variations
     }
 }
 
@@ -393,6 +485,27 @@ impl From<Obstruent> for Phoneme {
     }
 }
 
+impl WriteOrthography for Phoneme {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).orthography())
+    }
+}
+
+impl WriteBroadPronunc for Phoneme {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.pad((*self).broad_pronunc())
+    }
+}
+
+impl NarrowPronunc for Phoneme {
+    fn narrow_pronunc(&self) -> Variation {
+        let ctx = Context::default();
+        let mut variations = Variation::default();
+        (*self).narrow_pronunc(&mut variations, ctx);
+        variations
+    }
+}
+
 /// The onset of a syllable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Onset {
@@ -408,6 +521,45 @@ impl IntoIterator for Onset {
 
     fn into_iter(self) -> Self::IntoIter {
         OnsetIter { onset: self, state: OnsetIterState::Outer }
+    }
+}
+
+impl WriteOrthography for Onset {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(outer) = self.outer {
+            (&outer).orthography_fmt(fmt)?;
+        }
+        if let Some(inner) = self.inner {
+            (&inner).orthography_fmt(fmt)?;
+        }
+        Ok(())
+    }
+}
+
+impl WriteBroadPronunc for Onset {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(outer) = self.outer {
+            (&outer).broad_pronunc_fmt(fmt)?;
+        }
+        if let Some(inner) = self.inner {
+            (&inner).broad_pronunc_fmt(fmt)?;
+        }
+        Ok(())
+    }
+}
+
+impl NarrowPronunc for Onset {
+    fn narrow_pronunc(&self) -> Variation {
+        let mut transcription = Transcription::default();
+        transcription.make_unstressed();
+
+        if let Some(outer) = self.outer {
+            transcription.add_phoneme(outer.into());
+        }
+        if let Some(inner) = self.inner {
+            transcription.add_phoneme(inner.into());
+        }
+        transcription.narrow_pronunc()
     }
 }
 
@@ -454,7 +606,7 @@ impl Iterator for OnsetIter {
 
 /// A morpheme of the Proto-Divine language; a single syllable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Morpheme {
+pub struct Syllable {
     /// Onset of the morpheme/syllable.
     pub onset: Onset,
     /// Nucleus (vowel) of the morpheme/syllable.
@@ -463,32 +615,90 @@ pub struct Morpheme {
     pub coda: Option<Consonant>,
 }
 
-impl Morpheme {
-    /// Returns the narrow phonetic pronunciation of this morpheme, in terms of
-    /// pronunciation variation.
-    pub fn narrow_pronunc(self) -> Variation {
-        let mut trans = Transcription::default();
-        trans.add_syllable(self);
-        trans.narrow_pronunc()
-    }
-}
+impl Syllable {
+    pub fn parse(phonemes: &[Phoneme]) -> Result<Self, &[Phoneme]> {
+        use Consonant::*;
+        use Phoneme::*;
 
-impl IntoIterator for Morpheme {
-    type Item = Phoneme;
-    type IntoIter = MorphemeIter;
+        let mut iter = phonemes.iter();
 
-    fn into_iter(self) -> Self::IntoIter {
-        MorphemeIter {
-            morpheme: self,
-            front: MorphemeIterState::OnsetOuter,
-            back: MorphemeIterState::Done,
+        let mut phoneme = iter.next();
+        let mut onset = Onset { outer: None, inner: None };
+
+        if let Some(Conson(Obs(obstruent))) = phoneme {
+            onset.outer = Some(*obstruent);
+            phoneme = iter.next();
+        }
+
+        if let Some(Conson(Son(sonorant))) = phoneme {
+            onset.inner = Some(*sonorant);
+            phoneme = iter.next();
+        }
+
+        let nucleus = match phoneme {
+            Some(Vowel(vowel)) => {
+                phoneme = iter.next();
+                *vowel
+            },
+            _ => return Err(iter.as_slice()),
+        };
+
+        let mut coda = None;
+
+        if let Some(Conson(consonant)) = phoneme {
+            coda = Some(*consonant);
+        }
+
+        if iter.as_slice().len() == 0 {
+            Ok(Self { onset, nucleus, coda })
+        } else {
+            Err(iter.as_slice())
         }
     }
 }
 
-/// Internal state of the morpheme iterator.
+impl IntoIterator for Syllable {
+    type Item = Phoneme;
+    type IntoIter = SyllableIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        SyllableIter {
+            syllable: self,
+            front: SyllableIterState::OnsetOuter,
+            back: SyllableIterState::Done,
+        }
+    }
+}
+
+impl WriteOrthography for Syllable {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        for phoneme in *self {
+            (&phoneme).orthography_fmt(fmt)?;
+        }
+        Ok(())
+    }
+}
+
+impl WriteBroadPronunc for Syllable {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        for phoneme in *self {
+            (&phoneme).broad_pronunc_fmt(fmt)?;
+        }
+        Ok(())
+    }
+}
+
+impl NarrowPronunc for Syllable {
+    fn narrow_pronunc(&self) -> Variation {
+        let mut trans = Transcription::default();
+        trans.add_syllable(*self);
+        trans.narrow_pronunc()
+    }
+}
+
+/// Internal state of the syllable iterator.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-enum MorphemeIterState {
+enum SyllableIterState {
     OnsetOuter,
     OnsetInner,
     Nucleus,
@@ -496,15 +706,15 @@ enum MorphemeIterState {
     Done,
 }
 
-/// Iterator over the morpheme phonemes (1 to 4 phonemes).
+/// Iterator over the syllable phonemes (1 to 4 phonemes).
 #[derive(Debug, Clone)]
-pub struct MorphemeIter {
-    morpheme: Morpheme,
-    front: MorphemeIterState,
-    back: MorphemeIterState,
+pub struct SyllableIter {
+    syllable: Syllable,
+    front: SyllableIterState,
+    back: SyllableIterState,
 }
 
-impl Iterator for MorphemeIter {
+impl Iterator for SyllableIter {
     type Item = Phoneme;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -514,26 +724,26 @@ impl Iterator for MorphemeIter {
         loop {
             match self.front {
                 _ if self.front == self.back => break None,
-                MorphemeIterState::Done => break None,
-                MorphemeIterState::OnsetOuter => {
-                    self.front = MorphemeIterState::OnsetInner;
-                    if let Some(obs) = self.morpheme.onset.outer {
+                SyllableIterState::Done => break None,
+                SyllableIterState::OnsetOuter => {
+                    self.front = SyllableIterState::OnsetInner;
+                    if let Some(obs) = self.syllable.onset.outer {
                         break Some(Conson(Obs(obs)));
                     }
                 },
-                MorphemeIterState::OnsetInner => {
-                    self.front = MorphemeIterState::Nucleus;
-                    if let Some(son) = self.morpheme.onset.inner {
+                SyllableIterState::OnsetInner => {
+                    self.front = SyllableIterState::Nucleus;
+                    if let Some(son) = self.syllable.onset.inner {
                         break Some(Conson(Son(son)));
                     }
                 },
-                MorphemeIterState::Nucleus => {
-                    self.front = MorphemeIterState::Coda;
-                    break Some(Vowel(self.morpheme.nucleus));
+                SyllableIterState::Nucleus => {
+                    self.front = SyllableIterState::Coda;
+                    break Some(Vowel(self.syllable.nucleus));
                 },
-                MorphemeIterState::Coda => {
-                    self.front = MorphemeIterState::Done;
-                    if let Some(cons) = self.morpheme.coda {
+                SyllableIterState::Coda => {
+                    self.front = SyllableIterState::Done;
+                    if let Some(cons) = self.syllable.coda {
                         break Some(Conson(cons));
                     }
                 },
@@ -542,7 +752,7 @@ impl Iterator for MorphemeIter {
     }
 }
 
-impl DoubleEndedIterator for MorphemeIter {
+impl DoubleEndedIterator for SyllableIter {
     fn next_back(&mut self) -> Option<Self::Item> {
         use Consonant::*;
         use Phoneme::*;
@@ -550,26 +760,26 @@ impl DoubleEndedIterator for MorphemeIter {
         loop {
             match self.back {
                 _ if self.front == self.back => break None,
-                MorphemeIterState::OnsetOuter => break None,
-                MorphemeIterState::OnsetInner => {
-                    self.back = MorphemeIterState::OnsetOuter;
-                    if let Some(obs) = self.morpheme.onset.outer {
+                SyllableIterState::OnsetOuter => break None,
+                SyllableIterState::OnsetInner => {
+                    self.back = SyllableIterState::OnsetOuter;
+                    if let Some(obs) = self.syllable.onset.outer {
                         break Some(Conson(Obs(obs)));
                     }
                 },
-                MorphemeIterState::Nucleus => {
-                    self.back = MorphemeIterState::OnsetInner;
-                    if let Some(son) = self.morpheme.onset.inner {
+                SyllableIterState::Nucleus => {
+                    self.back = SyllableIterState::OnsetInner;
+                    if let Some(son) = self.syllable.onset.inner {
                         break Some(Conson(Son(son)));
                     }
                 },
-                MorphemeIterState::Coda => {
-                    self.back = MorphemeIterState::Nucleus;
-                    break Some(Vowel(self.morpheme.nucleus));
+                SyllableIterState::Coda => {
+                    self.back = SyllableIterState::Nucleus;
+                    break Some(Vowel(self.syllable.nucleus));
                 },
-                MorphemeIterState::Done => {
-                    self.back = MorphemeIterState::Coda;
-                    if let Some(cons) = self.morpheme.coda {
+                SyllableIterState::Done => {
+                    self.back = SyllableIterState::Coda;
+                    if let Some(cons) = self.syllable.coda {
                         break Some(Conson(cons));
                     }
                 },
@@ -578,58 +788,119 @@ impl DoubleEndedIterator for MorphemeIter {
     }
 }
 
-/// Composite word, a compound of morphemes.
+/// A word, either a single morpheme/syllable, or a compound of
+/// morphemes/syllables.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Composite {
-    /// Head/first morpheme of this composite word.
-    pub head: Morpheme,
-    /// The rest of the morpheme of this composite word.
-    pub tail: Vec<Morpheme>,
+pub struct Word {
+    /// Head/first syllable/morpheme of this composite word.
+    pub head: Syllable,
+    /// The rest of the syllables/morphemes of this composite word.
+    pub tail: Vec<Syllable>,
 }
 
-impl Composite {
-    /// Iterator over the morphemes of this composite word.
-    pub fn morphemes(&self) -> CompositeMorphemes {
-        CompositeMorphemes { curr: Some(self.head), others: self.tail.iter() }
+impl Word {
+    pub fn parse<'phonemes>(
+        phonemes: &[&'phonemes [Phoneme]],
+    ) -> Result<Self, &'phonemes [Phoneme]> {
+        match phonemes.split_first() {
+            Some((head, tail)) => Ok(Self {
+                head: Syllable::parse(head)?,
+                tail: tail
+                    .iter()
+                    .copied()
+                    .map(Syllable::parse)
+                    .collect::<Result<Vec<_>, _>>()?,
+            }),
+
+            None => Err(&[]),
+        }
     }
 
-    /// Returns the last morpheme of this composite word.
-    pub fn last(&self) -> Morpheme {
+    /// Iterator over the syllables of this word.
+    pub fn syllables(&self) -> WordSyllables {
+        WordSyllables { curr: Some(self.head), others: self.tail.iter() }
+    }
+
+    /// Returns the last syllable of this word.
+    pub fn last(&self) -> Syllable {
         self.tail.last().copied().unwrap_or(self.head)
     }
 
-    /// Returns the narrow phonetic pronunciation of this composite word, in
-    /// terms of pronunciation variation.
-    pub fn narrow_pronunc(&self) -> Variation {
+    pub fn audio(&self) -> Option<Audio> {
+        let orthography = self.orthography().to_string();
+
+        let has_audio = matches!(&*orthography, _);
+
+        if has_audio {
+            let location = Location::internal(format!(
+                "{}/audio/{}.ogg",
+                ProtoDivine.path(),
+                orthography
+            ));
+            Some(Audio(location))
+        } else {
+            None
+        }
+    }
+}
+
+impl<'comp> IntoIterator for &'comp Word {
+    type Item = Phoneme;
+    type IntoIter = WordIter<'comp>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let mut others = self.tail.iter();
+        WordIter {
+            front: self.head.into_iter(),
+            back: others.next_back().copied().map(Syllable::into_iter),
+            others,
+        }
+    }
+}
+
+impl WriteOrthography for Word {
+    fn orthography_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        for (i, syllable) in self.syllables().enumerate() {
+            if i > 0 {
+                fmt.write_str("-")?;
+            }
+            (&syllable).orthography_fmt(fmt)?;
+        }
+        Ok(())
+    }
+}
+
+impl WriteBroadPronunc for Word {
+    fn broad_pronunc_fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        for (i, syllable) in self.syllables().enumerate() {
+            fmt.write_str(match i {
+                0 => "ˈ",
+                _ if i % 2 == 0 => "ˌ",
+                _ => ".",
+            })?;
+            (&syllable).broad_pronunc_fmt(fmt)?;
+        }
+        Ok(())
+    }
+}
+
+impl NarrowPronunc for Word {
+    fn narrow_pronunc(&self) -> Variation {
         let mut trans = Transcription::default();
         trans.add_word(self);
         trans.narrow_pronunc()
     }
 }
 
-impl<'comp> IntoIterator for &'comp Composite {
-    type Item = Phoneme;
-    type IntoIter = CompositeIter<'comp>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let mut others = self.tail.iter();
-        CompositeIter {
-            front: self.head.into_iter(),
-            back: others.next_back().copied().map(Morpheme::into_iter),
-            others,
-        }
-    }
-}
-
 /// Iterator over the phonemes of a composite word.
 #[derive(Debug, Clone)]
-pub struct CompositeIter<'comp> {
-    front: MorphemeIter,
-    back: Option<MorphemeIter>,
-    others: slice::Iter<'comp, Morpheme>,
+pub struct WordIter<'comp> {
+    front: SyllableIter,
+    back: Option<SyllableIter>,
+    others: slice::Iter<'comp, Syllable>,
 }
 
-impl<'comp> Iterator for CompositeIter<'comp> {
+impl<'comp> Iterator for WordIter<'comp> {
     type Item = Phoneme;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -639,14 +910,14 @@ impl<'comp> Iterator for CompositeIter<'comp> {
             }
 
             match self.others.next() {
-                Some(morpheme) => self.front = morpheme.into_iter(),
+                Some(syllable) => self.front = syllable.into_iter(),
                 None => break self.back.as_mut()?.next(),
             }
         }
     }
 }
 
-impl<'comp> DoubleEndedIterator for CompositeIter<'comp> {
+impl<'comp> DoubleEndedIterator for WordIter<'comp> {
     fn next_back(&mut self) -> Option<Self::Item> {
         loop {
             if let Some(phoneme) = self.back.as_mut()?.next_back() {
@@ -654,22 +925,22 @@ impl<'comp> DoubleEndedIterator for CompositeIter<'comp> {
             }
 
             match self.others.next_back() {
-                Some(morpheme) => self.back = Some(morpheme.into_iter()),
+                Some(syllable) => self.back = Some(syllable.into_iter()),
                 None => break self.front.next_back(),
             }
         }
     }
 }
 
-/// Iterator over the morphemes of a composite word.
+/// Iterator over the syllables of a (possibly composite) word.
 #[derive(Debug, Clone)]
-pub struct CompositeMorphemes<'comp> {
-    curr: Option<Morpheme>,
-    others: slice::Iter<'comp, Morpheme>,
+pub struct WordSyllables<'comp> {
+    curr: Option<Syllable>,
+    others: slice::Iter<'comp, Syllable>,
 }
 
-impl<'comp> Iterator for CompositeMorphemes<'comp> {
-    type Item = Morpheme;
+impl<'comp> Iterator for WordSyllables<'comp> {
+    type Item = Syllable;
 
     fn next(&mut self) -> Option<Self::Item> {
         let curr = self.curr?;
@@ -678,7 +949,7 @@ impl<'comp> Iterator for CompositeMorphemes<'comp> {
     }
 }
 
-impl<'comp> DoubleEndedIterator for CompositeMorphemes<'comp> {
+impl<'comp> DoubleEndedIterator for WordSyllables<'comp> {
     fn next_back(&mut self) -> Option<Self::Item> {
         let back = self.others.next_back().copied();
         if back.is_some() {
@@ -691,17 +962,33 @@ impl<'comp> DoubleEndedIterator for CompositeMorphemes<'comp> {
 
 /// Phonemic transcriber of a speech, can be used to produce a phonetic
 /// transcription.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Transcription {
     phonemes: Vec<Phoneme>,
     syl_breaks: Vec<usize>,
     word_breaks: Vec<usize>,
+    stressed: bool,
+}
+
+impl Default for Transcription {
+    fn default() -> Self {
+        Transcription {
+            phonemes: Vec::new(),
+            syl_breaks: Vec::new(),
+            word_breaks: Vec::new(),
+            stressed: true,
+        }
+    }
 }
 
 impl Transcription {
     /// Adds a single phoneme to the transcription.
     pub fn add_phoneme(&mut self, phoneme: Phoneme) {
         self.phonemes.push(phoneme);
+    }
+
+    pub fn make_unstressed(&mut self) {
+        self.stressed = false;
     }
 
     /// Marks a syllable break at the current position. The first syllable
@@ -720,29 +1007,29 @@ impl Transcription {
 
     /// Adds a whole syllable (a morpheme), automatically marking syllable
     /// break. Word break not marked.
-    pub fn add_syllable(&mut self, morpheme: Morpheme) {
+    pub fn add_syllable(&mut self, syllable: Syllable) {
         let needs_break = self.phonemes.len() > 0;
 
         if needs_break {
             self.mark_syl_break();
         }
 
-        for phoneme in morpheme {
+        for phoneme in syllable {
             self.add_phoneme(phoneme);
         }
     }
 
-    /// Adds a whole word (a composite, perhaps a singleton composite),
+    /// Adds a whole word (a composite, perhaps a monosyllabic word),
     /// automatically marking word break and necessary syllable breaks.
-    pub fn add_word(&mut self, composite: &Composite) {
+    pub fn add_word(&mut self, word: &Word) {
         let needs_break = self.phonemes.len() > 0;
 
         if needs_break {
             self.mark_word_break();
         }
 
-        for morpheme in composite.morphemes() {
-            self.add_syllable(morpheme);
+        for syllable in word.syllables() {
+            self.add_syllable(syllable);
         }
     }
 
@@ -846,7 +1133,7 @@ impl Transcription {
 
             if phoneme_i == curr_syl_start {
                 let curr_syl_in_word = curr_syl_i - curr_word_start;
-                if curr_syl_in_word == 0 {
+                if curr_syl_in_word == 0 && self.stressed {
                     variation.add_phones(&[Phone::Stress]);
                 } else if curr_syl_in_word % 2 == 0 {
                     variation.add_phones(&[Phone::SecStress]);
@@ -866,7 +1153,7 @@ impl Transcription {
 /// words, using phonetic variation of pronunciation.
 pub fn pronounce_words<'word, I>(words: I) -> Variation
 where
-    I: IntoIterator<Item = &'word Composite>,
+    I: IntoIterator<Item = &'word Word>,
 {
     let mut transcription = Transcription::default();
     for word in words {

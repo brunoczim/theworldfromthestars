@@ -1,10 +1,15 @@
 //! This crate specifies means of constructing languages, as well the
 //! constructed languages.
 
+#[macro_use]
+mod macros;
+
 pub mod proto_divine;
 pub mod phonetics;
+pub mod semantics;
+pub mod fmt;
 
-use std::{fmt, hash::Hash, str};
+use std::{hash::Hash, str};
 use thiserror::Error;
 use wfts_pedia_ssg::{
     component::{Component, Context, InlineComponent},
@@ -111,8 +116,8 @@ impl LangCode {
     }
 }
 
-impl fmt::Display for LangCode {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+impl std::fmt::Display for LangCode {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
         for &ch in &self.lang {
             write!(fmt, "{}", ch as char)?;
         }
@@ -127,7 +132,11 @@ impl fmt::Display for LangCode {
 impl Component for LangCode {
     type Kind = InlineComponent;
 
-    fn to_html(&self, fmt: &mut fmt::Formatter, _ctx: Context) -> fmt::Result {
+    fn to_html(
+        &self,
+        fmt: &mut std::fmt::Formatter,
+        _ctx: Context,
+    ) -> std::fmt::Result {
         write!(fmt, "{}", self)
     }
 }
